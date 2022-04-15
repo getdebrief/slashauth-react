@@ -1,4 +1,5 @@
 import { ICache } from './cache';
+import { verify as verifyIdToken } from './jwt';
 
 export enum Network {
   Unknown,
@@ -154,6 +155,11 @@ export interface LoginWithSignedNonceResponse {
   expires_in: number;
 }
 
+export interface RefreshTokenResponse {
+  access_token: string;
+  expires_in: number;
+}
+
 export interface TokenEndpointOptions {
   baseUrl: string;
   clientID: string;
@@ -165,8 +171,10 @@ export interface TokenEndpointOptions {
   [key: string]: any;
 }
 
-export interface RefreshTokenOptions extends TokenEndpointOptions {
-  refresh_token: string;
+export interface RefreshTokenOptions {
+  baseUrl: string;
+  audience?: string;
+  device_id: string;
 }
 
 export type TokenEndpointResponse = {
@@ -322,3 +330,9 @@ export type GetTokenSilentlyVerboseResponse = Omit<
   TokenEndpointResponse,
   'refresh_token'
 >;
+
+export type GetTokenSilentlyResult = TokenEndpointResponse & {
+  decodedToken: ReturnType<typeof verifyIdToken>;
+  scope: string;
+  audience: string;
+};

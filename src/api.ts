@@ -4,6 +4,8 @@ import {
   GetNonceToSignResponse,
   LoginWithSignedNonceOptions,
   LoginWithSignedNonceResponse,
+  RefreshTokenOptions,
+  RefreshTokenResponse,
 } from './global';
 import { getJSON } from './http';
 import { createQueryParams } from './utils';
@@ -35,6 +37,26 @@ export async function loginWithSignedNonce({
   const queryString = createQueryParams(options);
   return await getJSON<LoginWithSignedNonceResponse>(
     `${baseUrl}/loginWithSignedNonce?${queryString}`,
+    1000,
+    'default',
+    '',
+    {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-SlashAuth-Client': btoa(JSON.stringify(DEFAULT_SLASHAUTH_CLIENT)),
+      },
+    }
+  );
+}
+
+export async function refreshToken({
+  baseUrl,
+  ...options
+}: RefreshTokenOptions) {
+  const queryString = createQueryParams(options);
+  return await getJSON<RefreshTokenResponse>(
+    `${baseUrl}/refresh_token?${queryString}`,
     1000,
     'default',
     '',

@@ -55,6 +55,8 @@ import {
   LogoutUrlOptions,
   LoginNoRedirectNoPopupOptions,
   GetNonceToSignOptions,
+  RefreshTokenOptions,
+  GetTokenSilentlyResult,
 } from './global';
 
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
@@ -63,7 +65,7 @@ import {
 // import TokenWorker from './worker/token.worker.ts';
 import { CacheKeyManifest } from './cache/key-manifest';
 import browserDeviceID from './device';
-import { getNonceToSign, loginWithSignedNonce } from './api';
+import { getNonceToSign, loginWithSignedNonce, refreshToken } from './api';
 
 // type GetTokenSilentlyResult = TokenEndpointResponse & {
 //   decodedToken: ReturnType<typeof verifyIdToken>;
@@ -863,40 +865,33 @@ export default class SlashAuthClient {
           }
         }
 
-        // TODO(ned)
-        // const authResult = this.options.useRefreshTokens
-        //   ? await this._getTokenUsingRefreshToken(getTokenOptions)
-        //   : await this._getTokenFromIFrame(getTokenOptions);
-        // const authResult = await this._getTokenUsingRefreshToken(
-        //   getTokenOptions
-        // );
-        // const authResult = {};
+        const authResult = await this._getTokenUsingRefreshToken({
+          audience: getTokenOptions.audience || 'default',
+          baseUrl: getDomain(this.domainUrl),
+          device_id: browserDeviceID,
+        });
 
-        // await this.cacheManager.set({
-        //   client_id: this.options.clientID,
-        //   ...authResult,
-        // });
+        await this.cacheManager.set({
+          client_id: this.options.clientID,
+          ...authResult,
+        });
 
-        // this.cookieStorage.save(this.isAuthenticatedCookieName, true, {
-        //   daysUntilExpire: this.sessionCheckExpiryDays,
-        //   cookieDomain: this.options.cookieDomain,
-        // });
+        this.cookieStorage.save(this.isAuthenticatedCookieName, true, {
+          daysUntilExpire: this.sessionCheckExpiryDays,
+          cookieDomain: this.options.cookieDomain,
+        });
 
-        // if (options.detailedResponse) {
-        //   const { id_token, access_token, oauthTokenScope, expires_in } =
-        //     authResult;
+        if (options.detailedResponse) {
+          const { id_token, access_token, expires_in } = authResult;
 
-        //   return {
-        //     id_token,
-        //     access_token,
-        //     ...(oauthTokenScope ? { scope: oauthTokenScope } : null),
-        //     expires_in,
-        //   };
-        // }
+          return {
+            id_token,
+            access_token,
+            expires_in,
+          };
+        }
 
-        // return authResult.access_token;
-        // debugger;
-        throw new Error('Not implemented');
+        return authResult.access_token;
       } finally {
         await lock.releaseLock(GET_TOKEN_SILENTLY_LOCK_KEY);
       }
@@ -1270,96 +1265,47 @@ export default class SlashAuthClient {
   //   }
   // }
 
-  // private async _getTokenUsingRefreshToken(
-  //   options: GetTokenSilentlyOptions
-  // ): Promise<GetTokenSilentlyResult> {
-  //   options.scope = getUniqueScopes(
-  //     this.defaultScope,
-  //     // this.options.scope,
-  //     options.scope
-  //   );
+  private async _getTokenUsingRefreshToken(
+    options: RefreshTokenOptions
+  ): Promise<GetTokenSilentlyResult> {
+    const cache = await this.cacheManager.get(
+      new CacheKey({
+        scope: '', //options.scope,
+        audience: options.audience || 'default',
+        client_id: this.options.clientID,
+      })
+    );
 
-  //   const cache = await this.cacheManager.get(
-  //     new CacheKey({
-  //       scope: options.scope,
-  //       audience: options.audience || 'default',
-  //       client_id: this.options.clientID,
-  //     })
-  //   );
+    // If you don't have a refresh token in memory
+    // and you don't have a refresh token in web worker memory
+    // fallback to an iframe.
+    if ((!cache || !cache.refresh_token) && !this.worker) {
+      this.logout({
+        localOnly: true,
+      });
+      throw new Error('Not logged in');
+    }
 
-  //   // If you don't have a refresh token in memory
-  //   // and you don't have a refresh token in web worker memory
-  //   // fallback to an iframe.
-  //   if ((!cache || !cache.refresh_token) && !this.worker) {
-  //     return await this._getTokenFromIFrame(options);
-  //   }
+    const queryParameters = {
+      refresh_token: cache.refresh_token,
+      device_id: browserDeviceID,
+    };
 
-  //   const redirect_uri =
-  //     options.redirect_uri ||
-  //     // this.options.redirect_uri ||
-  //     window.location.origin;
+    const tokenResult = await refreshToken({
+      baseUrl: getDomain(this.domainUrl),
+      ...queryParameters,
+    });
 
-  //   let tokenResult: TokenEndpointResponse;
+    const decodedToken = await this._verifyIdToken(tokenResult.access_token);
 
-  //   const {
-  //     scope,
-  //     audience,
-  //     ignoreCache,
-  //     timeoutInSeconds,
-  //     detailedResponse,
-  //     ...customOptions
-  //   } = options;
-
-  //   const timeout =
-  //     typeof options.timeoutInSeconds === 'number'
-  //       ? options.timeoutInSeconds * 1000
-  //       : null;
-
-  //   try {
-  //     tokenResult = await oauthToken(
-  //       {
-  //         ...this.customOptions,
-  //         ...customOptions,
-  //         audience,
-  //         scope,
-  //         baseUrl: this.domainUrl,
-  //         client_id: this.options.clientID,
-  //         grant_type: 'refresh_token',
-  //         refresh_token: cache && cache.refresh_token,
-  //         redirect_uri,
-  //         ...(timeout && { timeout }),
-  //         slashAuthClient: this.options.slashAuthClient,
-  //         // useFormData: this.options.useFormData,
-  //         timeout: this.httpTimeoutMs,
-  //       } as RefreshTokenOptions,
-  //       this.worker
-  //     );
-  //   } catch (e) {
-  //     if (
-  //       // The web worker didn't have a refresh token in memory so
-  //       // fallback to an iframe.
-  //       e.message === MISSING_REFRESH_TOKEN_ERROR_MESSAGE ||
-  //       // A refresh token was found, but is it no longer valid.
-  //       // Fallback to an iframe.
-  //       (e.message &&
-  //         e.message.indexOf(INVALID_REFRESH_TOKEN_ERROR_MESSAGE) > -1)
-  //     ) {
-  //       return await this._getTokenFromIFrame(options);
-  //     }
-
-  //     throw e;
-  //   }
-
-  //   const decodedToken = await this._verifyIdToken(tokenResult.id_token);
-
-  //   return {
-  //     ...tokenResult,
-  //     decodedToken,
-  //     scope: options.scope,
-  //     oauthTokenScope: tokenResult.scope,
-  //     audience: options.audience || 'default',
-  //   };
-  // }
+    return {
+      ...tokenResult,
+      decodedToken,
+      scope: '', //options.scope,
+      audience: options.audience || 'default',
+      client_id: this.options.clientID,
+    };
+  }
 
   private async _getEntryFromCache({
     scope,
