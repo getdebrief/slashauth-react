@@ -38,6 +38,7 @@ import {
   DEFAULT_NOW_PROVIDER,
   DEFAULT_FETCH_TIMEOUT_MS,
   RECOVERABLE_ERRORS,
+  CACHE_LOCATION_LOCAL_STORAGE,
 } from './constants';
 
 import {
@@ -192,7 +193,8 @@ export default class SlashAuthClient {
     if (options.cache) {
       cache = options.cache;
     } else {
-      this.cacheLocation = options.cacheLocation || CACHE_LOCATION_MEMORY;
+      this.cacheLocation =
+        options.cacheLocation || CACHE_LOCATION_LOCAL_STORAGE;
 
       if (!cacheFactory(this.cacheLocation)) {
         throw new Error(`Invalid cache location "${this.cacheLocation}"`);
