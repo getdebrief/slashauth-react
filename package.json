@@ -53,6 +53,6 @@
   },
   "dependencies": {
     "@navvi/react-use-metamask": "^0.1.14",
-    "@navvi/slashauth-react-client": "^0.1.15"
+    "@navvi/slashauth-react-client": "^0.1.16"
   }
 }
