@@ -1,9 +1,9 @@
 import React, { useCallback, useMemo, useReducer, useState } from 'react';
 import SlashAuthContext from '../auth-context';
 import { initialAuthState } from '../auth-state';
+import SlashAuthClient from '../client';
+import { ICache } from '../cache';
 import {
-  ICache,
-  SlashAuthClient,
   CacheLocation,
   GetIdTokenClaimsOptions,
   GetTokenSilentlyOptions,
@@ -11,7 +11,7 @@ import {
   LogoutOptions,
   LogoutUrlOptions,
   SlashAuthClientOptions,
-} from '@navvi/slashauth-react-client';
+} from '../global';
 import { loginError, tokenError } from '../utils';
 import { reducer } from './reducer';
 import { useMetaMask, MetaMaskProvider } from '@navvi/react-use-metamask';

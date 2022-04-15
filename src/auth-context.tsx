@@ -11,7 +11,7 @@ import {
   LoginNoRedirectNoPopupOptions,
   LogoutOptions,
   LogoutUrlOptions,
-} from '@navvi/slashauth-react-client';
+} from './global';
 
 export type SlashAuthStep = string;
 

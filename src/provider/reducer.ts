@@ -1,4 +1,4 @@
-import { Account } from '@navvi/slashauth-react-client';
+import { Account } from '../global';
 import {
   SlashAuthStepFetchingNonce,
   SlashAuthStepLoggedIn,

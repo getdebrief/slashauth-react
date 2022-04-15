@@ -1,4 +1,4 @@
-import { OAuthError } from './errors';
+import { OAuthError } from '../errors';
 
 const CODE_RE = /[?&]code=[^&]+/;
 const STATE_RE = /[?&]state=[^&]+/;
