@@ -83,24 +83,24 @@ const lock = new Lock();
 /**
  * @ignore
  */
-const GET_TOKEN_SILENTLY_LOCK_KEY = 'auth0.lock.getTokenSilently';
+const GET_TOKEN_SILENTLY_LOCK_KEY = 'slashauth.lock.getTokenSilently';
 
 /**
  * @ignore
  */
 const buildOrganizationHintCookieName = (clientId: string) =>
-  `auth0.${clientId}.organization_hint`;
+  `slashauth.${clientId}.organization_hint`;
 
 /**
  * @ignore
  */
-const OLD_IS_AUTHENTICATED_COOKIE_NAME = 'auth0.is.authenticated';
+const OLD_IS_AUTHENTICATED_COOKIE_NAME = 'slashauth.is.authenticated';
 
 /**
  * @ignore
  */
 const buildIsAuthenticatedCookieName = (clientId: string) =>
-  `auth0.${clientId}.is.authenticated`;
+  `slashauth.${clientId}.is.authenticated`;
 
 /**
  * @ignore
@@ -417,7 +417,7 @@ export default class SlashAuthClient {
   /**
    * ```js
    * try {
-   *  await auth0.loginWithPopup(options);
+   *  await slashauth.loginWithPopup(options);
    * } catch(e) {
    *  if (e instanceof PopupCancelledError) {
    *    // Popup was closed before login completed
@@ -551,7 +551,7 @@ export default class SlashAuthClient {
   ): Promise<TAccount | undefined> {
     // const audience = options.audience || this.options.audience || 'default';
     const audience = options.audience || 'default';
-    const scope = getUniqueScopes(this.defaultScope, this.scope, options.scope);
+    const scope = ''; //getUniqueScopes(this.defaultScope, this.scope, options.scope);
 
     const cache = await this.cacheManager.get(
       new CacheKey({
@@ -617,7 +617,7 @@ export default class SlashAuthClient {
   /**
    * After the browser redirects back to the callback page,
    * call `handleRedirectCallback` to handle success and error
-   * responses from Auth0. If the response is successful, results
+   * responses from slashauth. If the response is successful, results
    * will be valid according to their expiration times.
    */
   // public async handleRedirectCallback<TAppState = any>(
@@ -1053,7 +1053,7 @@ export default class SlashAuthClient {
 
   /**
    * ```js
-   * const isAuthenticated = await auth0.isAuthenticated();
+   * const isAuthenticated = await slashauth.isAuthenticated();
    * ```
    *
    * Returns `true` if there's valid information stored,
@@ -1067,7 +1067,7 @@ export default class SlashAuthClient {
 
   /**
    * ```js
-   * await auth0.buildLogoutUrl(options);
+   * await slashauth.buildLogoutUrl(options);
    * ```
    *
    * Builds a URL to the logout endpoint using the parameters provided as arguments.
@@ -1100,7 +1100,6 @@ export default class SlashAuthClient {
    * If the `localOnly` option is specified, it only clears the application session.
    * It is invalid to set both the `federated` and `localOnly` options to `true`,
    * and an error will be thrown if you do.
-   * [Read more about how Logout works at Auth0](https://auth0.com/docs/logout).
    *
    * @param options
    */

@@ -51,7 +51,6 @@ export interface SlashAuthProviderOptions {
    * The location to use when storing cache data. Valid values are `memory` or `localstorage`.
    * The default setting is `memory`.
    *
-   * Read more about [changing storage options in the Auth0 docs](https://auth0.com/docs/libraries/auth0-single-page-app-sdk#change-storage-options)
    */
   cacheLocation?: CacheLocation;
   /**
@@ -155,6 +154,7 @@ const Provider = (opts: SlashAuthProviderOptions): JSX.Element => {
         type: 'NONCE_RECEIVED',
         nonceToSign: nonceResp,
       });
+      return nonceResp;
     } catch (error) {
       let errorMessage = 'Unknown error';
       if (error instanceof Error) {
@@ -166,7 +166,7 @@ const Provider = (opts: SlashAuthProviderOptions): JSX.Element => {
           error: errorMessage,
         }),
       });
-      return;
+      return null;
     }
   }, [client, metamaskProvider.account, opts]);
 
@@ -174,10 +174,14 @@ const Provider = (opts: SlashAuthProviderOptions): JSX.Element => {
     async (options: LoginNoRedirectNoPopupOptions) => {
       dispatch({ type: 'LOGIN_FLOW_STARTED' });
       try {
+        let fetchedNonce = state.nonceToSign;
+        if (!state.nonceToSign || state.nonceToSign.length === 0) {
+          fetchedNonce = await getNonceToSign();
+        }
         await metamaskProvider.connect();
         const signature = await metamaskProvider.ethereum?.request({
           method: 'personal_sign',
-          params: [state.nonceToSign, metamaskProvider.account],
+          params: [fetchedNonce, metamaskProvider.account],
         });
         await client.loginNoRedirectNoPopup({
           ...options,
@@ -197,10 +201,11 @@ const Provider = (opts: SlashAuthProviderOptions): JSX.Element => {
         });
         return;
       }
-      const account = await client.getAccount();
+      const account = await client.getAccount({});
+      console.log('account: ', account);
       dispatch({ type: 'LOGIN_WITH_SIGNED_NONCE_COMPLETE', account });
     },
-    [client, metamaskProvider, state.nonceToSign]
+    [client, getNonceToSign, metamaskProvider, state.nonceToSign]
   );
 
   const logout = useCallback(

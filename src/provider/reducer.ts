@@ -41,6 +41,7 @@ export const reducer = (
             ? SlashAuthStepFetchingNonce
             : SlashAuthStepLoggingIn,
         isLoading: true,
+        isLoggingIn: true,
       };
     case 'LOGIN_WITH_SIGNED_NONCE_COMPLETE':
     case 'INITIALIZED':
@@ -52,12 +53,14 @@ export const reducer = (
         error: undefined,
         nonceToSign: null,
         step: SlashAuthStepLoggedIn,
+        isLoggingIn: false,
       };
     case 'NONCE_RECEIVED':
       return {
         ...state,
         nonceToSign: action.nonceToSign,
         step: SlashAuthStepNonceReceived,
+        isLoggingIn: false,
       };
     case 'LOGOUT':
       return {
@@ -65,6 +68,8 @@ export const reducer = (
         isAuthenticated: false,
         account: undefined,
         step: SlashAuthStepNone,
+        isLoggingIn: false,
+        isLoading: false,
       };
     case 'ERROR':
       return {
@@ -73,6 +78,7 @@ export const reducer = (
         error: action.error,
         nonceToSign: null,
         step: SlashAuthStepNone,
+        isLoggingIn: false,
       };
   }
 };

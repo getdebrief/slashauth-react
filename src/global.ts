@@ -230,7 +230,7 @@ export interface GetIdTokenClaimsOptions {
 export interface GetTokenSilentlyOptions {
   /**
    * When `true`, ignores the cache and always sends a
-   * request to Auth0.
+   * request to slashauth.
    */
   ignoreCache?: boolean;
 

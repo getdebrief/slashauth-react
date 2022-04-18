@@ -9,14 +9,16 @@ export type SlashAuthState = {
   isLoading: boolean;
   account?: Account;
   connectedWallet: string | null;
+  isLoggingIn: boolean;
 };
 
 export const initialAuthState: SlashAuthState = {
   step: SlashAuthStepNone,
   nonceToSign: null,
   isAuthenticated: false,
-  isLoading: true,
+  isLoading: false,
   connectedWallet: null,
+  isLoggingIn: false,
 };
 
 export const initialMetamaskContext = {

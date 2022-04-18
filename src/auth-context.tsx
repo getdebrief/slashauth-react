@@ -28,7 +28,7 @@ export interface SlashAuthContextInterface extends SlashAuthState {
   /*
    Gets a nonce to sign.
   */
-  getNonceToSign: () => Promise<void>;
+  getNonceToSign: () => Promise<string | null>;
   /*
     Gets an access token directly embedded in the page.
   */
