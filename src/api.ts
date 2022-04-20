@@ -7,8 +7,17 @@ import {
   RefreshTokenOptions,
   RefreshTokenResponse,
 } from './global';
-import { getJSON } from './http';
+import { getJSON, switchFetch } from './http';
 import { createQueryParams } from './utils';
+
+export async function logout(url: string) {
+  return await switchFetch(url, 'default', '', {
+    method: 'GET',
+    headers: {
+      'X-SlashAuth-Client': btoa(JSON.stringify(DEFAULT_SLASHAUTH_CLIENT)),
+    },
+  });
+}
 
 export async function getNonceToSign({
   baseUrl,

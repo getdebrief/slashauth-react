@@ -130,6 +130,8 @@ const toSlashAuthClientOptions = (
 };
 
 const Provider = (opts: SlashAuthProviderOptions): JSX.Element => {
+  const [initialized, setInitialized] = useState(false);
+
   const { children, skipRedirectCallback, ...clientOpts } = opts;
   const [client] = useState(
     () => new SlashAuthClient(toSlashAuthClientOptions(clientOpts))
@@ -202,7 +204,6 @@ const Provider = (opts: SlashAuthProviderOptions): JSX.Element => {
         return;
       }
       const account = await client.getAccount({});
-      console.log('account: ', account);
       dispatch({ type: 'LOGIN_WITH_SIGNED_NONCE_COMPLETE', account });
     },
     [client, getNonceToSign, metamaskProvider, state.nonceToSign]
@@ -247,16 +248,48 @@ const Provider = (opts: SlashAuthProviderOptions): JSX.Element => {
     [client]
   );
 
+  const checkSession = useCallback(
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    async (opts?: GetTokenSilentlyOptions): Promise<any> => {
+      try {
+        await client.checkSession(opts);
+      } catch (error) {
+        let errorMessage = 'Unknown error';
+        if (error instanceof Error) {
+          errorMessage = error.message;
+        }
+        throw tokenError({
+          error: errorMessage,
+        });
+      } finally {
+        dispatch({
+          type: 'INITIALIZED',
+          account: await client.getAccount(),
+        });
+      }
+    },
+    [client]
+  );
+
   const getIdTokenClaims = useCallback(
     (opts: GetIdTokenClaimsOptions) => client.getIdTokenClaims(opts),
     [client]
   );
 
+  const connect = useCallback(async () => {
+    try {
+      return metamaskProvider.connect();
+    } finally {
+      setTimeout(() => setInitialized(true), 250);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
   const contextValue = useMemo(() => {
     return {
       ...state,
       connectedWallet: metamaskProvider.account,
-      connect: metamaskProvider.connect,
+      connect: connect,
       ethereum: metamaskProvider.ethereum,
       buildLogoutUrl,
       getAccessTokenSilently,
@@ -264,6 +297,8 @@ const Provider = (opts: SlashAuthProviderOptions): JSX.Element => {
       loginNoRedirectNoPopup,
       getIdTokenClaims,
       logout,
+      checkSession,
+      initialized,
     };
   }, [
     state,
@@ -274,6 +309,9 @@ const Provider = (opts: SlashAuthProviderOptions): JSX.Element => {
     loginNoRedirectNoPopup,
     getIdTokenClaims,
     logout,
+    checkSession,
+    connect,
+    initialized,
   ]);
 
   return (

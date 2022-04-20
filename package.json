@@ -1,6 +1,6 @@
 {
   "name": "@navvi/slashauth-react",
-  "version": "0.1.17",
+  "version": "0.1.18",
   "description": "Slashauth library for react apps powered by @navvixyz",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",

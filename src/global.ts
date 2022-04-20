@@ -266,7 +266,7 @@ export interface LogoutOptions {
    * `returnTo` URL must be listed in the "Allowed Logout URLs" at
    * the account level in the SlashAuth dashboard.
    */
-  returnTo?: string;
+  // returnTo?: string;
 
   /**
    * The `client_id` of your application.
@@ -275,7 +275,7 @@ export interface LogoutOptions {
    *
    * If this property is set to `null`, then no client ID value is sent to the logout endpoint.
    */
-  client_id?: string;
+  // client_id?: string;
 
   /**
    * When `true`, this skips the request to the logout endpoint on the authorization server,
@@ -288,13 +288,6 @@ export interface LogoutOptions {
 export interface LogoutUrlOptions {
   /**
    * The URL where SlashAuth will redirect your browser to after the logout.
-   *
-   * **Note**: If the `client_id` parameter is included, the
-   * `returnTo` URL that is provided must be listed in the
-   * Application's "Allowed Logout URLs" in the SlashAuth dashboard.
-   * However, if the `client_id` parameter is not included, the
-   * `returnTo` URL must be listed in the "Allowed Logout URLs" at
-   * the account level in the SlashAuth dashboard.
    */
   returnTo?: string;
 

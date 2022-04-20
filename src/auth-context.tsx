@@ -22,6 +22,7 @@ export const SlashAuthStepLoggingIn: SlashAuthStep = 'LOGGING_IN';
 export const SlashAuthStepLoggedIn: SlashAuthStep = 'LOGGED_IN';
 
 export interface SlashAuthContextInterface extends SlashAuthState {
+  initialized: boolean;
   connect: () => Promise<string[] | null>;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   ethereum: any;
@@ -66,6 +67,8 @@ export interface SlashAuthContextInterface extends SlashAuthState {
   // loginWithRedirect: (options?: RedirectLoginOptions) => Promise<void>;
 
   getIdTokenClaims: (options?: GetIdTokenClaimsOptions) => Promise<IdToken>;
+
+  checkSession: (options?: GetTokenSilentlyOptions) => void;
 }
 
 const stub = (): never => {
@@ -75,6 +78,7 @@ const stub = (): never => {
 const initialContextState: SlashAuthContextInterface = {
   ...initialAuthState,
   ...initialMetamaskContext,
+  initialized: false,
   connect: stub,
   ethereum: null,
   getNonceToSign: stub,
@@ -83,6 +87,7 @@ const initialContextState: SlashAuthContextInterface = {
   buildLogoutUrl: stub,
   logout: stub,
   getIdTokenClaims: stub,
+  checkSession: stub,
 };
 
 const SlashAuthContext =

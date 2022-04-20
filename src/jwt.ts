@@ -104,31 +104,31 @@ export const verify = (options: JWTVerifyOptions) => {
       'Audience (aud) claim must be a string or array of strings present in the ID token'
     );
   }
-  if (Array.isArray(decoded.claims.aud)) {
-    if (!decoded.claims.aud.includes(options.aud)) {
-      throw new Error(
-        `Audience (aud) claim mismatch in the ID token; expected "${
-          options.aud
-        }" but was not one of "${decoded.claims.aud.join(', ')}"`
-      );
-    }
-    if (decoded.claims.aud.length > 1) {
-      if (!decoded.claims.azp) {
-        throw new Error(
-          'Authorized Party (azp) claim must be a string present in the ID token when Audience (aud) claim has multiple values'
-        );
-      }
-      if (decoded.claims.azp !== options.aud) {
-        throw new Error(
-          `Authorized Party (azp) claim mismatch in the ID token; expected "${options.aud}", found "${decoded.claims.azp}"`
-        );
-      }
-    }
-  } else if (decoded.claims.aud !== options.aud) {
-    throw new Error(
-      `Audience (aud) claim mismatch in the ID token; expected "${options.aud}" but found "${decoded.claims.aud}"`
-    );
-  }
+  // if (Array.isArray(decoded.claims.aud)) {
+  //   if (!decoded.claims.aud.includes(options.aud)) {
+  //     throw new Error(
+  //       `Audience (aud) claim mismatch in the ID token; expected "${
+  //         options.aud
+  //       }" but was not one of "${decoded.claims.aud.join(', ')}"`
+  //     );
+  //   }
+  //   if (decoded.claims.aud.length > 1) {
+  //     if (!decoded.claims.azp) {
+  //       throw new Error(
+  //         'Authorized Party (azp) claim must be a string present in the ID token when Audience (aud) claim has multiple values'
+  //       );
+  //     }
+  //     if (decoded.claims.azp !== options.aud) {
+  //       throw new Error(
+  //         `Authorized Party (azp) claim mismatch in the ID token; expected "${options.aud}", found "${decoded.claims.azp}"`
+  //       );
+  //     }
+  //   }
+  // } else if (decoded.claims.aud !== options.aud) {
+  //   throw new Error(
+  //     `Audience (aud) claim mismatch in the ID token; expected "${options.aud}" but found "${decoded.claims.aud}"`
+  //   );
+  // }
   if (options.nonce) {
     if (!decoded.claims.nonce) {
       throw new Error(

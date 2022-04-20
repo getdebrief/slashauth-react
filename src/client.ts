@@ -66,7 +66,12 @@ import {
 // import TokenWorker from './worker/token.worker.ts';
 import { CacheKeyManifest } from './cache/key-manifest';
 import browserDeviceID from './device';
-import { getNonceToSign, loginWithSignedNonce, refreshToken } from './api';
+import {
+  getNonceToSign,
+  loginWithSignedNonce,
+  refreshToken,
+  logout as apiLogout,
+} from './api';
 
 // type GetTokenSilentlyResult = TokenEndpointResponse & {
 //   decodedToken: ReturnType<typeof verifyIdToken>;
@@ -203,15 +208,8 @@ export default class SlashAuthClient {
       cache = cacheFactory(this.cacheLocation)();
     }
 
-    // this.httpTimeoutMs = options.httpTimeoutInSeconds
-    //   ? options.httpTimeoutInSeconds * 1000
-    //   : DEFAULT_FETCH_TIMEOUT_MS;
     this.httpTimeoutMs = DEFAULT_FETCH_TIMEOUT_MS;
 
-    // this.cookieStorage =
-    //   options.legacySameSiteCookie === false
-    //     ? CookieStorage
-    //     : CookieStorageWithLegacySameSite;
     this.cookieStorage = CookieStorageWithLegacySameSite;
 
     this.orgHintCookieName = buildOrganizationHintCookieName(
@@ -253,32 +251,9 @@ export default class SlashAuthClient {
     this.domainUrl = getDomain(this.options.domain);
     this.tokenIssuer = getTokenIssuer(this.options.issuer, this.domainUrl);
 
-    // this.defaultScope = getUniqueScopes(
-    //   'openid',
-    //   this.options?.advancedOptions?.defaultScope !== undefined
-    //     ? this.options.advancedOptions.defaultScope
-    //     : DEFAULT_SCOPE
-    // );
-    this.defaultScope = getUniqueScopes('openid');
+    this.defaultScope = ''; //getUniqueScopes('openid');
 
-    // If using refresh tokens, automatically specify the `offline_access` scope.
-    // Note we cannot add this to 'defaultScope' above as the scopes are used in the
-    // cache keys - changing the order could invalidate the keys
-    // if (this.options.useRefreshTokens) {
-    //   this.scope = getUniqueScopes(this.scope, 'offline_access');
-    // }
-    this.scope = getUniqueScopes(this.scope, 'offline_access');
-
-    // Don't use web workers unless using refresh tokens in memory and not IE11
-    // if (
-    //   typeof window !== 'undefined' &&
-    //   window.Worker &&
-    //   // this.options.useRefreshTokens &&
-    //   this.cacheLocation === CACHE_LOCATION_MEMORY &&
-    //   supportWebWorker()
-    // ) {
-    //   this.worker = new TokenWorker();
-    // }
+    this.scope = ''; // getUniqueScopes(this.scope, 'offline_access');
 
     this.customOptions = getCustomInitialOptions(options);
   }
@@ -368,171 +343,6 @@ export default class SlashAuthClient {
 
   /**
    * ```js
-   * await slashauth.buildAuthorizeUrl(options);
-   * ```
-   *
-   * Builds an `/authorize` URL for loginWithRedirect using the parameters
-   * provided as arguments. Random and secure `state` and `nonce`
-   * parameters will be auto-generated.
-   *
-   * @param options
-   */
-  // public async buildAuthorizeUrl(
-  //   options: RedirectLoginOptions = {}
-  // ): Promise<string> {
-  //   const { redirect_uri, appState, ...authorizeOptions } = options;
-
-  //   const stateIn = encode(createRandomString());
-  //   const nonceIn = encode(createRandomString());
-  //   const code_verifier = createRandomString();
-  //   const code_challengeBuffer = await sha256(code_verifier);
-  //   const code_challenge = bufferToBase64UrlEncoded(code_challengeBuffer);
-  //   const fragment = options.fragment ? `#${options.fragment}` : '';
-
-  //   const params = this._getParams(
-  //     authorizeOptions,
-  //     stateIn,
-  //     nonceIn,
-  //     code_challenge,
-  //     redirect_uri
-  //   );
-
-  //   const url = this._authorizeUrl(params);
-  //   const organizationId = options.organization || this.options.organization;
-
-  //   this.transactionManager.create({
-  //     nonce: nonceIn,
-  //     code_verifier,
-  //     appState,
-  //     scope: params.scope,
-  //     audience: params.audience || 'default',
-  //     redirect_uri: params.redirect_uri,
-  //     state: stateIn,
-  //     ...(organizationId && { organizationId }),
-  //   });
-
-  //   return url + fragment;
-  // }
-
-  /**
-   * ```js
-   * try {
-   *  await slashauth.loginWithPopup(options);
-   * } catch(e) {
-   *  if (e instanceof PopupCancelledError) {
-   *    // Popup was closed before login completed
-   *  }
-   * }
-   * ```
-   *
-   * Opens a popup with the `/authorize` URL using the parameters
-   * provided as arguments. Random and secure `state` and `nonce`
-   * parameters will be auto-generated. If the response is successful,
-   * results will be valid according to their expiration times.
-   *
-   * IMPORTANT: This method has to be called from an event handler
-   * that was started by the user like a button click, for example,
-   * otherwise the popup will be blocked in most browsers.
-   *
-   * @param options
-   * @param config
-   */
-  // public async loginWithPopup(
-  //   options?: PopupLoginOptions,
-  //   config?: PopupConfigOptions
-  // ) {
-  //   options = options || {};
-  //   config = config || {};
-
-  //   if (!config.popup) {
-  //     config.popup = openPopup('');
-
-  //     if (!config.popup) {
-  //       throw new Error(
-  //         'Unable to open a popup for loginWithPopup - window.open returned `null`'
-  //       );
-  //     }
-  //   }
-
-  //   const { ...authorizeOptions } = options;
-  //   const stateIn = encode(createRandomString());
-  //   const nonceIn = encode(createRandomString());
-  //   const code_verifier = createRandomString();
-  //   const code_challengeBuffer = await sha256(code_verifier);
-  //   const code_challenge = bufferToBase64UrlEncoded(code_challengeBuffer);
-
-  //   const params = this._getParams(
-  //     authorizeOptions,
-  //     stateIn,
-  //     nonceIn,
-  //     code_challenge,
-  //     this.options.redirect_uri || window.location.origin
-  //   );
-
-  //   const url = this._authorizeUrl({
-  //     ...params,
-  //     response_mode: 'web_message',
-  //   });
-
-  //   config.popup.location.href = url;
-
-  //   const codeResult = await runPopup({
-  //     ...config,
-  //     timeoutInSeconds:
-  //       config.timeoutInSeconds ||
-  //       this.options.authorizeTimeoutInSeconds ||
-  //       DEFAULT_AUTHORIZE_TIMEOUT_IN_SECONDS,
-  //   });
-
-  //   if (stateIn !== codeResult.state) {
-  //     throw new Error('Invalid state');
-  //   }
-
-  //   const authResult = await oauthToken(
-  //     {
-  //       audience: params.audience,
-  //       scope: params.scope,
-  //       baseUrl: this.domainUrl,
-  //       client_id: this.options.client_id,
-  //       code_verifier,
-  //       code: codeResult.code,
-  //       grant_type: 'authorization_code',
-  //       redirect_uri: params.redirect_uri,
-  //       auth0Client: this.options.auth0Client,
-  //       useFormData: this.options.useFormData,
-  //       timeout: this.httpTimeoutMs,
-  //     } as OAuthTokenOptions,
-  //     this.worker
-  //   );
-
-  //   const organizationId = options.organization || this.options.organization;
-
-  //   const decodedToken = await this._verifyIdToken(
-  //     authResult.id_token,
-  //     nonceIn,
-  //     organizationId
-  //   );
-
-  //   const cacheEntry = {
-  //     ...authResult,
-  //     decodedToken,
-  //     scope: params.scope,
-  //     audience: params.audience || 'default',
-  //     client_id: this.options.client_id,
-  //   };
-
-  //   await this.cacheManager.set(cacheEntry);
-
-  //   this.cookieStorage.save(this.isAuthenticatedCookieName, true, {
-  //     daysUntilExpire: this.sessionCheckExpiryDays,
-  //     cookieDomain: this.options.cookieDomain,
-  //   });
-
-  //   this._processOrgIdHint(decodedToken.claims.org_id);
-  // }
-
-  /**
-   * ```js
    * const user = await slashauth.getAccount();
    * ```
    *
@@ -594,116 +404,6 @@ export default class SlashAuthClient {
 
     return cache && cache.decodedToken && cache.decodedToken.claims;
   }
-
-  /**
-   * ```js
-   * await slashauth.loginWithRedirect(options);
-   * ```
-   *
-   * Performs a redirect to `/authorize` using the parameters
-   * provided as arguments. Random and secure `state` and `nonce`
-   * parameters will be auto-generated.
-   *
-   * @param options
-   */
-  // public async loginWithRedirect<TAppState = any>(
-  //   options: RedirectLoginOptions<TAppState> = {}
-  // ) {
-  //   const { redirectMethod, ...urlOptions } = options;
-  //   const url = await this.buildAuthorizeUrl(urlOptions);
-  //   window.location[redirectMethod || 'assign'](url);
-  // }
-
-  /**
-   * After the browser redirects back to the callback page,
-   * call `handleRedirectCallback` to handle success and error
-   * responses from slashauth. If the response is successful, results
-   * will be valid according to their expiration times.
-   */
-  // public async handleRedirectCallback<TAppState = any>(
-  //   url: string = window.location.href
-  // ): Promise<RedirectLoginResult<TAppState>> {
-  //   const queryStringFragments = url.split('?').slice(1);
-
-  //   if (queryStringFragments.length === 0) {
-  //     throw new Error('There are no query params available for parsing.');
-  //   }
-
-  //   const { state, code, error, error_description } = parseQueryResult(
-  //     queryStringFragments.join('')
-  //   );
-
-  //   const transaction = this.transactionManager.get();
-
-  //   if (!transaction) {
-  //     throw new Error('Invalid state');
-  //   }
-
-  //   this.transactionManager.remove();
-
-  //   if (error) {
-  //     throw new AuthenticationError(
-  //       error,
-  //       error_description,
-  //       state,
-  //       transaction.appState
-  //     );
-  //   }
-
-  //   // Transaction should have a `code_verifier` to do PKCE for CSRF protection
-  //   if (
-  //     !transaction.code_verifier ||
-  //     (transaction.state && transaction.state !== state)
-  //   ) {
-  //     throw new Error('Invalid state');
-  //   }
-
-  //   const tokenOptions = {
-  //     audience: transaction.audience,
-  //     scope: transaction.scope,
-  //     baseUrl: this.domainUrl,
-  //     client_id: this.options.client_id,
-  //     code_verifier: transaction.code_verifier,
-  //     grant_type: 'authorization_code',
-  //     code,
-  //     auth0Client: this.options.auth0Client,
-  //     useFormData: this.options.useFormData,
-  //     timeout: this.httpTimeoutMs,
-  //   } as OAuthTokenOptions;
-  //   // some old versions of the SDK might not have added redirect_uri to the
-  //   // transaction, we dont want the key to be set to undefined.
-  //   if (undefined !== transaction.redirect_uri) {
-  //     tokenOptions.redirect_uri = transaction.redirect_uri;
-  //   }
-
-  //   const authResult = await oauthToken(tokenOptions, this.worker);
-
-  //   const decodedToken = await this._verifyIdToken(
-  //     authResult.id_token,
-  //     transaction.nonce,
-  //     transaction.organizationId
-  //   );
-
-  //   await this.cacheManager.set({
-  //     ...authResult,
-  //     decodedToken,
-  //     audience: transaction.audience,
-  //     scope: transaction.scope,
-  //     ...(authResult.scope ? { oauthTokenScope: authResult.scope } : null),
-  //     client_id: this.options.client_id,
-  //   });
-
-  //   this.cookieStorage.save(this.isAuthenticatedCookieName, true, {
-  //     daysUntilExpire: this.sessionCheckExpiryDays,
-  //     cookieDomain: this.options.cookieDomain,
-  //   });
-
-  //   this._processOrgIdHint(decodedToken.claims.org_id);
-
-  //   return {
-  //     appState: transaction.appState,
-  //   };
-  // }
 
   /**
    * ```js
@@ -1011,48 +711,6 @@ export default class SlashAuthClient {
 
   /**
    * ```js
-   * const token = await slashauth.getTokenWithPopup(options);
-   * ```
-   * Opens a popup with the `/authorize` URL using the parameters
-   * provided as arguments. Random and secure `state` and `nonce`
-   * parameters will be auto-generated. If the response is successful,
-   * results will be valid according to their expiration times.
-   *
-   * @param options
-   * @param config
-   */
-  // public async getTokenWithPopup(
-  //   options: GetTokenWithPopupOptions = {},
-  //   config: PopupConfigOptions = {}
-  // ) {
-  //   options.audience = options.audience || this.options.audience;
-
-  //   options.scope = getUniqueScopes(
-  //     this.defaultScope,
-  //     this.scope,
-  //     options.scope
-  //   );
-
-  //   config = {
-  //     ...DEFAULT_POPUP_CONFIG_OPTIONS,
-  //     ...config,
-  //   };
-
-  //   await this.loginWithPopup(options, config);
-
-  //   const cache = await this.cacheManager.get(
-  //     new CacheKey({
-  //       scope: options.scope,
-  //       audience: options.audience || 'default',
-  //       client_id: this.options.client_id,
-  //     })
-  //   );
-
-  //   return cache.access_token;
-  // }
-
-  /**
-   * ```js
    * const isAuthenticated = await slashauth.isAuthenticated();
    * ```
    *
@@ -1103,168 +761,30 @@ export default class SlashAuthClient {
    *
    * @param options
    */
-  public logout(options: LogoutOptions = {}): Promise<void> | void {
+  public async logout(options: LogoutOptions = {}): Promise<void> {
     const { localOnly, ...logoutOptions } = options;
 
-    // if (localOnly && logoutOptions.federated) {
-    //   throw new Error(
-    //     'It is invalid to set both the `federated` and `localOnly` options to `true`'
-    //   );
-    // }
-
-    const postCacheClear = () => {
+    const postCacheClear = async () => {
       this.cookieStorage.remove(this.orgHintCookieName);
       this.cookieStorage.remove(this.isAuthenticatedCookieName);
 
       if (localOnly) {
-        return;
+        return Promise.resolve();
       }
 
       const url = this.buildLogoutUrl(logoutOptions);
 
-      window.location.assign(url);
+      await apiLogout(url);
     };
 
     if (this.options.cache) {
-      return this.cacheManager.clear().then(() => postCacheClear());
+      await this.cacheManager.clear();
+      await postCacheClear();
     } else {
       this.cacheManager.clearSync();
-      postCacheClear();
+      await postCacheClear();
     }
   }
-
-  // private async _getTokenFromIFrameNonPKCE(
-  //   options: GetTokenSilentlyOptions
-  // ): Promise<GetTokenSilentlyResult> {
-  //   const stateIn = encode(createRandomString());
-  //   const nonceIn = encode(createRandomString());
-  //   const code_verifier = createRandomString();
-  //   const code_challengeBuffer = await sha256(code_verifier);
-  //   const code_challenge = bufferToBase64UrlEncoded(code_challengeBuffer);
-
-  //   const { detailedResponse, ...withoutClientOptions } = options;
-
-  //   const requestURL = `${getDomain(this.domainUrl)}/loginWithSignedNonce`;
-
-  //   const params = this._getParams(
-  //     withoutClientOptions,
-  //     stateIn,
-  //     nonce,
-  //     code_challenge,
-  //     ''
-  //   );
-
-  //   const queryInput = {
-  //     address:
-  //   }
-  // }
-
-  // private async _getTokenFromIFrame(
-  //   options: GetTokenSilentlyOptions
-  // ): Promise<GetTokenSilentlyResult> {
-  //   const stateIn = encode(createRandomString());
-  //   const nonceIn = encode(createRandomString());
-  //   const code_verifier = createRandomString();
-  //   const code_challengeBuffer = await sha256(code_verifier);
-  //   const code_challenge = bufferToBase64UrlEncoded(code_challengeBuffer);
-
-  //   const { detailedResponse, ...withoutClientOptions } = options;
-
-  //   const params = this._getParams(
-  //     withoutClientOptions,
-  //     stateIn,
-  //     nonceIn,
-  //     code_challenge,
-  //     options.redirect_uri ||
-  //       // this.options.redirect_uri ||
-  //       window.location.origin
-  //   );
-
-  //   // const orgIdHint = this.cookieStorage.get<string>(this.orgHintCookieName);
-
-  //   // if (orgIdHint && !params.organization) {
-  //   //   params.organization = orgIdHint;
-  //   // }
-
-  //   const url = this._authorizeUrl({
-  //     ...params,
-  //     // prompt: 'none',
-  //     response_mode: 'web_message',
-  //   });
-
-  //   try {
-  //     // When a browser is running in a Cross-Origin Isolated context, using iframes is not possible.
-  //     // It doesn't throw an error but times out instead, so we should exit early and inform the user about the reason.
-  //     // https://developer.mozilla.org/en-US/docs/Web/API/crossOriginIsolated
-  //     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  //     if ((window as any).crossOriginIsolated) {
-  //       throw new GenericError(
-  //         'login_required',
-  //         'The application is running in a Cross-Origin Isolated context, silently retrieving a token without refresh token is not possible.'
-  //       );
-  //     }
-
-  //     const authorizeTimeout = options.timeoutInSeconds;
-  //     // | this.options.authorizeTimeoutInSeconds;
-
-  //     const codeResult = await runIframe(url, this.domainUrl, authorizeTimeout);
-
-  //     if (stateIn !== codeResult.state) {
-  //       throw new Error('Invalid state');
-  //     }
-
-  //     const {
-  //       scope,
-  //       audience,
-  //       redirect_uri,
-  //       ignoreCache,
-  //       timeoutInSeconds,
-  //       detailedResponse,
-  //       ...customOptions
-  //     } = options;
-
-  //     const tokenResult = await oauthToken(
-  //       {
-  //         ...this.customOptions,
-  //         ...customOptions,
-  //         scope,
-  //         audience,
-  //         baseUrl: this.domainUrl,
-  //         client_id: this.options.clientID,
-  //         code_verifier,
-  //         code: codeResult.code,
-  //         grant_type: 'authorization_code',
-  //         redirect_uri: params.redirect_uri,
-  //         slashAuthClient: this.options.slashAuthClient,
-  //         timeout: customOptions.timeout || this.httpTimeoutMs,
-  //       } as OAuthTokenOptions,
-  //       this.worker
-  //     );
-
-  //     const decodedToken = await this._verifyIdToken(
-  //       tokenResult.id_token,
-  //       nonceIn
-  //     );
-
-  //     this._processOrgIdHint(decodedToken.claims.org_id);
-
-  //     return {
-  //       ...tokenResult,
-  //       decodedToken,
-  //       scope: params.scope,
-  //       oauthTokenScope: tokenResult.scope,
-  //       // audience: params.audience || 'default',
-  //       audience: 'default',
-  //     };
-  //   } catch (e) {
-  //     if (e.error === 'login_required') {
-  //       this.logout({
-  //         localOnly: true,
-  //       });
-  //     }
-  //     throw e;
-  //   }
-  // }
 
   private async _getTokenUsingRefreshToken(
     options: RefreshTokenOptions
