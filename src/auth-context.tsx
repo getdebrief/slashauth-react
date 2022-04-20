@@ -50,11 +50,6 @@ export interface SlashAuthContextInterface extends SlashAuthState {
   ) => Promise<void>;
 
   /*
-    Builds the logout URL
-  */
-  buildLogoutUrl: (options?: LogoutUrlOptions) => string;
-
-  /*
     Logs the user out.
   */
   logout: (options?: LogoutOptions) => Promise<void> | void;
@@ -85,7 +80,6 @@ const initialContextState: SlashAuthContextInterface = {
   getNonceToSign: stub,
   getAccessTokenSilently: stub,
   loginNoRedirectNoPopup: stub,
-  buildLogoutUrl: stub,
   logout: stub,
   getIdTokenClaims: stub,
   checkSession: stub,

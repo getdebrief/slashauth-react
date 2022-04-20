@@ -102,7 +102,7 @@ export const reducer = (
         ...state,
         isAuthenticated: false,
         account: undefined,
-        step: SlashAuthStepNone,
+        step: SlashAuthStepInitialized,
         isLoggingIn: false,
         isLoading: false,
       };

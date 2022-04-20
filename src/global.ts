@@ -300,6 +300,10 @@ export interface LogoutUrlOptions {
    *
    */
   client_id?: string;
+
+  device_id?: string;
+
+  access_token?: string;
 }
 
 export type CacheLocation = 'memory' | 'localstorage';

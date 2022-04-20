@@ -15,7 +15,6 @@ import {
   GetTokenSilentlyOptions,
   LoginNoRedirectNoPopupOptions,
   LogoutOptions,
-  LogoutUrlOptions,
   SlashAuthClientOptions,
 } from '../global';
 import { loginError, tokenError } from '../utils';
@@ -145,11 +144,6 @@ const Provider = (opts: SlashAuthProviderOptions): JSX.Element => {
   const [state, dispatch] = useReducer(reducer, initialAuthState);
 
   const metamaskProvider = useMetaMask();
-
-  const buildLogoutUrl = useCallback(
-    (opts?: LogoutUrlOptions): string => client.buildLogoutUrl(opts),
-    [client]
-  );
 
   const connectAccount = useCallback(async () => {
     const accounts = await metamaskProvider.connect();
@@ -357,7 +351,6 @@ const Provider = (opts: SlashAuthProviderOptions): JSX.Element => {
       connectedWallet: metamaskProvider.account,
       connect: connect,
       ethereum: metamaskProvider.ethereum,
-      buildLogoutUrl,
       getAccessTokenSilently,
       getNonceToSign,
       loginNoRedirectNoPopup,
@@ -369,7 +362,6 @@ const Provider = (opts: SlashAuthProviderOptions): JSX.Element => {
   }, [
     state,
     metamaskProvider,
-    buildLogoutUrl,
     getAccessTokenSilently,
     getNonceToSign,
     loginNoRedirectNoPopup,
