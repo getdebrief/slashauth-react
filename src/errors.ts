@@ -103,3 +103,9 @@ export class OAuthError extends Error {
     super(error_description || error);
   }
 }
+
+export class NotLoggedInError extends Error {
+  constructor(public error: string, public error_description?: string) {
+    super(error_description || error);
+  }
+}

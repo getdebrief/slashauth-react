@@ -23,7 +23,7 @@ import {
 
 import TransactionManager from './transaction-manager';
 import { verify as verifyIdToken } from './jwt';
-import { TimeoutError } from './errors';
+import { NotLoggedInError, TimeoutError } from './errors';
 
 import {
   ClientStorage,
@@ -731,11 +731,18 @@ export default class SlashAuthClient {
    * Builds a URL to the logout endpoint using the parameters provided as arguments.
    * @param options
    */
-  public buildLogoutUrl(options: LogoutUrlOptions = {}): string {
+  public buildLogoutUrl(
+    options: LogoutUrlOptions = {},
+    accessToken: string
+  ): string {
     if (options.client_id !== null) {
       options.client_id = options.client_id || this.options.clientID;
     } else {
       delete options.client_id;
+    }
+
+    if (!options.device_id) {
+      options.device_id = browserDeviceID;
     }
 
     const { ...logoutOptions } = options;
@@ -772,9 +779,14 @@ export default class SlashAuthClient {
         return Promise.resolve();
       }
 
-      const url = this.buildLogoutUrl(logoutOptions);
+      const accessToken = await this.getTokenSilently();
+      if (accessToken) {
+        const url = this.buildLogoutUrl(logoutOptions, accessToken);
 
-      await apiLogout(url);
+        await apiLogout(url);
+      } else {
+        return Promise.resolve();
+      }
     };
 
     if (this.options.cache) {
@@ -804,7 +816,7 @@ export default class SlashAuthClient {
       this.logout({
         localOnly: true,
       });
-      throw new Error('Not logged in');
+      throw new NotLoggedInError('Not logged in');
     }
 
     const queryParameters = {

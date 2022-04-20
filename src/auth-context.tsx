@@ -16,6 +16,7 @@ import {
 export type SlashAuthStep = string;
 
 export const SlashAuthStepNone: SlashAuthStep = 'NONE';
+export const SlashAuthStepInitialized: SlashAuthStep = 'INITIALIZED';
 export const SlashAuthStepFetchingNonce: SlashAuthStep = 'FETCHING_NONCE';
 export const SlashAuthStepNonceReceived: SlashAuthStep = 'NONCE_RECEIVED';
 export const SlashAuthStepLoggingIn: SlashAuthStep = 'LOGGING_IN';
@@ -49,11 +50,6 @@ export interface SlashAuthContextInterface extends SlashAuthState {
   ) => Promise<void>;
 
   /*
-    Builds the logout URL
-  */
-  buildLogoutUrl: (options?: LogoutUrlOptions) => string;
-
-  /*
     Logs the user out.
   */
   logout: (options?: LogoutOptions) => Promise<void> | void;
@@ -84,7 +80,6 @@ const initialContextState: SlashAuthContextInterface = {
   getNonceToSign: stub,
   getAccessTokenSilently: stub,
   loginNoRedirectNoPopup: stub,
-  buildLogoutUrl: stub,
   logout: stub,
   getIdTokenClaims: stub,
   checkSession: stub,

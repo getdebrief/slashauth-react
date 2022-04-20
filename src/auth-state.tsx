@@ -1,4 +1,4 @@
-import { Account } from './global';
+import { Account, LoginNoRedirectNoPopupOptions } from './global';
 import { SlashAuthStep, SlashAuthStepNone } from './auth-context';
 
 export type SlashAuthState = {
@@ -10,9 +10,15 @@ export type SlashAuthState = {
   account?: Account;
   connectedWallet: string | null;
   isLoggingIn: boolean;
+  loginRequested: boolean;
+  loginOptions: LoginNoRedirectNoPopupOptions | null;
+  loginType: 'LoginNoRedirectNoPopup' | null;
 };
 
 export const initialAuthState: SlashAuthState = {
+  loginRequested: false,
+  loginOptions: null,
+  loginType: null,
   step: SlashAuthStepNone,
   nonceToSign: null,
   isAuthenticated: false,
