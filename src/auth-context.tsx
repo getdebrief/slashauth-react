@@ -16,6 +16,7 @@ import {
 export type SlashAuthStep = string;
 
 export const SlashAuthStepNone: SlashAuthStep = 'NONE';
+export const SlashAuthStepInitialized: SlashAuthStep = 'INITIALIZED';
 export const SlashAuthStepFetchingNonce: SlashAuthStep = 'FETCHING_NONCE';
 export const SlashAuthStepNonceReceived: SlashAuthStep = 'NONCE_RECEIVED';
 export const SlashAuthStepLoggingIn: SlashAuthStep = 'LOGGING_IN';

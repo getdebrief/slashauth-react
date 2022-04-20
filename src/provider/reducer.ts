@@ -1,6 +1,7 @@
-import { Account } from '../global';
+import { Account, LoginNoRedirectNoPopupOptions } from '../global';
 import {
   SlashAuthStepFetchingNonce,
+  SlashAuthStepInitialized,
   SlashAuthStepLoggedIn,
   SlashAuthStepLoggingIn,
   SlashAuthStepNonceReceived,
@@ -19,6 +20,13 @@ type Action =
         | 'LOGIN_WITH_SIGNED_NONCE_COMPLETE';
       account?: Account;
       nonceToSign?: string | null;
+    }
+  | { type: 'ACCOUNT_CONNECTED' }
+  | { type: 'LOGIN_REQUEST_FULFILLED' }
+  | {
+      type: 'LOGIN_REQUESTED';
+      loginOptions: LoginNoRedirectNoPopupOptions | null;
+      loginType: 'LoginNoRedirectNoPopup' | null;
     }
   | { type: 'LOGOUT' }
   | { type: 'ERROR'; error: Error };
@@ -43,8 +51,35 @@ export const reducer = (
         isLoading: true,
         isLoggingIn: true,
       };
-    case 'LOGIN_WITH_SIGNED_NONCE_COMPLETE':
+    case 'LOGIN_REQUEST_FULFILLED':
+      return {
+        ...state,
+        loginRequested: false,
+        loginOptions: null,
+        loginType: null,
+      };
+    case 'ACCOUNT_CONNECTED':
+      return {
+        ...state,
+      };
+    case 'LOGIN_REQUESTED':
+      return {
+        ...state,
+        loginRequested: true,
+        loginType: action.loginType,
+        loginOptions: action.loginOptions,
+      };
     case 'INITIALIZED':
+      return {
+        ...state,
+        isAuthenticated: !!action.account,
+        isLoading: false,
+        error: undefined,
+        nonceToSign: null,
+        step: SlashAuthStepInitialized,
+        isLoggingIn: false,
+      };
+    case 'LOGIN_WITH_SIGNED_NONCE_COMPLETE':
       return {
         ...state,
         isAuthenticated: !!action.account,
@@ -74,6 +109,7 @@ export const reducer = (
     case 'ERROR':
       return {
         ...state,
+        loginRequested: false,
         isLoading: false,
         error: action.error,
         nonceToSign: null,

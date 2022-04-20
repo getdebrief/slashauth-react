@@ -1,4 +1,10 @@
-import React, { useCallback, useMemo, useReducer, useState } from 'react';
+import React, {
+  useCallback,
+  useEffect,
+  useMemo,
+  useReducer,
+  useState,
+} from 'react';
 import SlashAuthContext from '../auth-context';
 import { initialAuthState } from '../auth-state';
 import SlashAuthClient from '../client';
@@ -145,7 +151,25 @@ const Provider = (opts: SlashAuthProviderOptions): JSX.Element => {
     [client]
   );
 
+  const connectAccount = useCallback(async () => {
+    const accounts = await metamaskProvider.connect();
+    if (!accounts || accounts.length === 0) {
+      dispatch({ type: 'ERROR', error: new Error('No account connected') });
+      return null;
+    }
+    if (accounts) {
+      dispatch({ type: 'ACCOUNT_CONNECTED' });
+    }
+  }, [metamaskProvider]);
+
   const getNonceToSign = useCallback(async () => {
+    if (!metamaskProvider.account) {
+      dispatch({
+        type: 'ERROR',
+        error: new Error('No account connected through metamask'),
+      });
+      return;
+    }
     dispatch({ type: 'NONCE_REQUEST_STARTED' });
     try {
       const nonceResp = await client.getNonceToSign({
@@ -170,17 +194,33 @@ const Provider = (opts: SlashAuthProviderOptions): JSX.Element => {
       });
       return null;
     }
-  }, [client, metamaskProvider.account, opts]);
+  }, [client, metamaskProvider, opts]);
 
   const loginNoRedirectNoPopup = useCallback(
     async (options: LoginNoRedirectNoPopupOptions) => {
+      if (!metamaskProvider.account) {
+        if (state.loginRequested) {
+          // We did not get an account so let's return an error.
+          dispatch({
+            type: 'ERROR',
+            error: new Error('No account connected through metamask'),
+          });
+        }
+        dispatch({
+          type: 'LOGIN_REQUESTED',
+          loginType: 'LoginNoRedirectNoPopup',
+          loginOptions: options,
+        });
+        // No metmask account is connected here...
+        connectAccount();
+        return;
+      }
       dispatch({ type: 'LOGIN_FLOW_STARTED' });
       try {
         let fetchedNonce = state.nonceToSign;
         if (!state.nonceToSign || state.nonceToSign.length === 0) {
           fetchedNonce = await getNonceToSign();
         }
-        await metamaskProvider.connect();
         const signature = await metamaskProvider.ethereum?.request({
           method: 'personal_sign',
           params: [fetchedNonce, metamaskProvider.account],
@@ -206,8 +246,30 @@ const Provider = (opts: SlashAuthProviderOptions): JSX.Element => {
       const account = await client.getAccount({});
       dispatch({ type: 'LOGIN_WITH_SIGNED_NONCE_COMPLETE', account });
     },
-    [client, getNonceToSign, metamaskProvider, state.nonceToSign]
+    [
+      client,
+      connectAccount,
+      getNonceToSign,
+      metamaskProvider.account,
+      metamaskProvider.ethereum,
+      state.loginRequested,
+      state.nonceToSign,
+    ]
   );
+
+  useEffect(() => {
+    if (state.loginRequested && metamaskProvider?.account) {
+      dispatch({ type: 'LOGIN_REQUEST_FULFILLED' });
+      // We should check to ensure it's login no redirect no popup type.
+      loginNoRedirectNoPopup(state.loginOptions);
+    }
+  }, [
+    loginNoRedirectNoPopup,
+    metamaskProvider,
+    metamaskProvider.account,
+    state.loginOptions,
+    state.loginRequested,
+  ]);
 
   const logout = useCallback(
     (opts: LogoutOptions = {}): Promise<void> | void => {
@@ -278,6 +340,10 @@ const Provider = (opts: SlashAuthProviderOptions): JSX.Element => {
 
   const connect = useCallback(async () => {
     try {
+      dispatch({
+        type: 'INITIALIZED',
+        account: await client.getAccount(),
+      });
       return metamaskProvider.connect();
     } finally {
       setTimeout(() => setInitialized(true), 250);
