@@ -37,7 +37,7 @@ export interface SlashAuthProviderOptions {
   /**
    * Your SlashAuth account domain such as `'login.slashauth.xyz'`
    */
-  domain: string;
+  domain?: string;
   /**
    * The issuer to be used for validation of JWTs, optionally defaults to the domain above
    */
@@ -123,9 +123,10 @@ export interface SlashAuthProviderOptions {
 const toSlashAuthClientOptions = (
   opts: SlashAuthProviderOptions
 ): SlashAuthClientOptions => {
-  const { clientID, redirectUri, ...validOpts } = opts;
+  const { clientID, redirectUri, domain, ...validOpts } = opts;
   return {
     ...validOpts,
+    domain: domain || 'https://api.slashauth.xyz',
     clientID: clientID,
     slashAuthClient: {
       name: 'slashAuth-react',
