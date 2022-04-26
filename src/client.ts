@@ -746,6 +746,7 @@ export default class SlashAuthClient {
     }
 
     const { ...logoutOptions } = options;
+    logoutOptions.access_token = accessToken;
     const url = this._url(`/logout?${createQueryParams(logoutOptions)}`);
 
     return url;
@@ -771,15 +772,13 @@ export default class SlashAuthClient {
   public async logout(options: LogoutOptions = {}): Promise<void> {
     const { localOnly, ...logoutOptions } = options;
 
-    const postCacheClear = async () => {
+    const postCacheClear = async (accessToken: string | null) => {
       this.cookieStorage.remove(this.orgHintCookieName);
       this.cookieStorage.remove(this.isAuthenticatedCookieName);
 
       if (localOnly) {
         return Promise.resolve();
       }
-
-      const accessToken = await this.getTokenSilently();
       if (accessToken) {
         const url = this.buildLogoutUrl(logoutOptions, accessToken);
 
@@ -790,11 +789,13 @@ export default class SlashAuthClient {
     };
 
     if (this.options.cache) {
+      const accessToken = await this.getTokenSilently();
       await this.cacheManager.clear();
-      await postCacheClear();
+      await postCacheClear(accessToken);
     } else {
+      const accessToken = await this.getTokenSilently();
       this.cacheManager.clearSync();
-      await postCacheClear();
+      await postCacheClear(accessToken);
     }
   }
 
