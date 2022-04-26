@@ -266,14 +266,9 @@ const Provider = (opts: SlashAuthProviderOptions): JSX.Element => {
   ]);
 
   const logout = useCallback(
-    (opts: LogoutOptions = {}): Promise<void> | void => {
+    async (opts: LogoutOptions = {}): Promise<void> => {
       const maybePromise = client.logout(opts);
-      if (opts.localOnly) {
-        if (maybePromise && typeof maybePromise.then === 'function') {
-          return maybePromise.then(() => dispatch({ type: 'LOGOUT' }));
-        }
-        dispatch({ type: 'LOGOUT' });
-      }
+      dispatch({ type: 'LOGOUT' });
       return maybePromise;
     },
     [client]
