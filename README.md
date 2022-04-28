@@ -52,7 +52,7 @@ root.render(
 
 The SlashAuthProvider only requires one property which is clientID. This must match an active app's clientID exactly.
 
-> Congratulations! Your app is now connected to /auth.
+Congratulations! Your app is now connected to /auth.
 
 ### Add login with wallet
 
@@ -73,7 +73,7 @@ export const LoginButton = () => {
 };
 ```
 
-> You now have a button that when clicked should pop up Metamask and ask you to sign a transaction. You can verify that things are working properly by adding the LoginButton to your app and clicking it. After signing the message, verify a request is made and a 200 response code is received.
+You now have a button that when clicked should pop up Metamask and ask you to sign a transaction. You can verify that things are working properly by adding the LoginButton to your app and clicking it. After signing the message, verify a request is made and a 200 response code is received.
 
 ### Show authentication information
 
@@ -199,6 +199,6 @@ function App() {
 export default App;
 ```
 
-> Congratulations! You've successfully integrated with /auth.
+Congratulations! You've successfully integrated with /auth.
 
 You can find the full example of this code in our github repo.
