@@ -21,7 +21,7 @@ Or Yarn
 
 ## Getting started
 
-If you prefer, you can follow along with the [quickstart guide](https://docs.slashauth.xyz/quick-start) or the corresponding [Github repo](https://github.com/getdebrief/slashauth-react-quickstart-example).
+If you prefer, you can follow along with the [quickstart guide](https://docs.slashauth.xyz/quick-start) or the corresponding [Github repo](https://github.com/slashauth/slashauth-react-quickstart-example).
 
 ### Create your /auth client
 
