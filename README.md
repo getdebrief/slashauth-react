@@ -13,11 +13,11 @@
 
 Install slashauth react using NPM:
 
-`npm i --save @navvi/slashauth-react`
+`npm i --save @slashauth/slashauth-react`
 
 Or Yarn
 
-`yarn add @navvi/slashauth-react`
+`yarn add @slashauth/slashauth-react`
 
 ## Getting started
 
@@ -38,7 +38,7 @@ The /auth SDK uses [React Context](https://reactjs.org/docs/context.html) to man
 import ReactDOM from 'react-dom/client';
 import './index.css';
 import App from './App';
-import { SlashAuthProvider } from '@navvi/slashauth-react';
+import { SlashAuthProvider } from '@slashauth/slashauth-react';
 
 const root = ReactDOM.createRoot(
   document.getElementById('root') as HTMLElement
@@ -60,7 +60,7 @@ The /auth SDK gives you tools to quickly implement authentication via Metamask w
 
 ```tsx
 // file:LoginButton.tsx
-import { useSlashAuth } from '@navvi/slashauth-react';
+import { useSlashAuth } from '@slashauth/slashauth-react';
 
 export const LoginButton = () => {
   const { loginNoRedirectNoPopup } = useSlashAuth();
@@ -81,7 +81,7 @@ The /auth SDK exposes information about the current user and their logged in sta
 
 ```tsx
 // file:LoginStatus.tsx
-import { useSlashAuth } from '@navvi/slashauth-react';
+import { useSlashAuth } from '@slashauth/slashauth-react';
 import { useEffect, useState } from 'react';
 
 export const LoginStatus = () => {
@@ -146,7 +146,7 @@ The /auth SDK exposes logout functionality that logs the user out both locally a
 
 ```tsx
 // file:LogoutButton.tsx
-import { useSlashAuth } from "@navvi/slashauth-react";
+import { useSlashAuth } from "@slashauth/slashauth-react";
 
 export const LogoutButton = () => {
   const { logout } = useSlashAuth();
@@ -155,7 +155,7 @@ export const LogoutButton = () => {
 };
 Tying it all together
 A simple way to see this all work together is updating your app's entry point to display this information.
-import { useSlashAuth } from '@navvi/slashauth-react';
+import { useSlashAuth } from '@slashauth/slashauth-react';
 import { LoginStatus } from './LoginStatus';
 import { LoginButton } from './LoginButton';
 import { LogoutButton } from './LogoutButton';
@@ -180,7 +180,7 @@ export default App;
 A simple way to see this all work together is updating your app's entry point to display this information.
 
 ```tsx
-import { useSlashAuth } from '@navvi/slashauth-react';
+import { useSlashAuth } from '@slashauth/slashauth-react';
 import { LoginStatus } from './LoginStatus';
 import { LoginButton } from './LoginButton';
 import { LogoutButton } from './LogoutButton';

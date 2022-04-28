@@ -19,7 +19,7 @@ import {
 } from '../global';
 import { loginError, tokenError } from '../utils';
 import { reducer } from './reducer';
-import { useMetaMask, MetaMaskProvider } from '@navvi/react-use-metamask';
+import { useMetaMask, MetaMaskProvider } from '@slashauth/react-use-metamask';
 
 export type AppState = {
   returnTo?: string;
