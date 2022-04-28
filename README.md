@@ -1,6 +1,6 @@
 # /Auth React
 
-/auth is the easiest way to provide login and token gating to your web3 app! Get started in less than 5 minutes. Read more in (https://docs.slashauth.xyz)[our docs]. Or if you want to talk with real people join [https://discord.gg/9cuDEUcpRD](our discord).
+/auth is the easiest way to provide login and token gating to your web3 app! Get started in less than 5 minutes. Read more in [our docs](https://docs.slashauth.xyz). Or if you want to talk with real people join [our discord](https://discord.gg/9cuDEUcpRD).
 
 ## Features
 
@@ -21,11 +21,11 @@ Or Yarn
 
 ## Getting started
 
-If you prefer, you can follow along with the [https://docs.slashauth.xyz/quick-start](quickstart guide) or the corresponding [https://github.com/getdebrief/slashauth-react-quickstart-example](Github repo).
+If you prefer, you can follow along with the [quickstart guide](https://docs.slashauth.xyz/quick-start) or the corresponding [Github repo](https://github.com/getdebrief/slashauth-react-quickstart-example).
 
 ### Create your /auth client
 
-Visit the [https://app.slashauth.xyz](/auth app) and login with your wallet. Create a new app and take note of the Client ID as you'll need it in the next step. Also, ensure you add any authorized domains that you run your app at (for instance, `http://localhost:3000`).
+Visit the [/auth app](https://app.slashauth.xyz) and login with your wallet. Create a new app and take note of the Client ID as you'll need it in the next step. Also, ensure you add any authorized domains that you run your app at (for instance, `http://localhost:3000`).
 
 ![Creating an app](https://d1l2xccggl7xwv.cloudfront.net/slashauth/slashauth-client-id.png)
 
