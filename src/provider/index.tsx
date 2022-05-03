@@ -19,7 +19,8 @@ import {
 } from '../global';
 import { loginError, tokenError } from '../utils';
 import { reducer } from './reducer';
-import { useMetaMask, MetaMaskProvider } from '@slashauth/react-use-metamask';
+import WalletConnectProvider from '@walletconnect/web3-provider';
+import Web3Modal from 'web3modal';
 
 export type AppState = {
   returnTo?: string;
@@ -143,11 +144,46 @@ const Provider = (opts: SlashAuthProviderOptions): JSX.Element => {
     () => new SlashAuthClient(toSlashAuthClientOptions(clientOpts))
   );
   const [state, dispatch] = useReducer(reducer, initialAuthState);
+  const [web3Provider, setWeb3Provider] = useState(null);
 
-  const metamaskProvider = useMetaMask();
+  const providerOptions = useMemo(
+    () => ({
+      injected: {
+        display: {
+          name: 'Metamask',
+          description: 'Connect with the provider in your Browser',
+        },
+        package: null,
+      },
+      walletconnect: {
+        package: WalletConnectProvider,
+        options: {
+          infuraId: 'ed0a2b655d424e718cc0d2d1a65a056d',
+        },
+      },
+    }),
+    []
+  );
 
   const connectAccount = useCallback(async () => {
-    const accounts = await metamaskProvider.connect();
+    console.error('in here');
+    debugger;
+    const web3Modal = new Web3Modal({
+      network: 'mainnet',
+      cacheProvider: false,
+      disableInjectedProvider: false,
+      providerOptions,
+    });
+
+    // try {
+    //   const provider = await web3Modal.connect();
+    //   setWeb3Provider(provider);
+    // } catch (err) {
+    //   console.error(err);
+    //   dispatch({ type: 'ERROR', error: new Error('No account connected') });
+    // }
+    const accounts = await web3Modal.connect();
+    console.log(web3Modal);
     if (!accounts || accounts.length === 0) {
       dispatch({ type: 'ERROR', error: new Error('No account connected') });
       return null;
@@ -155,10 +191,10 @@ const Provider = (opts: SlashAuthProviderOptions): JSX.Element => {
     if (accounts) {
       dispatch({ type: 'ACCOUNT_CONNECTED' });
     }
-  }, [metamaskProvider]);
+  }, [providerOptions]);
 
   const getNonceToSign = useCallback(async () => {
-    if (!metamaskProvider.account) {
+    if (!web3Provider.account) {
       dispatch({
         type: 'ERROR',
         error: new Error('No account connected through metamask'),
@@ -169,7 +205,7 @@ const Provider = (opts: SlashAuthProviderOptions): JSX.Element => {
     try {
       const nonceResp = await client.getNonceToSign({
         ...opts,
-        address: metamaskProvider.account,
+        address: web3Provider.account,
       });
       dispatch({
         type: 'NONCE_RECEIVED',
@@ -189,11 +225,11 @@ const Provider = (opts: SlashAuthProviderOptions): JSX.Element => {
       });
       return null;
     }
-  }, [client, metamaskProvider, opts]);
+  }, [client, web3Provider, opts]);
 
   const loginNoRedirectNoPopup = useCallback(
     async (options: LoginNoRedirectNoPopupOptions) => {
-      if (!metamaskProvider.account) {
+      if (!web3Provider?.account) {
         if (state.loginRequested) {
           // We did not get an account so let's return an error.
           dispatch({
@@ -216,13 +252,13 @@ const Provider = (opts: SlashAuthProviderOptions): JSX.Element => {
         if (!state.nonceToSign || state.nonceToSign.length === 0) {
           fetchedNonce = await getNonceToSign();
         }
-        const signature = await metamaskProvider.ethereum?.request({
+        const signature = await web3Provider.ethereum?.request({
           method: 'personal_sign',
-          params: [fetchedNonce, metamaskProvider.account],
+          params: [fetchedNonce, web3Provider.account],
         });
         await client.loginNoRedirectNoPopup({
           ...options,
-          address: metamaskProvider.account,
+          address: web3Provider.account,
           signature,
         });
       } catch (error) {
@@ -245,23 +281,23 @@ const Provider = (opts: SlashAuthProviderOptions): JSX.Element => {
       client,
       connectAccount,
       getNonceToSign,
-      metamaskProvider.account,
-      metamaskProvider.ethereum,
+      web3Provider.account,
+      web3Provider.ethereum,
       state.loginRequested,
       state.nonceToSign,
     ]
   );
 
   useEffect(() => {
-    if (state.loginRequested && metamaskProvider?.account) {
+    if (state.loginRequested && web3Provider?.account) {
       dispatch({ type: 'LOGIN_REQUEST_FULFILLED' });
       // We should check to ensure it's login no redirect no popup type.
       loginNoRedirectNoPopup(state.loginOptions);
     }
   }, [
     loginNoRedirectNoPopup,
-    metamaskProvider,
-    metamaskProvider.account,
+    web3Provider,
+    web3Provider.account,
     state.loginOptions,
     state.loginRequested,
   ]);
@@ -334,7 +370,7 @@ const Provider = (opts: SlashAuthProviderOptions): JSX.Element => {
         type: 'INITIALIZED',
         account: await client.getAccount(),
       });
-      return metamaskProvider.connect();
+      return web3Provider.connect();
     } finally {
       setTimeout(() => setInitialized(true), 250);
     }
@@ -344,9 +380,9 @@ const Provider = (opts: SlashAuthProviderOptions): JSX.Element => {
   const contextValue = useMemo(() => {
     return {
       ...state,
-      connectedWallet: metamaskProvider.account,
+      connectedWallet: web3Provider.account,
       connect: connect,
-      ethereum: metamaskProvider.ethereum,
+      ethereum: web3Provider.ethereum,
       getAccessTokenSilently,
       getNonceToSign,
       loginNoRedirectNoPopup,
@@ -357,16 +393,19 @@ const Provider = (opts: SlashAuthProviderOptions): JSX.Element => {
     };
   }, [
     state,
-    metamaskProvider,
+    web3Provider.account,
+    web3Provider.ethereum,
+    connect,
     getAccessTokenSilently,
     getNonceToSign,
     loginNoRedirectNoPopup,
     getIdTokenClaims,
     logout,
     checkSession,
-    connect,
     initialized,
   ]);
+
+  console.log(web3Provider);
 
   return (
     <SlashAuthContext.Provider value={contextValue}>
@@ -389,9 +428,9 @@ const Provider = (opts: SlashAuthProviderOptions): JSX.Element => {
  */
 const SlashAuthProvider = (opts: SlashAuthProviderOptions): JSX.Element => {
   return (
-    <MetaMaskProvider>
+    <div>
       <Provider {...opts} />
-    </MetaMaskProvider>
+    </div>
   );
 };
 

@@ -8,8 +8,6 @@ import 'core-js/es/typed-array/slice';
 import 'core-js/es/array/includes';
 import 'core-js/es/string/includes';
 import 'core-js/es/set';
-import 'promise-polyfill/src/polyfill';
-
 import SlashAuthClient from './client';
 import { SlashAuthClientOptions } from './global';
 
@@ -56,6 +54,7 @@ export {
 } from './auth-context';
 
 export const useSlashAuth = () => {
+  console.log('use SlashAuth');
   const slashAuth = useContext(SlashAuthContext);
 
   return slashAuth;
