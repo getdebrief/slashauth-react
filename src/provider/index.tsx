@@ -166,8 +166,6 @@ const Provider = (opts: SlashAuthProviderOptions): JSX.Element => {
   );
 
   const connectAccount = useCallback(async () => {
-    console.error('in here');
-    debugger;
     const web3Modal = new Web3Modal({
       network: 'mainnet',
       cacheProvider: false,
@@ -184,6 +182,7 @@ const Provider = (opts: SlashAuthProviderOptions): JSX.Element => {
     // }
     const accounts = await web3Modal.connect();
     console.log(web3Modal);
+    console.log(accounts);
     if (!accounts || accounts.length === 0) {
       dispatch({ type: 'ERROR', error: new Error('No account connected') });
       return null;
@@ -281,8 +280,8 @@ const Provider = (opts: SlashAuthProviderOptions): JSX.Element => {
       client,
       connectAccount,
       getNonceToSign,
-      web3Provider.account,
-      web3Provider.ethereum,
+      web3Provider?.account,
+      web3Provider?.ethereum,
       state.loginRequested,
       state.nonceToSign,
     ]
@@ -297,7 +296,7 @@ const Provider = (opts: SlashAuthProviderOptions): JSX.Element => {
   }, [
     loginNoRedirectNoPopup,
     web3Provider,
-    web3Provider.account,
+    web3Provider?.account,
     state.loginOptions,
     state.loginRequested,
   ]);
@@ -380,9 +379,9 @@ const Provider = (opts: SlashAuthProviderOptions): JSX.Element => {
   const contextValue = useMemo(() => {
     return {
       ...state,
-      connectedWallet: web3Provider.account,
+      connectedWallet: web3Provider?.account,
       connect: connect,
-      ethereum: web3Provider.ethereum,
+      ethereum: web3Provider?.ethereum,
       getAccessTokenSilently,
       getNonceToSign,
       loginNoRedirectNoPopup,
@@ -393,8 +392,8 @@ const Provider = (opts: SlashAuthProviderOptions): JSX.Element => {
     };
   }, [
     state,
-    web3Provider.account,
-    web3Provider.ethereum,
+    web3Provider?.account,
+    web3Provider?.ethereum,
     connect,
     getAccessTokenSilently,
     getNonceToSign,

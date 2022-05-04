@@ -32,7 +32,7 @@ type Action =
   | { type: 'ERROR'; error: Error };
 
 /**
- * Handles how that state changes in the `useAuth0` hook.
+ * Handles how that state changes in the `/auth` hook.
  */
 export const reducer = (
   state: SlashAuthState,

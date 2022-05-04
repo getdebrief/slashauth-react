@@ -16,7 +16,7 @@ export * from './global';
 /**
  * Asynchronously creates the Auth0Client instance and calls `checkSession`.
  *
- * **Note:** There are caveats to using this in a private browser tab, which may not silently authenticae
+ * **Note:** There are caveats to using this in a private browser tab, which may not silently authenticate
  * a user on page refresh.
  *
  * @param options The client options
