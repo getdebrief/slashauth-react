@@ -1,59 +1,63 @@
-import { useEthers } from '@usedapp/core';
 import WalletConnectProvider from '@walletconnect/web3-provider';
 import Web3Modal from 'web3modal';
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useLocalStorage } from '../hooks/use-localstorage';
+import { ethers, Wallet } from 'ethers';
+import { Web3Provider } from '@ethersproject/providers';
+import CoinbaseWalletSDK from '@coinbase/wallet-sdk';
+import { ProviderOptions } from '.';
 
 type InternalState = {
+  active: boolean;
   loading: boolean;
   error?: Error | null;
+  provider: any;
+  library: Web3Provider | null;
+  account: string | null;
 };
 
 const initialState = {
+  active: false,
   loading: false,
   error: null,
+  provider: null,
+  library: null,
+  account: null,
 };
 
-export const useWalletAuth = () => {
+export const useWalletAuth = (options: ProviderOptions) => {
   const [internalState, setInternalState] =
     useState<InternalState>(initialState);
 
   const [connectWalletLocalStorage, setConnectWalletLocalStorage] =
     useLocalStorage('slashauth-connect-wallet');
 
-  const {
-    active,
-    account,
-    library,
-    error,
-    activate,
-    deactivate,
-    activateBrowserWallet,
-  } = useEthers();
-
   useEffect(() => {
-    if (account && !connectWalletLocalStorage) {
+    if (internalState.account && !connectWalletLocalStorage) {
       setConnectWalletLocalStorage('true');
     }
-  }, [account, connectWalletLocalStorage, setConnectWalletLocalStorage]);
+  }, [
+    internalState.account,
+    connectWalletLocalStorage,
+    setConnectWalletLocalStorage,
+  ]);
 
-  const getWeb3Modal = () => {
-    const providerOptions = {
-      injected: {
-        display: {
-          name: 'Metamask',
-          description: 'Connect with the provider in your Browser',
-        },
-        package: null,
-      },
-      walletconnect: {
+  const web3Modal = useMemo(() => {
+    const providerOptions = {};
+
+    if (options?.coinbasewallet) {
+      providerOptions['coinbasewallet'] = {
+        package: CoinbaseWalletSDK,
+        options: options.coinbasewallet,
+      };
+    }
+    if (options?.walletconnect) {
+      providerOptions['walletconnect'] = {
         package: WalletConnectProvider,
-        options: {
-          infuraId: '3fd4907115b84c7eb48e95514768a4e8',
-          bridge: 'https://bridge.walletconnect.org',
-        },
-      },
-    };
+        options: options.walletconnect,
+      };
+    }
+
     const web3Modal = new Web3Modal({
       network: 'mainnet',
       cacheProvider: true,
@@ -62,49 +66,58 @@ export const useWalletAuth = () => {
     });
 
     return web3Modal;
-  };
+  }, [options]);
 
-  const activateProvider = async () => {
-    setInternalState({
-      ...internalState,
-      loading: true,
-    });
-
-    const web3Modal = getWeb3Modal();
-
+  const connectWallet = async (transparent: boolean) => {
+    if (transparent && !web3Modal.cachedProvider) {
+      // We will not do anything here because we don't want to force a popup.
+      setInternalState({
+        ...internalState,
+        active: true,
+      });
+      return;
+    }
     try {
       const provider = await web3Modal.connect();
-      await activate(provider);
+      const library = new ethers.providers.Web3Provider(provider);
+      const accounts = await library.listAccounts();
       setInternalState({
         ...internalState,
-        error: null,
-        loading: false,
+        provider,
+        library,
+        active: true,
+        account: accounts.at(0) || null,
       });
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    } catch (error: any) {
+      return accounts.at(0) || null;
+    } catch (err) {
+      console.error(err);
       setInternalState({
         ...internalState,
-        error: error,
-        loading: false,
+        error: err,
       });
     }
   };
 
   const handleDeactivate = () => {
-    deactivate();
-    getWeb3Modal().clearCachedProvider();
+    web3Modal.clearCachedProvider();
     setConnectWalletLocalStorage(undefined);
+    setInternalState({
+      ...internalState,
+      provider: null,
+      library: null,
+      account: null,
+      error: null,
+    });
   };
 
   return {
+    active: internalState.active,
     loading: internalState.loading,
-    active,
-    account,
-    library,
-    error,
+    account: internalState.account,
+    library: internalState.library,
+    error: internalState.error,
     connectOnStart: connectWalletLocalStorage,
-    activateProvider,
+    connectWallet,
     deactivate: handleDeactivate,
-    activateBrowserWallet,
   };
 };

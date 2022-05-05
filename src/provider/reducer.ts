@@ -21,7 +21,7 @@ type Action =
       account?: Account;
       nonceToSign?: string | null;
     }
-  | { type: 'ACCOUNT_CONNECTED' }
+  | { type: 'ACCOUNT_CONNECTED'; account: Account }
   | { type: 'LOGIN_REQUEST_FULFILLED' }
   | {
       type: 'LOGIN_REQUESTED';
@@ -61,6 +61,7 @@ export const reducer = (
     case 'ACCOUNT_CONNECTED':
       return {
         ...state,
+        account: action.account,
       };
     case 'LOGIN_REQUESTED':
       return {

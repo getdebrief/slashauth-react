@@ -21,18 +21,24 @@ import {
 import { loginError, tokenError } from '../utils';
 import { reducer } from './reducer';
 import { useWalletAuth } from './wallet-auth';
-import { DAppProvider } from '@usedapp/core';
-import { useLocalStorage } from '../hooks/use-localstorage';
+import { CoinbaseWalletSDKOptions } from '@coinbase/wallet-sdk/dist/CoinbaseWalletSDK';
+import { IWalletConnectProviderOptions } from '@walletconnect/types';
 
 export type AppState = {
   returnTo?: string;
   [key: string]: any; // eslint-disable-line @typescript-eslint/no-explicit-any
 };
 
+export type ProviderOptions = {
+  coinbasewallet?: CoinbaseWalletSDKOptions;
+  walletconnect?: IWalletConnectProviderOptions;
+};
+
 /**
  * The main configuration to instantiate the `SlashAuthProvider`.
  */
 export interface SlashAuthProviderOptions {
+  providers?: ProviderOptions;
   /**
    * The child nodes your Provider has wrapped
    */
@@ -148,32 +154,34 @@ const Provider = (opts: SlashAuthProviderOptions): JSX.Element => {
   const [state, dispatch] = useReducer(reducer, initialAuthState);
 
   const {
-    active,
     account,
     library,
     connectOnStart,
-    activateProvider,
+    connectWallet,
+    active,
     deactivate,
-  } = useWalletAuth();
+  } = useWalletAuth(opts.providers);
 
   useEffect(() => {
     if (connectOnStart && !active) {
-      activateProvider();
+      connectWallet(true);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [connectOnStart]);
 
   const connectAccount = useCallback(async () => {
-    if (!active) {
-      await activateProvider();
+    const acc = await connectWallet(false);
+    if (acc && state.loginRequested) {
+      dispatch({
+        type: 'ACCOUNT_CONNECTED',
+        account: {
+          address: acc,
+          network: Network.Ethereum,
+        },
+      });
     }
-    return account;
-  }, [account, activateProvider]);
-
-  useEffect(() => {
-    if (account && state.loginRequested) {
-      dispatch({ type: 'ACCOUNT_CONNECTED' });
-    }
-  }, [account]);
+    return acc;
+  }, [connectWallet, state.loginRequested]);
 
   const getNonceToSign = useCallback(async () => {
     if (!account) {
@@ -293,6 +301,7 @@ const Provider = (opts: SlashAuthProviderOptions): JSX.Element => {
       dispatch({ type: 'LOGOUT' });
       return maybePromise;
     },
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     [client]
   );
 
@@ -355,12 +364,12 @@ const Provider = (opts: SlashAuthProviderOptions): JSX.Element => {
         type: 'INITIALIZED',
         account: await client.getAccount(),
       });
-      await activateProvider();
+      const account = await connectWallet(false);
       return account;
     } finally {
       setTimeout(() => setInitialized(true), 250);
     }
-  }, [activateProvider, client]);
+  }, [connectWallet, client]);
 
   const contextValue = useMemo(() => {
     return {
@@ -380,7 +389,6 @@ const Provider = (opts: SlashAuthProviderOptions): JSX.Element => {
     state,
     account,
     connect,
-    connectAccount,
     library,
     getAccessTokenSilently,
     getNonceToSign,
@@ -401,9 +409,9 @@ const Provider = (opts: SlashAuthProviderOptions): JSX.Element => {
 /**
  * ```jsx
  * <SlashAuthProvider
- *   domain={domain}
  *   clientId={clientId}
- *   redirectUri={window.location.origin}>
+ *   providers={{...}}
+ * >
  *   <MyApp />
  * </SlashAuthProvider>
  * ```
@@ -411,17 +419,7 @@ const Provider = (opts: SlashAuthProviderOptions): JSX.Element => {
  * Provides the Auth0Context to its child components.
  */
 const SlashAuthProvider = (opts: SlashAuthProviderOptions): JSX.Element => {
-  return (
-    <DAppProvider
-      config={{
-        readOnlyUrls: {},
-        pollingInterval: 100000000,
-        autoConnect: false,
-      }}
-    >
-      <Provider {...opts} />
-    </DAppProvider>
-  );
+  return <Provider {...opts} />;
 };
 
 export default SlashAuthProvider;
