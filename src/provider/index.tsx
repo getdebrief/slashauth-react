@@ -15,12 +15,14 @@ import {
   GetTokenSilentlyOptions,
   LoginNoRedirectNoPopupOptions,
   LogoutOptions,
+  Network,
   SlashAuthClientOptions,
 } from '../global';
 import { loginError, tokenError } from '../utils';
 import { reducer } from './reducer';
-import WalletConnectProvider from '@walletconnect/web3-provider';
-import Web3Modal from 'web3modal';
+import { useWalletAuth } from './wallet-auth';
+import { DAppProvider } from '@usedapp/core';
+import { useLocalStorage } from '../hooks/use-localstorage';
 
 export type AppState = {
   returnTo?: string;
@@ -144,59 +146,40 @@ const Provider = (opts: SlashAuthProviderOptions): JSX.Element => {
     () => new SlashAuthClient(toSlashAuthClientOptions(clientOpts))
   );
   const [state, dispatch] = useReducer(reducer, initialAuthState);
-  const [web3Provider, setWeb3Provider] = useState(null);
 
-  const providerOptions = useMemo(
-    () => ({
-      injected: {
-        display: {
-          name: 'Metamask',
-          description: 'Connect with the provider in your Browser',
-        },
-        package: null,
-      },
-      walletconnect: {
-        package: WalletConnectProvider,
-        options: {
-          infuraId: 'ed0a2b655d424e718cc0d2d1a65a056d',
-        },
-      },
-    }),
-    []
-  );
+  const {
+    active,
+    account,
+    library,
+    connectOnStart,
+    activateProvider,
+    deactivate,
+  } = useWalletAuth();
+
+  useEffect(() => {
+    if (connectOnStart && !active) {
+      activateProvider();
+    }
+  }, [connectOnStart]);
 
   const connectAccount = useCallback(async () => {
-    const web3Modal = new Web3Modal({
-      network: 'mainnet',
-      cacheProvider: false,
-      disableInjectedProvider: false,
-      providerOptions,
-    });
-
-    // try {
-    //   const provider = await web3Modal.connect();
-    //   setWeb3Provider(provider);
-    // } catch (err) {
-    //   console.error(err);
-    //   dispatch({ type: 'ERROR', error: new Error('No account connected') });
-    // }
-    const accounts = await web3Modal.connect();
-    console.log(web3Modal);
-    console.log(accounts);
-    if (!accounts || accounts.length === 0) {
-      dispatch({ type: 'ERROR', error: new Error('No account connected') });
-      return null;
+    if (!active) {
+      await activateProvider();
     }
-    if (accounts) {
+    return account;
+  }, [account, activateProvider]);
+
+  useEffect(() => {
+    if (account && state.loginRequested) {
       dispatch({ type: 'ACCOUNT_CONNECTED' });
     }
-  }, [providerOptions]);
+  }, [account]);
 
   const getNonceToSign = useCallback(async () => {
-    if (!web3Provider.account) {
+    if (!account) {
       dispatch({
         type: 'ERROR',
-        error: new Error('No account connected through metamask'),
+        error: new Error('No account connected'),
       });
       return;
     }
@@ -204,7 +187,7 @@ const Provider = (opts: SlashAuthProviderOptions): JSX.Element => {
     try {
       const nonceResp = await client.getNonceToSign({
         ...opts,
-        address: web3Provider.account,
+        address: account,
       });
       dispatch({
         type: 'NONCE_RECEIVED',
@@ -224,11 +207,11 @@ const Provider = (opts: SlashAuthProviderOptions): JSX.Element => {
       });
       return null;
     }
-  }, [client, web3Provider, opts]);
+  }, [account, client, opts]);
 
   const loginNoRedirectNoPopup = useCallback(
     async (options: LoginNoRedirectNoPopupOptions) => {
-      if (!web3Provider?.account) {
+      if (!account) {
         if (state.loginRequested) {
           // We did not get an account so let's return an error.
           dispatch({
@@ -251,13 +234,10 @@ const Provider = (opts: SlashAuthProviderOptions): JSX.Element => {
         if (!state.nonceToSign || state.nonceToSign.length === 0) {
           fetchedNonce = await getNonceToSign();
         }
-        const signature = await web3Provider.ethereum?.request({
-          method: 'personal_sign',
-          params: [fetchedNonce, web3Provider.account],
-        });
+        const signature = await library.getSigner().signMessage(fetchedNonce);
         await client.loginNoRedirectNoPopup({
           ...options,
-          address: web3Provider.account,
+          address: account,
           signature,
         });
       } catch (error) {
@@ -273,37 +253,43 @@ const Provider = (opts: SlashAuthProviderOptions): JSX.Element => {
         });
         return;
       }
-      const account = await client.getAccount({});
-      dispatch({ type: 'LOGIN_WITH_SIGNED_NONCE_COMPLETE', account });
+      // const account = await client.getAccount({});
+      dispatch({
+        type: 'LOGIN_WITH_SIGNED_NONCE_COMPLETE',
+        account: {
+          address: account,
+          network: Network.Ethereum,
+        },
+      });
     },
     [
+      account,
       client,
       connectAccount,
       getNonceToSign,
-      web3Provider?.account,
-      web3Provider?.ethereum,
+      library,
       state.loginRequested,
       state.nonceToSign,
     ]
   );
 
   useEffect(() => {
-    if (state.loginRequested && web3Provider?.account) {
+    if (state.loginRequested && account) {
       dispatch({ type: 'LOGIN_REQUEST_FULFILLED' });
       // We should check to ensure it's login no redirect no popup type.
       loginNoRedirectNoPopup(state.loginOptions);
     }
   }, [
     loginNoRedirectNoPopup,
-    web3Provider,
-    web3Provider?.account,
     state.loginOptions,
     state.loginRequested,
+    account,
   ]);
 
   const logout = useCallback(
     async (opts: LogoutOptions = {}): Promise<void> => {
       const maybePromise = client.logout(opts);
+      deactivate();
       dispatch({ type: 'LOGOUT' });
       return maybePromise;
     },
@@ -369,19 +355,19 @@ const Provider = (opts: SlashAuthProviderOptions): JSX.Element => {
         type: 'INITIALIZED',
         account: await client.getAccount(),
       });
-      return web3Provider.connect();
+      await activateProvider();
+      return account;
     } finally {
       setTimeout(() => setInitialized(true), 250);
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [activateProvider, client]);
 
   const contextValue = useMemo(() => {
     return {
       ...state,
-      connectedWallet: web3Provider?.account,
-      connect: connect,
-      ethereum: web3Provider?.ethereum,
+      connectedWallet: account,
+      connect,
+      ethereum: library,
       getAccessTokenSilently,
       getNonceToSign,
       loginNoRedirectNoPopup,
@@ -392,9 +378,10 @@ const Provider = (opts: SlashAuthProviderOptions): JSX.Element => {
     };
   }, [
     state,
-    web3Provider?.account,
-    web3Provider?.ethereum,
+    account,
     connect,
+    connectAccount,
+    library,
     getAccessTokenSilently,
     getNonceToSign,
     loginNoRedirectNoPopup,
@@ -403,8 +390,6 @@ const Provider = (opts: SlashAuthProviderOptions): JSX.Element => {
     checkSession,
     initialized,
   ]);
-
-  console.log(web3Provider);
 
   return (
     <SlashAuthContext.Provider value={contextValue}>
@@ -427,9 +412,15 @@ const Provider = (opts: SlashAuthProviderOptions): JSX.Element => {
  */
 const SlashAuthProvider = (opts: SlashAuthProviderOptions): JSX.Element => {
   return (
-    <div>
+    <DAppProvider
+      config={{
+        readOnlyUrls: {},
+        pollingInterval: 100000000,
+        autoConnect: false,
+      }}
+    >
       <Provider {...opts} />
-    </div>
+    </DAppProvider>
   );
 };
 

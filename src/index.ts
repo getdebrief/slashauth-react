@@ -54,7 +54,6 @@ export {
 } from './auth-context';
 
 export const useSlashAuth = () => {
-  console.log('use SlashAuth');
   const slashAuth = useContext(SlashAuthContext);
 
   return slashAuth;

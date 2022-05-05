@@ -10,9 +10,7 @@
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "scripts": {
-    "build": "tsc",
-    "build-webpack": "mv node_modules/react2 node_modules/react; mv node_modules/react-dom2 node_modules/react-dom; webpack --config webpack.config.js; mv node_modules/react node_modules/react2; mv node_modules/react-dom node_modules/react-dom2;",
-    "build-esbuild": "./scripts/build.sh --external:react --external:react-dom",
+    "build": "tsc && node esbuild.js",
     "test": "jest",
     "test:cover": "jest --coverage",
     "prepare": "node -e \"try { require('husky').install() } catch (e) {if (e.code !== 'MODULE_NOT_FOUND') throw e}\"",
@@ -73,6 +71,7 @@
   },
   "dependencies": {
     "@coinbase/wallet-sdk": "^3.0.11",
+    "@usedapp/core": "^1.0.2",
     "@walletconnect/web3-provider": "^1.7.8",
     "browser-tabs-lock": "^1.2.15",
     "crypto-browserify": "^3.12.0",
