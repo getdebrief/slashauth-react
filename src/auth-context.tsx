@@ -24,7 +24,7 @@ export const SlashAuthStepLoggedIn: SlashAuthStep = 'LOGGED_IN';
 
 export interface SlashAuthContextInterface extends SlashAuthState {
   initialized: boolean;
-  connect: () => Promise<string[] | null>;
+  connect: () => Promise<string | null>;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   ethereum: any;
   /*

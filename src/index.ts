@@ -8,8 +8,6 @@ import 'core-js/es/typed-array/slice';
 import 'core-js/es/array/includes';
 import 'core-js/es/string/includes';
 import 'core-js/es/set';
-import 'promise-polyfill/src/polyfill';
-
 import SlashAuthClient from './client';
 import { SlashAuthClientOptions } from './global';
 
@@ -18,7 +16,7 @@ export * from './global';
 /**
  * Asynchronously creates the Auth0Client instance and calls `checkSession`.
  *
- * **Note:** There are caveats to using this in a private browser tab, which may not silently authenticae
+ * **Note:** There are caveats to using this in a private browser tab, which may not silently authenticate
  * a user on page refresh.
  *
  * @param options The client options

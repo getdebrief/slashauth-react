@@ -15,21 +15,30 @@ import {
   GetTokenSilentlyOptions,
   LoginNoRedirectNoPopupOptions,
   LogoutOptions,
+  Network,
   SlashAuthClientOptions,
 } from '../global';
 import { loginError, tokenError } from '../utils';
 import { reducer } from './reducer';
-import { useMetaMask, MetaMaskProvider } from '@slashauth/react-use-metamask';
+import { useWalletAuth } from './wallet-auth';
+import { CoinbaseWalletSDKOptions } from '@coinbase/wallet-sdk/dist/CoinbaseWalletSDK';
+import { IWalletConnectProviderOptions } from '@walletconnect/types';
 
 export type AppState = {
   returnTo?: string;
   [key: string]: any; // eslint-disable-line @typescript-eslint/no-explicit-any
 };
 
+export type ProviderOptions = {
+  coinbasewallet?: CoinbaseWalletSDKOptions;
+  walletconnect?: IWalletConnectProviderOptions;
+};
+
 /**
  * The main configuration to instantiate the `SlashAuthProvider`.
  */
 export interface SlashAuthProviderOptions {
+  providers?: ProviderOptions;
   /**
    * The child nodes your Provider has wrapped
    */
@@ -144,24 +153,41 @@ const Provider = (opts: SlashAuthProviderOptions): JSX.Element => {
   );
   const [state, dispatch] = useReducer(reducer, initialAuthState);
 
-  const metamaskProvider = useMetaMask();
+  const {
+    account,
+    library,
+    connectOnStart,
+    connectWallet,
+    active,
+    deactivate,
+  } = useWalletAuth(opts.providers);
+
+  useEffect(() => {
+    if (connectOnStart && !active) {
+      connectWallet(true);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [connectOnStart]);
 
   const connectAccount = useCallback(async () => {
-    const accounts = await metamaskProvider.connect();
-    if (!accounts || accounts.length === 0) {
-      dispatch({ type: 'ERROR', error: new Error('No account connected') });
-      return null;
+    const acc = await connectWallet(false);
+    if (acc && state.loginRequested) {
+      dispatch({
+        type: 'ACCOUNT_CONNECTED',
+        account: {
+          address: acc,
+          network: Network.Ethereum,
+        },
+      });
     }
-    if (accounts) {
-      dispatch({ type: 'ACCOUNT_CONNECTED' });
-    }
-  }, [metamaskProvider]);
+    return acc;
+  }, [connectWallet, state.loginRequested]);
 
   const getNonceToSign = useCallback(async () => {
-    if (!metamaskProvider.account) {
+    if (!account) {
       dispatch({
         type: 'ERROR',
-        error: new Error('No account connected through metamask'),
+        error: new Error('No account connected'),
       });
       return;
     }
@@ -169,7 +195,7 @@ const Provider = (opts: SlashAuthProviderOptions): JSX.Element => {
     try {
       const nonceResp = await client.getNonceToSign({
         ...opts,
-        address: metamaskProvider.account,
+        address: account,
       });
       dispatch({
         type: 'NONCE_RECEIVED',
@@ -189,11 +215,11 @@ const Provider = (opts: SlashAuthProviderOptions): JSX.Element => {
       });
       return null;
     }
-  }, [client, metamaskProvider, opts]);
+  }, [account, client, opts]);
 
   const loginNoRedirectNoPopup = useCallback(
     async (options: LoginNoRedirectNoPopupOptions) => {
-      if (!metamaskProvider.account) {
+      if (!account) {
         if (state.loginRequested) {
           // We did not get an account so let's return an error.
           dispatch({
@@ -216,13 +242,10 @@ const Provider = (opts: SlashAuthProviderOptions): JSX.Element => {
         if (!state.nonceToSign || state.nonceToSign.length === 0) {
           fetchedNonce = await getNonceToSign();
         }
-        const signature = await metamaskProvider.ethereum?.request({
-          method: 'personal_sign',
-          params: [fetchedNonce, metamaskProvider.account],
-        });
+        const signature = await library.getSigner().signMessage(fetchedNonce);
         await client.loginNoRedirectNoPopup({
           ...options,
-          address: metamaskProvider.account,
+          address: account,
           signature,
         });
       } catch (error) {
@@ -238,40 +261,47 @@ const Provider = (opts: SlashAuthProviderOptions): JSX.Element => {
         });
         return;
       }
-      const account = await client.getAccount({});
-      dispatch({ type: 'LOGIN_WITH_SIGNED_NONCE_COMPLETE', account });
+      // const account = await client.getAccount({});
+      dispatch({
+        type: 'LOGIN_WITH_SIGNED_NONCE_COMPLETE',
+        account: {
+          address: account,
+          network: Network.Ethereum,
+        },
+      });
     },
     [
+      account,
       client,
       connectAccount,
       getNonceToSign,
-      metamaskProvider.account,
-      metamaskProvider.ethereum,
+      library,
       state.loginRequested,
       state.nonceToSign,
     ]
   );
 
   useEffect(() => {
-    if (state.loginRequested && metamaskProvider?.account) {
+    if (state.loginRequested && account) {
       dispatch({ type: 'LOGIN_REQUEST_FULFILLED' });
       // We should check to ensure it's login no redirect no popup type.
       loginNoRedirectNoPopup(state.loginOptions);
     }
   }, [
     loginNoRedirectNoPopup,
-    metamaskProvider,
-    metamaskProvider.account,
     state.loginOptions,
     state.loginRequested,
+    account,
   ]);
 
   const logout = useCallback(
     async (opts: LogoutOptions = {}): Promise<void> => {
       const maybePromise = client.logout(opts);
+      deactivate();
       dispatch({ type: 'LOGOUT' });
       return maybePromise;
     },
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     [client]
   );
 
@@ -334,19 +364,19 @@ const Provider = (opts: SlashAuthProviderOptions): JSX.Element => {
         type: 'INITIALIZED',
         account: await client.getAccount(),
       });
-      return metamaskProvider.connect();
+      const account = await connectWallet(false);
+      return account;
     } finally {
       setTimeout(() => setInitialized(true), 250);
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [connectWallet, client]);
 
   const contextValue = useMemo(() => {
     return {
       ...state,
-      connectedWallet: metamaskProvider.account,
-      connect: connect,
-      ethereum: metamaskProvider.ethereum,
+      connectedWallet: account,
+      connect,
+      ethereum: library,
       getAccessTokenSilently,
       getNonceToSign,
       loginNoRedirectNoPopup,
@@ -357,14 +387,15 @@ const Provider = (opts: SlashAuthProviderOptions): JSX.Element => {
     };
   }, [
     state,
-    metamaskProvider,
+    account,
+    connect,
+    library,
     getAccessTokenSilently,
     getNonceToSign,
     loginNoRedirectNoPopup,
     getIdTokenClaims,
     logout,
     checkSession,
-    connect,
     initialized,
   ]);
 
@@ -378,9 +409,9 @@ const Provider = (opts: SlashAuthProviderOptions): JSX.Element => {
 /**
  * ```jsx
  * <SlashAuthProvider
- *   domain={domain}
  *   clientId={clientId}
- *   redirectUri={window.location.origin}>
+ *   providers={{...}}
+ * >
  *   <MyApp />
  * </SlashAuthProvider>
  * ```
@@ -388,11 +419,7 @@ const Provider = (opts: SlashAuthProviderOptions): JSX.Element => {
  * Provides the Auth0Context to its child components.
  */
 const SlashAuthProvider = (opts: SlashAuthProviderOptions): JSX.Element => {
-  return (
-    <MetaMaskProvider>
-      <Provider {...opts} />
-    </MetaMaskProvider>
-  );
+  return <Provider {...opts} />;
 };
 
 export default SlashAuthProvider;
