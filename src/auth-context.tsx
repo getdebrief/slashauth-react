@@ -10,7 +10,6 @@ import {
   IdToken,
   LoginNoRedirectNoPopupOptions,
   LogoutOptions,
-  LogoutUrlOptions,
 } from './global';
 
 export type SlashAuthStep = string;
@@ -27,6 +26,8 @@ export interface SlashAuthContextInterface extends SlashAuthState {
   connect: () => Promise<string | null>;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   ethereum: any;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  provider: any;
   /*
    Gets a nonce to sign.
   */
@@ -83,6 +84,7 @@ const initialContextState: SlashAuthContextInterface = {
   logout: stub,
   getIdTokenClaims: stub,
   checkSession: stub,
+  provider: null,
 };
 
 const SlashAuthContext =

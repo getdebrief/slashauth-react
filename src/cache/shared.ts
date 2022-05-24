@@ -1,6 +1,6 @@
 import { IdToken, Account } from '../global';
 
-export const CACHE_KEY_PREFIX = '@@aslashauth0slashauth-react@@';
+export const CACHE_KEY_PREFIX = '@@aslashauth@slashauth-react@@';
 
 export type CacheKeyData = {
   audience: string;
