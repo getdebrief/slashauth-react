@@ -2,7 +2,7 @@ import WalletConnectProvider from '@walletconnect/web3-provider';
 import Web3Modal from 'web3modal';
 import { useEffect, useMemo, useState } from 'react';
 import { useLocalStorage } from '../hooks/use-localstorage';
-import { ethers, Wallet } from 'ethers';
+import { ethers } from 'ethers';
 import { Web3Provider } from '@ethersproject/providers';
 import CoinbaseWalletSDK from '@coinbase/wallet-sdk';
 import { ProviderOptions } from '.';
@@ -117,6 +117,7 @@ export const useWalletAuth = (options: ProviderOptions) => {
     library: internalState.library,
     error: internalState.error,
     connectOnStart: connectWalletLocalStorage,
+    provider: internalState.provider,
     connectWallet,
     deactivate: handleDeactivate,
   };

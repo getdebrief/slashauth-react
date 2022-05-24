@@ -70,15 +70,8 @@ export interface SlashAuthProviderOptions {
   /**
    * Specify a custom cache implementation to use for token storage and retrieval. This setting takes precedence over `cacheLocation` if they are both specified.
    *
-   * Read more about [creating a custom cache](https://github.com/auth0/auth0-spa-js#creating-a-custom-cache)
    */
   cache?: ICache;
-  /**
-   * If true, refresh tokens are used to fetch new access tokens from the Auth0 server. If false, the legacy technique of using a hidden iframe and the `authorization_code` grant with `prompt=none` is used.
-   * The default setting is `false`.
-   *
-   * **Note**: Use of refresh tokens must be enabled by an administrator on your Auth0 client application.
-   */
   // useRefreshTokens?: boolean;
   /**
    * A maximum number of seconds to wait before declaring background calls to /authorize as failed for timeout
@@ -95,11 +88,6 @@ export interface SlashAuthProviderOptions {
    * the user must be reauthenticated.
    */
   // maxAge?: string | number;
-  /**
-   * The default scope to be used on authentication requests.
-   * The defaultScope defined in the Auth0Client is included
-   * along with this scope
-   */
   // scope?: string;
   /**
    * The default audience to be used for requesting API access.
@@ -159,6 +147,7 @@ const Provider = (opts: SlashAuthProviderOptions): JSX.Element => {
     connectOnStart,
     connectWallet,
     active,
+    provider,
     deactivate,
   } = useWalletAuth(opts.providers);
 
@@ -374,6 +363,7 @@ const Provider = (opts: SlashAuthProviderOptions): JSX.Element => {
   const contextValue = useMemo(() => {
     return {
       ...state,
+      provider,
       connectedWallet: account,
       connect,
       ethereum: library,
@@ -387,6 +377,7 @@ const Provider = (opts: SlashAuthProviderOptions): JSX.Element => {
     };
   }, [
     state,
+    provider,
     account,
     connect,
     library,
@@ -416,7 +407,6 @@ const Provider = (opts: SlashAuthProviderOptions): JSX.Element => {
  * </SlashAuthProvider>
  * ```
  *
- * Provides the Auth0Context to its child components.
  */
 const SlashAuthProvider = (opts: SlashAuthProviderOptions): JSX.Element => {
   return <Provider {...opts} />;

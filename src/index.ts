@@ -14,13 +14,13 @@ import { SlashAuthClientOptions } from './global';
 export * from './global';
 
 /**
- * Asynchronously creates the Auth0Client instance and calls `checkSession`.
+ * Asynchronously creates the SlashAuthClient instance and calls `checkSession`.
  *
  * **Note:** There are caveats to using this in a private browser tab, which may not silently authenticate
  * a user on page refresh.
  *
  * @param options The client options
- * @returns An instance of Auth0Client
+ * @returns An instance of SlashAuthClient
  */
 export default async function createSlashAuthClient(
   options: SlashAuthClientOptions

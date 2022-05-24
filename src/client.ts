@@ -189,7 +189,7 @@ export default class SlashAuthClient {
 
     if (options.cache && options.cacheLocation) {
       console.warn(
-        'Both `cache` and `cacheLocation` options have been specified in the Auth0Client configuration; ignoring `cacheLocation` and using `cache`.'
+        'Both `cache` and `cacheLocation` options have been specified in the SlashauthClient configuration; ignoring `cacheLocation` and using `cache`.'
       );
     }
 
@@ -415,7 +415,7 @@ export default class SlashAuthClient {
    * pre-fill the token cache.
    *
    * This method also heeds the `slashauth.{clientId}.is.authenticated` cookie, as an optimization
-   *  to prevent calling Auth0 unnecessarily. If the cookie is not present because
+   *  to prevent calling Slashauth unnecessarily. If the cookie is not present because
    * there was no previous login (or it has expired) then tokens will not be refreshed.
    *
    * It should be used for silently logging in the user when you instantiate the
@@ -501,7 +501,7 @@ export default class SlashAuthClient {
    * back to using an iframe to make the token exchange.
    *
    * Note that in all cases, falling back to an iframe requires access to
-   * the `auth0` cookie.
+   * the `slashauth` cookie.
    *
    * @param options
    */
@@ -680,7 +680,6 @@ export default class SlashAuthClient {
     //     code: codeResult.code,
     //     grant_type: 'authorization_code',
     //     redirect_uri: params.redirect_uri,
-    //     auth0Client: this.options.auth0Client,
     //     useFormData: this.options.useFormData,
     //     timeout: this.httpTimeoutMs,
     //   } as OAuthTokenOptions,
@@ -758,7 +757,7 @@ export default class SlashAuthClient {
    * ```
    *
    * Clears the application session and performs a redirect to `/v2/logout`, using
-   * the parameters provided as arguments, to clear the Auth0 session.
+   * the parameters provided as arguments, to clear the Slashauth session.
    *
    * **Note:** If you are using a custom cache, and specifying `localOnly: true`, and you want to perform actions or read state from the SDK immediately after logout, you should `await` the result of calling `logout`.
    *
