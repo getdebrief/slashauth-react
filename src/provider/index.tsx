@@ -209,13 +209,6 @@ const Provider = (opts: SlashAuthProviderOptions): JSX.Element => {
   const loginNoRedirectNoPopup = useCallback(
     async (options: LoginNoRedirectNoPopupOptions) => {
       if (!account) {
-        if (state.loginRequested) {
-          // We did not get an account so let's return an error.
-          dispatch({
-            type: 'ERROR',
-            error: new Error('No account connected through metamask'),
-          });
-        }
         dispatch({
           type: 'LOGIN_REQUESTED',
           loginType: 'LoginNoRedirectNoPopup',
