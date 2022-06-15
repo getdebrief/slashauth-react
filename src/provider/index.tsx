@@ -348,7 +348,7 @@ const Provider = (opts: SlashAuthProviderOptions): JSX.Element => {
   );
 
   const connect = useCallback(
-    async (transparent: boolean) => {
+    async (transparent?: boolean) => {
       try {
         dispatch({
           type: 'INITIALIZED',
