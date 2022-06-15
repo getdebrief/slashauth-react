@@ -347,18 +347,21 @@ const Provider = (opts: SlashAuthProviderOptions): JSX.Element => {
     [client]
   );
 
-  const connect = useCallback(async () => {
-    try {
-      dispatch({
-        type: 'INITIALIZED',
-        account: await client.getAccount(),
-      });
-      const account = await connectWallet(false);
-      return account;
-    } finally {
-      setTimeout(() => setInitialized(true), 250);
-    }
-  }, [connectWallet, client]);
+  const connect = useCallback(
+    async (transparent: boolean) => {
+      try {
+        dispatch({
+          type: 'INITIALIZED',
+          account: await client.getAccount(),
+        });
+        const account = await connectWallet(transparent);
+        return account;
+      } finally {
+        setTimeout(() => setInitialized(true), 250);
+      }
+    },
+    [connectWallet, client]
+  );
 
   const contextValue = useMemo(() => {
     return {

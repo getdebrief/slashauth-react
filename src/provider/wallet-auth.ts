@@ -1,6 +1,6 @@
 import WalletConnectProvider from '@walletconnect/web3-provider';
 import Web3Modal from 'web3modal';
-import { useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useLocalStorage } from '../hooks/use-localstorage';
 import { ethers } from 'ethers';
 import { Web3Provider } from '@ethersproject/providers';
@@ -68,37 +68,40 @@ export const useWalletAuth = (options: ProviderOptions) => {
     return web3Modal;
   }, [options]);
 
-  const connectWallet = async (transparent: boolean) => {
-    if (transparent && !web3Modal.cachedProvider) {
-      // We will not do anything here because we don't want to force a popup.
-      setInternalState({
-        ...internalState,
-        active: true,
-      });
-      return;
-    }
-    try {
-      const provider = await web3Modal.connect();
-      const library = new ethers.providers.Web3Provider(provider);
-      const accounts = await library.listAccounts();
-      setInternalState({
-        ...internalState,
-        provider,
-        library,
-        active: true,
-        account: accounts.at(0) || null,
-      });
-      return accounts.at(0) || null;
-    } catch (err) {
-      console.error(err);
-      setInternalState({
-        ...internalState,
-        error: err,
-      });
-    }
-  };
+  const connectWallet = useCallback(
+    async (transparent: boolean) => {
+      if (transparent && !web3Modal.cachedProvider) {
+        // We will not do anything here because we don't want to force a popup.
+        setInternalState({
+          ...internalState,
+          active: true,
+        });
+        return;
+      }
+      try {
+        const provider = await web3Modal.connect();
+        const library = new ethers.providers.Web3Provider(provider);
+        const accounts = await library.listAccounts();
+        setInternalState({
+          ...internalState,
+          provider,
+          library,
+          active: true,
+          account: accounts.at(0) || null,
+        });
+        return accounts.at(0) || null;
+      } catch (err) {
+        console.error(err);
+        setInternalState({
+          ...internalState,
+          error: err,
+        });
+      }
+    },
+    [internalState, web3Modal]
+  );
 
-  const handleDeactivate = () => {
+  const handleDeactivate = useCallback(() => {
     web3Modal.clearCachedProvider();
     setConnectWalletLocalStorage(undefined);
     setInternalState({
@@ -108,7 +111,7 @@ export const useWalletAuth = (options: ProviderOptions) => {
       account: null,
       error: null,
     });
-  };
+  }, [internalState, setConnectWalletLocalStorage, web3Modal]);
 
   return {
     active: internalState.active,
