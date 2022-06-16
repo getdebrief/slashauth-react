@@ -2,6 +2,8 @@ import { DEFAULT_SLASHAUTH_CLIENT } from './constants';
 import {
   GetNonceToSignEndpointOptions,
   GetNonceToSignResponse,
+  HasRoleOptions,
+  HasRoleResponse,
   LoginWithSignedNonceOptions,
   LoginWithSignedNonceResponse,
   RefreshTokenOptions,
@@ -78,3 +80,28 @@ export async function refreshToken({
     }
   );
 }
+
+export const hasRoleAPICall = async ({
+  baseUrl,
+  clientID,
+  roleName,
+}: HasRoleOptions): Promise<HasRoleResponse> => {
+  const queryString = createQueryParams({
+    role: Buffer.from(roleName).toString('base64'),
+  });
+  return await getJSON<HasRoleResponse>(
+    `${baseUrl}/p/${clientID}/?${queryString}`,
+    1000,
+    'default',
+    '',
+    {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-SlashAuth-Client': Buffer.from(
+          JSON.stringify(DEFAULT_SLASHAUTH_CLIENT)
+        ).toString('base64'),
+      },
+    }
+  );
+};

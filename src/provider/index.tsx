@@ -258,7 +258,6 @@ const Provider = (opts: SlashAuthProviderOptions): JSX.Element => {
       connectAccount,
       getNonceToSign,
       library,
-      state.loginRequested,
       state.nonceToSign,
     ]
   );
@@ -284,6 +283,13 @@ const Provider = (opts: SlashAuthProviderOptions): JSX.Element => {
       return maybePromise;
     },
     // eslint-disable-next-line react-hooks/exhaustive-deps
+    [client]
+  );
+
+  const hasRole = useCallback(
+    async (roleName: string): Promise<boolean> => {
+      return client.hasRole(roleName);
+    },
     [client]
   );
 
@@ -363,6 +369,7 @@ const Provider = (opts: SlashAuthProviderOptions): JSX.Element => {
       connectedWallet: account,
       connect,
       ethereum: library,
+      hasRole,
       getAccessTokenSilently,
       getNonceToSign,
       loginNoRedirectNoPopup,
@@ -377,6 +384,7 @@ const Provider = (opts: SlashAuthProviderOptions): JSX.Element => {
     account,
     connect,
     library,
+    hasRole,
     getAccessTokenSilently,
     getNonceToSign,
     loginNoRedirectNoPopup,

@@ -58,6 +58,7 @@ import {
   GetNonceToSignOptions,
   RefreshTokenOptions,
   GetTokenSilentlyResult,
+  HasRoleOptions,
 } from './global';
 
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
@@ -71,6 +72,7 @@ import {
   loginWithSignedNonce,
   refreshToken,
   logout as apiLogout,
+  hasRoleAPICall,
 } from './api';
 
 // type GetTokenSilentlyResult = TokenEndpointResponse & {
@@ -599,6 +601,28 @@ export default class SlashAuthClient {
       }
     } else {
       throw new TimeoutError();
+    }
+  }
+
+  /**
+   * Fetches whether the user has the provided role
+   *
+   * @param options
+   * @returns
+   */
+  public async hasRole(roleName: string): Promise<boolean>;
+
+  public async hasRole(roleName: string): Promise<boolean> {
+    try {
+      const resp = await hasRoleAPICall({
+        baseUrl: getDomain(this.domainUrl),
+        clientID: this.options.clientID,
+        roleName,
+      });
+      return resp.hasRole;
+    } catch (err) {
+      console.error('Error from HasRole API ', err);
+      return false;
     }
   }
 

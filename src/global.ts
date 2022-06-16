@@ -333,3 +333,14 @@ export type GetTokenSilentlyResult = TokenEndpointResponse & {
   scope: string;
   audience: string;
 };
+
+// eslint-disable-next-line @typescript-eslint/ban-types
+export type HasRoleOptions = {
+  baseUrl: string;
+  clientID: string;
+  roleName: string;
+};
+
+export type HasRoleResponse = {
+  hasRole: boolean;
+};
