@@ -339,6 +339,7 @@ export type HasRoleOptions = {
   baseUrl: string;
   clientID: string;
   roleName: string;
+  accessToken: string;
 };
 
 export type HasRoleResponse = {

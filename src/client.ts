@@ -614,10 +614,15 @@ export default class SlashAuthClient {
 
   public async hasRole(roleName: string): Promise<boolean> {
     try {
+      const accessToken = await this.getTokenSilently();
+      if (!accessToken) {
+        return false;
+      }
       const resp = await hasRoleAPICall({
         baseUrl: getDomain(this.domainUrl),
         clientID: this.options.clientID,
         roleName,
+        accessToken,
       });
       return resp.hasRole;
     } catch (err) {

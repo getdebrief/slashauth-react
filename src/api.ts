@@ -85,18 +85,20 @@ export const hasRoleAPICall = async ({
   baseUrl,
   clientID,
   roleName,
+  accessToken,
 }: HasRoleOptions): Promise<HasRoleResponse> => {
   const queryString = createQueryParams({
     role: Buffer.from(roleName).toString('base64'),
   });
   return await getJSON<HasRoleResponse>(
-    `${baseUrl}/p/${clientID}/?${queryString}`,
+    `${baseUrl}/p/${clientID}/has_role?${queryString}`,
     1000,
     'default',
     '',
     {
       method: 'GET',
       headers: {
+        Authorization: `Bearer ${accessToken}`,
         'Content-Type': 'application/json',
         'X-SlashAuth-Client': Buffer.from(
           JSON.stringify(DEFAULT_SLASHAUTH_CLIENT)
