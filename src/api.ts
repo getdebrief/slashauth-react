@@ -89,6 +89,7 @@ export const hasRoleAPICall = async ({
 }: HasRoleOptions): Promise<HasRoleResponse> => {
   const queryString = createQueryParams({
     role: Buffer.from(roleName).toString('base64'),
+    encoded: true,
   });
   return await getJSON<HasRoleResponse>(
     `${baseUrl}/p/${clientID}/has_role?${queryString}`,
