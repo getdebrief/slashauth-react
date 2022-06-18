@@ -219,6 +219,9 @@ const Provider = (opts: SlashAuthProviderOptions): JSX.Element => {
         connectAccount();
         return;
       }
+      if (!signer) {
+        return;
+      }
       dispatch({ type: 'LOGIN_FLOW_STARTED' });
       try {
         let fetchedNonce = state.nonceToSign;
@@ -256,18 +259,18 @@ const Provider = (opts: SlashAuthProviderOptions): JSX.Element => {
     [account, client, connectAccount, getNonceToSign, signer, state.nonceToSign]
   );
 
-  useEffect(() => {
-    if (state.loginRequested && account) {
-      dispatch({ type: 'LOGIN_REQUEST_FULFILLED' });
-      // We should check to ensure it's login no redirect no popup type.
-      loginNoRedirectNoPopup(state.loginOptions);
-    }
-  }, [
-    loginNoRedirectNoPopup,
-    state.loginOptions,
-    state.loginRequested,
-    account,
-  ]);
+  // useEffect(() => {
+  //   if (state.loginRequested && account) {
+  //     dispatch({ type: 'LOGIN_REQUEST_FULFILLED' });
+  //     // We should check to ensure it's login no redirect no popup type.
+  //     loginNoRedirectNoPopup(state.loginOptions);
+  //   }
+  // }, [
+  //   loginNoRedirectNoPopup,
+  //   state.loginOptions,
+  //   state.loginRequested,
+  //   account,
+  // ]);
 
   const logout = useCallback(
     async (opts: LogoutOptions = {}): Promise<void> => {

@@ -1,10 +1,9 @@
-import { useState } from 'react';
-import { Modal } from './modal';
+import { useConnect } from 'wagmi';
 
 export const ConnectPopup = () => {
-  const [isShowing, setShowing] = useState(true);
-  // const { connect, connectors, error, isConnecting, pendingConnector } =
-  //   useConnect();
+  // const [isShowing, setShowing] = useState(true);
+  const { connect, connectors, error, isConnecting, pendingConnector } =
+    useConnect();
 
   // const renderModal() {
   //   const el = document.createElement("div");
@@ -37,24 +36,24 @@ export const ConnectPopup = () => {
   // };
 
   return (
-    <Modal onClose={() => setShowing(false)} show={isShowing} />
+    // <Modal onClose={() => setShowing(false)} show={isShowing} />
 
-    // <div>
-    //   {connectors.map((connector) => (
-    //     <button
-    //       disabled={!connector.ready}
-    //       key={connector.id}
-    //       onClick={() => connect(connector)}
-    //     >
-    //       {connector.name}
-    //       {!connector.ready && ' (unsupported)'}
-    //       {isConnecting &&
-    //         connector.id === pendingConnector?.id &&
-    //         ' (connecting)'}
-    //     </button>
-    //   ))}
+    <div>
+      {connectors.map((connector) => (
+        <button
+          disabled={!connector.ready}
+          key={connector.id}
+          onClick={() => connect(connector)}
+        >
+          {connector.name}
+          {!connector.ready && ' (unsupported)'}
+          {isConnecting &&
+            connector.id === pendingConnector?.id &&
+            ' (connecting)'}
+        </button>
+      ))}
 
-    //   {error && <div>{error.message}</div>}
-    // </div>
+      {error && <div>{error.message}</div>}
+    </div>
   );
 };

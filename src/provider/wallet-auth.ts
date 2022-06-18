@@ -1,11 +1,18 @@
 import { useCallback } from 'react';
-import { Connector, useConnect, useAccount, useClient } from 'wagmi';
+import {
+  Connector,
+  useConnect,
+  useAccount,
+  useClient,
+  useDisconnect,
+} from 'wagmi';
 
 export const useWalletAuth = () => {
   const client = useClient();
 
   const { connect, error, isConnecting, activeConnector, reset, connectors } =
     useConnect();
+  const { disconnect } = useDisconnect();
 
   const { data: account } = useAccount();
 
@@ -17,8 +24,9 @@ export const useWalletAuth = () => {
   );
 
   const handleDeactivate = useCallback(() => {
+    disconnect();
     reset();
-  }, [reset]);
+  }, [reset, disconnect]);
 
   return {
     active: !!account,
