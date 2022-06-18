@@ -23,6 +23,7 @@ import { reducer } from './reducer';
 import { useWalletAuth } from './wallet-auth';
 import { CoinbaseWalletSDKOptions } from '@coinbase/wallet-sdk/dist/CoinbaseWalletSDK';
 import { IWalletConnectProviderOptions } from '@walletconnect/types';
+import { isMobile } from 'web3modal';
 
 export type AppState = {
   returnTo?: string;
@@ -223,6 +224,9 @@ const Provider = (opts: SlashAuthProviderOptions): JSX.Element => {
         let fetchedNonce = state.nonceToSign;
         if (!state.nonceToSign || state.nonceToSign.length === 0) {
           fetchedNonce = await getNonceToSign();
+          if (isMobile()) {
+            return;
+          }
         }
         const signature = await library.getSigner().signMessage(fetchedNonce);
         await client.loginNoRedirectNoPopup({
@@ -263,7 +267,12 @@ const Provider = (opts: SlashAuthProviderOptions): JSX.Element => {
   );
 
   useEffect(() => {
-    if (state.loginRequested && account) {
+    if (
+      state.loginRequested &&
+      account &&
+      !isMobile() &&
+      state.step !== 'NONCE_REQUEST_STARTED'
+    ) {
       dispatch({ type: 'LOGIN_REQUEST_FULFILLED' });
       // We should check to ensure it's login no redirect no popup type.
       loginNoRedirectNoPopup(state.loginOptions);
@@ -273,7 +282,19 @@ const Provider = (opts: SlashAuthProviderOptions): JSX.Element => {
     state.loginOptions,
     state.loginRequested,
     account,
+    state.step,
   ]);
+
+  useEffect(() => {
+    if (
+      isMobile() &&
+      account &&
+      !state.nonceToSign &&
+      state.step !== 'FETCHING_NONCE'
+    ) {
+      getNonceToSign();
+    }
+  }, [account, getNonceToSign, state.nonceToSign, state.step]);
 
   const logout = useCallback(
     async (opts: LogoutOptions = {}): Promise<void> => {
@@ -355,6 +376,8 @@ const Provider = (opts: SlashAuthProviderOptions): JSX.Element => {
         });
         const account = await connectWallet(transparent);
         return account;
+      } catch (err) {
+        console.error(err);
       } finally {
         setTimeout(() => setInitialized(true), 250);
       }
@@ -365,6 +388,7 @@ const Provider = (opts: SlashAuthProviderOptions): JSX.Element => {
   const contextValue = useMemo(() => {
     return {
       ...state,
+      isTwoStep: isMobile(),
       provider,
       connectedWallet: account,
       connect,
@@ -377,6 +401,8 @@ const Provider = (opts: SlashAuthProviderOptions): JSX.Element => {
       logout,
       checkSession,
       initialized,
+      isLoginReady:
+        isMobile() && state.nonceToSign && state.step !== 'LOGGED_IN',
     };
   }, [
     state,

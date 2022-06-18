@@ -23,6 +23,8 @@ export const SlashAuthStepLoggedIn: SlashAuthStep = 'LOGGED_IN';
 
 export interface SlashAuthContextInterface extends SlashAuthState {
   initialized: boolean;
+  isTwoStep: boolean;
+  isLoginReady: boolean;
   connect: (transparent: boolean) => Promise<string | null>;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   ethereum: any;
@@ -78,6 +80,8 @@ const initialContextState: SlashAuthContextInterface = {
   ...initialAuthState,
   ...initialMetamaskContext,
   initialized: false,
+  isTwoStep: false,
+  isLoginReady: false,
   connect: stub,
   ethereum: null,
   hasRole: stub,
