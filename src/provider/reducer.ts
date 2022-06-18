@@ -45,7 +45,7 @@ export const reducer = (
       return {
         ...state,
         step:
-          action.type === 'NONCE_REQUEST_STARTED'
+          action.type === 'NONCE_REQUEST_STARTED' && state.nonceToSign
             ? SlashAuthStepFetchingNonce
             : SlashAuthStepLoggingIn,
         isLoading: true,
@@ -97,6 +97,7 @@ export const reducer = (
         nonceToSign: action.nonceToSign,
         step: SlashAuthStepNonceReceived,
         isLoggingIn: false,
+        isLoading: false,
       };
     case 'LOGOUT':
       return {
@@ -106,6 +107,7 @@ export const reducer = (
         step: SlashAuthStepInitialized,
         isLoggingIn: false,
         isLoading: false,
+        nonceToSign: null,
       };
     case 'ERROR':
       return {
