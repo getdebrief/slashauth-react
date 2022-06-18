@@ -350,6 +350,12 @@ const Provider = (opts: SlashAuthProviderOptions): JSX.Element => {
     [client]
   );
 
+  useEffect(() => {
+    if (account?.address) {
+      getNonceToSign();
+    }
+  }, [account?.address, getNonceToSign]);
+
   const connect = useCallback(async () => {
     try {
       dispatch({

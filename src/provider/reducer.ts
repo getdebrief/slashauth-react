@@ -96,6 +96,7 @@ export const reducer = (
         ...state,
         nonceToSign: action.nonceToSign,
         step: SlashAuthStepNonceReceived,
+        isLoading: false,
         isLoggingIn: false,
       };
     case 'LOGOUT':
