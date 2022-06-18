@@ -1,6 +1,6 @@
 {
   "name": "@slashauth/slashauth-react",
-  "version": "0.2.12",
+  "version": "0.2.27",
   "homepage": "https://www.slashauth.xyz",
   "repository": {
     "type": "git",
@@ -8,9 +8,10 @@
   },
   "description": "Slashauth library for react apps powered by @slashauth",
   "main": "dist/index.js",
+  "module": "dist/indexjs",
   "types": "dist/index.d.ts",
   "scripts": {
-    "build": "tsc && node esbuild.js",
+    "build": "webpack",
     "test": "jest",
     "test:cover": "jest --coverage",
     "prepare": "node -e \"try { require('husky').install() } catch (e) {if (e.code !== 'MODULE_NOT_FOUND') throw e}\"",
@@ -20,18 +21,27 @@
   "author": "",
   "license": "MIT",
   "devDependencies": {
+    "@babel/preset-env": "^7.18.2",
+    "@babel/preset-typescript": "^7.17.12",
     "@esbuild-plugins/node-globals-polyfill": "^0.1.1",
     "@esbuild-plugins/node-modules-polyfill": "^0.1.4",
+    "@rollup/plugin-commonjs": "^22.0.0",
+    "@rollup/plugin-json": "^4.1.0",
+    "@rollup/plugin-node-resolve": "^13.3.0",
+    "@rollup/plugin-typescript": "^8.3.3",
     "@types/chai": "^4.3.0",
     "@types/mocha": "^9.1.0",
     "@types/node": "^17.0.24",
-    "@types/react": "^18.0.0",
+    "@types/react": "^18.0.14",
+    "@types/react-dom": "^18.0.5",
     "@typescript-eslint/eslint-plugin": "^5.15.0",
     "@typescript-eslint/parser": "^5.15.0",
     "assert": "^2.0.0",
     "autoprefixer": "^10.4.2",
+    "babel-loader": "^8.2.5",
     "buffer": "^6.0.3",
     "chai": "^4.3.6",
+    "check-peer-dependencies": "^4.1.0",
     "core-js": "^3.22.4",
     "esbuild": "^0.14.38",
     "eslint": "8.8.0",
@@ -48,14 +58,21 @@
     "react": "^18.0.0",
     "react-dom": "^18.0.0",
     "react-is": "^18.0.0",
+    "rollup": "^2.75.6",
+    "rollup-plugin-dts": "^4.2.2",
+    "rollup-plugin-node-externals": "^4.0.0",
+    "rollup-plugin-node-globals": "^1.4.0",
+    "rollup-plugin-peer-deps-external": "^2.2.4",
+    "rollup-plugin-polyfill-node": "^0.9.0",
+    "rollup-plugin-postcss": "^4.0.2",
     "ts-loader": "^9.3.0",
     "typescript": "4.5.5",
-    "webpack": "^5.72.0",
+    "webpack": "^5.73.0",
     "webpack-cli": "^4.9.2"
   },
-  "peer-dependencies": {
-    "react": ">=17.x",
-    "react-dom": ">=17.x"
+  "peerDependencies": {
+    "react": ">=17.0.0",
+    "react-dom": ">=17.0.0"
   },
   "eslintConfig": {
     "extends": [
@@ -80,11 +97,12 @@
     "https-browserify": "^1.0.0",
     "os-browserify": "^0.3.0",
     "promise-polyfill": "8.2.3",
+    "rollup-plugin-node-builtins": "^2.1.2",
     "stream-browserify": "^3.0.0",
     "stream-http": "^3.2.0",
     "url": "^0.11.0",
     "uuid": "^8.3.2",
-    "web3modal": "^1.9.7"
+    "wagmi": "^0.4.12"
   },
   "browser": {
     "crypto": "crypto-browserify",

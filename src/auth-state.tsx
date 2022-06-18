@@ -29,5 +29,4 @@ export const initialAuthState: SlashAuthState = {
 
 export const initialMetamaskContext = {
   connect: async () => [],
-  ethereum: null,
 };

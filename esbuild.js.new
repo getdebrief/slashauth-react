@@ -8,12 +8,33 @@ require('esbuild').build({
   logLevel: 'info',
   // entryPoints: process.argv.slice(1),
   entryPoints: ['src/index.ts'],
-  minify: false,
+  bundle: true,
+  minify: true,
   target: 'es2019',
   format: 'esm',
-  outdir: './dist',
-  outbase: './src',
+  outfile: './dist/index.esm.js',
   treeShaking: true,
+  external: ['react', 'react-dom'],
+  plugins: [
+    NodeModulesPolyfillPlugin(),
+    NodeGlobalPolyfillPlugin({
+      process: true,
+      buffer: true,
+    }),
+  ],
+});
+
+require('esbuild').build({
+  logLevel: 'info',
+  // entryPoints: process.argv.slice(1),
+  entryPoints: ['src/index.ts'],
+  bundle: true,
+  minify: true,
+  target: 'es2019',
+  format: 'cjs',
+  outfile: './dist/index.cjs.js',
+  treeShaking: true,
+  external: ['react', 'react-dom'],
   plugins: [
     NodeModulesPolyfillPlugin(),
     NodeGlobalPolyfillPlugin({

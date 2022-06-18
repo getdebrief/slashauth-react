@@ -23,6 +23,19 @@ import { reducer } from './reducer';
 import { useWalletAuth } from './wallet-auth';
 import { CoinbaseWalletSDKOptions } from '@coinbase/wallet-sdk/dist/CoinbaseWalletSDK';
 import { IWalletConnectProviderOptions } from '@walletconnect/types';
+import { ConnectPopup } from '../components/connect-popup';
+import {
+  configureChains,
+  createClient,
+  defaultChains,
+  useSigner,
+  WagmiConfig,
+} from 'wagmi';
+import { CoinbaseWalletConnector } from 'wagmi/connectors/coinbaseWallet';
+import { InjectedConnector } from 'wagmi/connectors/injected';
+import { MetaMaskConnector } from 'wagmi/connectors/metaMask';
+import { WalletConnectConnector } from 'wagmi/connectors/walletConnect';
+import { publicProvider } from 'wagmi/providers/public';
 
 export type AppState = {
   returnTo?: string;
@@ -134,6 +147,7 @@ const toSlashAuthClientOptions = (
 
 const Provider = (opts: SlashAuthProviderOptions): JSX.Element => {
   const [initialized, setInitialized] = useState(false);
+  const [showPopup, setShowPopup] = useState(false);
 
   const { children, skipRedirectCallback, ...clientOpts } = opts;
   const [client] = useState(
@@ -141,36 +155,23 @@ const Provider = (opts: SlashAuthProviderOptions): JSX.Element => {
   );
   const [state, dispatch] = useReducer(reducer, initialAuthState);
 
-  const {
-    account,
-    library,
-    connectOnStart,
-    connectWallet,
-    active,
-    provider,
-    deactivate,
-  } = useWalletAuth(opts.providers);
+  const { account, provider, deactivate, active } = useWalletAuth();
 
-  useEffect(() => {
-    if (connectOnStart && !active) {
-      connectWallet(true);
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [connectOnStart]);
+  const { data: signer } = useSigner({
+    onError(error) {
+      console.log('Error', error);
+    },
+  });
 
   const connectAccount = useCallback(async () => {
-    const acc = await connectWallet(false);
-    if (acc && state.loginRequested) {
-      dispatch({
-        type: 'ACCOUNT_CONNECTED',
-        account: {
-          address: acc,
-          network: Network.Ethereum,
-        },
-      });
+    setShowPopup(true);
+  }, [setShowPopup]);
+
+  useEffect(() => {
+    if (showPopup && active) {
+      setShowPopup(false);
     }
-    return acc;
-  }, [connectWallet, state.loginRequested]);
+  }, [active, showPopup]);
 
   const getNonceToSign = useCallback(async () => {
     if (!account) {
@@ -184,7 +185,7 @@ const Provider = (opts: SlashAuthProviderOptions): JSX.Element => {
     try {
       const nonceResp = await client.getNonceToSign({
         ...opts,
-        address: account,
+        address: account?.address,
       });
       dispatch({
         type: 'NONCE_RECEIVED',
@@ -224,10 +225,10 @@ const Provider = (opts: SlashAuthProviderOptions): JSX.Element => {
         if (!state.nonceToSign || state.nonceToSign.length === 0) {
           fetchedNonce = await getNonceToSign();
         }
-        const signature = await library.getSigner().signMessage(fetchedNonce);
+        const signature = await signer.signMessage(fetchedNonce);
         await client.loginNoRedirectNoPopup({
           ...options,
-          address: account,
+          address: account?.address,
           signature,
         });
       } catch (error) {
@@ -247,19 +248,12 @@ const Provider = (opts: SlashAuthProviderOptions): JSX.Element => {
       dispatch({
         type: 'LOGIN_WITH_SIGNED_NONCE_COMPLETE',
         account: {
-          address: account,
+          address: account?.address,
           network: Network.Ethereum,
         },
       });
     },
-    [
-      account,
-      client,
-      connectAccount,
-      getNonceToSign,
-      library,
-      state.nonceToSign,
-    ]
+    [account, client, connectAccount, getNonceToSign, signer, state.nonceToSign]
   );
 
   useEffect(() => {
@@ -346,29 +340,24 @@ const Provider = (opts: SlashAuthProviderOptions): JSX.Element => {
     [client]
   );
 
-  const connect = useCallback(
-    async (transparent?: boolean) => {
-      try {
-        dispatch({
-          type: 'INITIALIZED',
-          account: await client.getAccount(),
-        });
-        const account = await connectWallet(transparent);
-        return account;
-      } finally {
-        setTimeout(() => setInitialized(true), 250);
-      }
-    },
-    [connectWallet, client]
-  );
+  const connect = useCallback(async () => {
+    try {
+      dispatch({
+        type: 'INITIALIZED',
+        account: await client.getAccount(),
+      });
+      setShowPopup(true);
+    } finally {
+      setTimeout(() => setInitialized(true), 250);
+    }
+  }, [client]);
 
   const contextValue = useMemo(() => {
     return {
       ...state,
       provider,
-      connectedWallet: account,
+      connectedWallet: account?.address,
       connect,
-      ethereum: library,
       hasRole,
       getAccessTokenSilently,
       getNonceToSign,
@@ -383,7 +372,6 @@ const Provider = (opts: SlashAuthProviderOptions): JSX.Element => {
     provider,
     account,
     connect,
-    library,
     hasRole,
     getAccessTokenSilently,
     getNonceToSign,
@@ -397,6 +385,7 @@ const Provider = (opts: SlashAuthProviderOptions): JSX.Element => {
   return (
     <SlashAuthContext.Provider value={contextValue}>
       {children}
+      {showPopup && <ConnectPopup />}
     </SlashAuthContext.Provider>
   );
 };
@@ -413,7 +402,46 @@ const Provider = (opts: SlashAuthProviderOptions): JSX.Element => {
  *
  */
 const SlashAuthProvider = (opts: SlashAuthProviderOptions): JSX.Element => {
-  return <Provider {...opts} />;
+  const client = useMemo(() => {
+    const { chains, provider, webSocketProvider } = configureChains(
+      defaultChains,
+      [publicProvider()]
+    );
+
+    return createClient({
+      autoConnect: true,
+      connectors: [
+        new MetaMaskConnector({ chains }),
+        new CoinbaseWalletConnector({
+          chains,
+          options: {
+            appName: 'Slashauth',
+          },
+        }),
+        new WalletConnectConnector({
+          chains,
+          options: {
+            qrcode: true,
+          },
+        }),
+        new InjectedConnector({
+          chains,
+          options: {
+            name: 'Injected',
+            shimDisconnect: true,
+          },
+        }),
+      ],
+      provider,
+      webSocketProvider,
+    });
+  }, []);
+
+  return (
+    <WagmiConfig client={client}>
+      <Provider {...opts} />
+    </WagmiConfig>
+  );
 };
 
 export default SlashAuthProvider;
