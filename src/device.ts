@@ -1,15 +1,29 @@
-import { v4 as uuidv4 } from 'uuid';
-import { LocalStorageCache } from './cache';
+import { ICache, InMemoryCache, LocalStorageCache } from './cache';
+import { createRandomString } from './utils/string';
 
-const cache = new LocalStorageCache();
+console.log(
+  typeof window,
+  'does equal undefined? ',
+  typeof window === undefined
+);
+let cache: ICache;
+if (typeof window !== 'undefined') {
+  if (typeof window.localStorage !== 'undefined') {
+    console.log('1');
+    cache = new LocalStorageCache();
+  }
+}
+if (!cache) {
+  cache = new InMemoryCache().enclosedCache;
+}
 
 const DEVICE_ID = '_slashauth-browser-id';
 
-let browserDeviceID = uuidv4();
+let browserDeviceID = createRandomString(24);
 let success = false;
 
 try {
-  const existing = cache.get<string>(DEVICE_ID);
+  const existing = cache.get<string>(DEVICE_ID) as string;
   if (existing) {
     browserDeviceID = existing;
     success = true;
@@ -18,7 +32,7 @@ try {
 } catch {}
 
 if (!success) {
-  const browserDeviceID = uuidv4();
+  const browserDeviceID = createRandomString(24);
   cache.set<string>(DEVICE_ID, browserDeviceID);
 }
 

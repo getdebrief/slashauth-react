@@ -2,10 +2,6 @@ import Lock from 'browser-tabs-lock';
 
 import {
   createQueryParams,
-  encode,
-  createRandomString,
-  sha256,
-  bufferToBase64UrlEncoded,
   validateCrypto,
   singlePromise,
   retryPromise,
@@ -652,19 +648,19 @@ export default class SlashAuthClient {
    */
   public async loginNoRedirectNoPopup(options: LoginNoRedirectNoPopupOptions) {
     const { ...authorizeOptions } = options;
-    const stateIn = encode(createRandomString());
-    const nonceIn = encode(createRandomString());
-    const code_verifier = createRandomString();
-    const code_challengeBuffer = await sha256(code_verifier);
-    const code_challenge = bufferToBase64UrlEncoded(code_challengeBuffer);
+    // const stateIn = encode(createRandomString());
+    // const nonceIn = encode(createRandomString());
+    // const code_verifier = createRandomString();
+    // const code_challengeBuffer = await sha256(code_verifier);
+    // const code_challenge = bufferToBase64UrlEncoded(code_challengeBuffer);
 
-    const params = this._getParams(
-      authorizeOptions,
-      stateIn,
-      nonceIn,
-      code_challenge,
-      this.options.redirect_uri || window.location.origin
-    );
+    // const params = this._getParams(
+    //   authorizeOptions,
+    //   stateIn,
+    //   nonceIn,
+    //   code_challenge,
+    //   this.options.redirect_uri || window.location.origin
+    // );
 
     // const url = this._authorizeUrl({
     //   ...params,
@@ -723,7 +719,7 @@ export default class SlashAuthClient {
       ...authResult,
       decodedToken,
       scope: '', //params.scope,
-      audience: params.audience || 'default',
+      audience: 'default',
       client_id: this.options.clientID,
     };
 

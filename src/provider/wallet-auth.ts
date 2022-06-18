@@ -43,6 +43,9 @@ export const useWalletAuth = (options: ProviderOptions) => {
   ]);
 
   const web3Modal = useMemo(() => {
+    if (typeof window === 'undefined') {
+      return null;
+    }
     const providerOptions = {};
 
     if (options?.coinbasewallet) {
@@ -70,6 +73,9 @@ export const useWalletAuth = (options: ProviderOptions) => {
 
   const connectWallet = useCallback(
     async (transparent: boolean) => {
+      if (!web3Modal) {
+        return;
+      }
       if (transparent && !web3Modal.cachedProvider) {
         // We will not do anything here because we don't want to force a popup.
         setInternalState({
@@ -102,6 +108,9 @@ export const useWalletAuth = (options: ProviderOptions) => {
   );
 
   const handleDeactivate = useCallback(() => {
+    if (!web3Modal) {
+      return;
+    }
     web3Modal.clearCachedProvider();
     setConnectWalletLocalStorage(undefined);
     setInternalState({
