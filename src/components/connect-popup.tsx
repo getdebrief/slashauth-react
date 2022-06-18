@@ -1,7 +1,8 @@
-import { useConnect } from 'wagmi';
+import { useState } from 'react';
 import { Modal } from './modal';
 
 export const ConnectPopup = () => {
+  const [isShowing, setShowing] = useState(true);
   // const { connect, connectors, error, isConnecting, pendingConnector } =
   //   useConnect();
 
@@ -36,10 +37,7 @@ export const ConnectPopup = () => {
   // };
 
   return (
-    <Modal
-      onClose={() => console.log('close')}
-      resetState={() => console.log('reset')}
-    />
+    <Modal onClose={() => setShowing(false)} show={isShowing} />
 
     // <div>
     //   {connectors.map((connector) => (

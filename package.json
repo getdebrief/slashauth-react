@@ -1,6 +1,6 @@
 {
-  "name": "@slashauth/slashauth-react",
-  "version": "0.2.27",
+  "name": "@slashauth/slashauth-react-beta",
+  "version": "0.2.33",
   "homepage": "https://www.slashauth.xyz",
   "repository": {
     "type": "git",
@@ -8,7 +8,7 @@
   },
   "description": "Slashauth library for react apps powered by @slashauth",
   "main": "dist/index.js",
-  "module": "dist/indexjs",
+  "module": "dist/index.js",
   "types": "dist/index.d.ts",
   "scripts": {
     "build": "webpack",
@@ -43,6 +43,7 @@
     "chai": "^4.3.6",
     "check-peer-dependencies": "^4.1.0",
     "core-js": "^3.22.4",
+    "css-loader": "^6.7.1",
     "esbuild": "^0.14.38",
     "eslint": "8.8.0",
     "eslint-config-google": "^0.14.0",
@@ -65,6 +66,7 @@
     "rollup-plugin-peer-deps-external": "^2.2.4",
     "rollup-plugin-polyfill-node": "^0.9.0",
     "rollup-plugin-postcss": "^4.0.2",
+    "style-loader": "^3.3.1",
     "ts-loader": "^9.3.0",
     "typescript": "4.5.5",
     "webpack": "^5.73.0",

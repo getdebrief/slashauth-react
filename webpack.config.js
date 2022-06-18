@@ -15,8 +15,9 @@ module.exports = {
     filename: 'index.js',
     library: {
       name: 'slashauthReact',
-      type: 'umd',
+      type: 'amd',
     },
+    chunkFormat: 'module',
   },
   plugins: [
     new webpack.ProvidePlugin({
@@ -28,21 +29,16 @@ module.exports = {
     react: 'react',
     'react-dom': 'react-dom',
   },
-  resolve: {
-    extensions: ['.js', '.jsx', '.ts', '.tsx'],
-  },
   module: {
     rules: [
       {
         test: /\.tsx?$/,
         exclude: /node_modules/,
         loader: 'ts-loader',
-        // use: {
-        //   loader: 'babel-loader',
-        //   options: {
-        //     presets: ['@babel/preset-env', '@babel/preset-typescript'],
-        //   },
-        // },
+      },
+      {
+        test: /\.css$/i,
+        use: ['style-loader', 'css-loader'],
       },
     ],
   },

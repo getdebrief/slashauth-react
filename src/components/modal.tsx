@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { useConnect } from 'wagmi';
+import './modal.css';
 
 declare global {
   // tslint:disable-next-line
@@ -16,22 +17,20 @@ declare global {
 }
 
 interface IModalState {
-  show: boolean;
   lightboxOffset: number;
 }
 
 const INITIAL_STATE: IModalState = {
-  show: false,
   lightboxOffset: 0,
 };
 
 type Props = {
   onClose: () => void;
-  resetState: () => void;
   lightboxOpacity?: number;
+  show: boolean;
 };
 
-export const Modal = ({ lightboxOpacity, onClose, resetState }: Props) => {
+export const Modal = ({ lightboxOpacity, onClose, show }: Props) => {
   const { connectors } = useConnect();
 
   const [modalState, setModalState] = useState<IModalState>(INITIAL_STATE);
@@ -45,11 +44,11 @@ export const Modal = ({ lightboxOpacity, onClose, resetState }: Props) => {
   const lightboxRef = useRef<HTMLDivElement>(null);
   const mainModalCard = useRef<HTMLDivElement>(null);
 
-  useEffect(() => {
-    if (!modalState.show) {
-      resetState();
-    }
-  }, [modalState.show, resetState]);
+  // useEffect(() => {
+  //   if (!modalState.show) {
+  //     resetState();
+  //   }
+  // }, [modalState.show, resetState]);
 
   useEffect(() => {
     if (lightboxRef.current) {
@@ -84,9 +83,9 @@ export const Modal = ({ lightboxOpacity, onClose, resetState }: Props) => {
         backgroundColor: `rgba(0, 0, 0, ${
           typeof lightboxOpacity === 'number' ? lightboxOpacity : 0.4
         })`,
-        opacity: `${modalState.show ? 1 : 0}`,
-        visibility: `${modalState.show ? 'visible' : 'hidden'}`,
-        pointerEvents: `${modalState.show ? 'auto' : 'none'}`,
+        opacity: `${show ? 1 : 0}`,
+        visibility: `${show ? 'visible' : 'hidden'}`,
+        pointerEvents: `${show ? 'auto' : 'none'}`,
         display: 'flex',
         justifyContent: 'center',
         alignItems: 'center',
@@ -102,9 +101,9 @@ export const Modal = ({ lightboxOpacity, onClose, resetState }: Props) => {
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
-          opacity: `${modalState.show ? 1 : 0}`,
-          visibility: `${modalState.show ? 'visible' : 'hidden'}`,
-          pointerEvents: `${modalState.show ? 'auto' : 'none'}`,
+          opacity: `${show ? 1 : 0}`,
+          visibility: `${show ? 'visible' : 'hidden'}`,
+          pointerEvents: `${show ? 'auto' : 'none'}`,
         }}
       >
         <div
@@ -120,35 +119,39 @@ export const Modal = ({ lightboxOpacity, onClose, resetState }: Props) => {
         <div
           style={{
             position: 'relative',
-            width: '100%',
+            maxWidth: '50%',
+            minWidth: '320px',
             backgroundColor: 'black',
             borderRadius: '12px',
-            margin: '10px',
-            padding: 0,
-            opacity: `${modalState.show ? 1 : 0}`,
-            visibility: `${modalState.show ? 'visible' : 'hidden'}`,
-            pointerEvents: `${modalState.show ? 'auto' : 'none'}`,
-
+            padding: '0 182px 0 18px',
+            opacity: `${show ? 1 : 0}`,
+            visibility: `${show ? 'visible' : 'hidden'}`,
+            pointerEvents: `${show ? 'auto' : 'none'}`,
+            color: 'white',
             display: 'flex',
             flexDirection: 'column',
             maxHeight: '100%',
-            overflow: 'auto',
+            overflowY: 'auto',
+            overflowX: 'hidden',
           }}
           ref={mainModalCard}
         >
           {connectors.map((connector) => (
             <div
+              className="slashauth-modal-component-item"
               style={{
+                border: '1px solid white',
                 width: '100%',
                 borderRadius: '12px',
                 padding: '8px',
                 backgroundColor: 'rgba(0, 0, 0, 0.0)',
                 justifyContent: 'center',
-                alignItems: 'center',
                 fontSize: '24px',
                 fontWeight: 700,
                 marginTop: '0.5em',
+                cursor: 'pointer',
               }}
+              onClick={() => console.log('clickee')}
             >
               {connector.name}
             </div>
