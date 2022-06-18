@@ -825,7 +825,7 @@ export default class SlashAuthClient {
 
   private async _getTokenUsingRefreshToken(
     options: RefreshTokenOptions
-  ): Promise<GetTokenSilentlyResult> {
+  ): Promise<GetTokenSilentlyResult | null> {
     const cache = await this.cacheManager.get(
       new CacheKey({
         scope: '', //options.scope,
@@ -841,7 +841,7 @@ export default class SlashAuthClient {
       this.logout({
         localOnly: true,
       });
-      throw new NotLoggedInError('Not logged in');
+      return null;
     }
 
     const queryParameters = {
