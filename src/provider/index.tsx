@@ -29,6 +29,7 @@ import {
   createClient,
   defaultChains,
   useSigner,
+  useSignMessage,
   WagmiConfig,
 } from 'wagmi';
 import { CoinbaseWalletConnector } from 'wagmi/connectors/coinbaseWallet';
@@ -157,11 +158,7 @@ const Provider = (opts: SlashAuthProviderOptions): JSX.Element => {
 
   const { account, provider, deactivate, active } = useWalletAuth();
 
-  const { data: signer } = useSigner({
-    onError(error) {
-      console.log('Error', error);
-    },
-  });
+  const { signMessageAsync } = useSignMessage();
 
   const connectAccount = useCallback(async () => {
     setShowPopup(true);
@@ -219,7 +216,7 @@ const Provider = (opts: SlashAuthProviderOptions): JSX.Element => {
         connectAccount();
         return;
       }
-      if (!signer) {
+      if (!signMessageAsync) {
         return;
       }
       dispatch({ type: 'LOGIN_FLOW_STARTED' });
@@ -228,7 +225,10 @@ const Provider = (opts: SlashAuthProviderOptions): JSX.Element => {
         if (!state.nonceToSign || state.nonceToSign.length === 0) {
           fetchedNonce = await getNonceToSign();
         }
-        const signature = await signer.signMessage(fetchedNonce);
+        console.log('fetched nonce: ', fetchedNonce);
+        console.log('about to get signature');
+        const signature = await signMessageAsync({ message: fetchedNonce });
+        console.log('got sig: ', signature);
         await client.loginNoRedirectNoPopup({
           ...options,
           address: account?.address,
