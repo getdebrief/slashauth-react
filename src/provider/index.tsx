@@ -256,7 +256,14 @@ const Provider = (opts: SlashAuthProviderOptions): JSX.Element => {
         },
       });
     },
-    [account, client, connectAccount, getNonceToSign, signer, state.nonceToSign]
+    [
+      account,
+      client,
+      connectAccount,
+      getNonceToSign,
+      signMessageAsync,
+      state.nonceToSign,
+    ]
   );
 
   // useEffect(() => {
