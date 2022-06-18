@@ -1,15 +1,9 @@
 import { ICache, InMemoryCache, LocalStorageCache } from './cache';
 import { createRandomString } from './utils/string';
 
-console.log(
-  typeof window,
-  'does equal undefined? ',
-  typeof window === undefined
-);
 let cache: ICache;
 if (typeof window !== 'undefined') {
   if (typeof window.localStorage !== 'undefined') {
-    console.log('1');
     cache = new LocalStorageCache();
   }
 }
