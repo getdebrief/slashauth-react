@@ -120,16 +120,16 @@ export const getCryptoSubtle = () => {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   return crypto.subtle || (crypto as any).webkitSubtle;
 };
-export const createRandomString = () => {
-  const charset =
-    '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz-_~.';
-  let random = '';
-  const randomValues = Array.from(
-    getCrypto().getRandomValues(new Uint8Array(43))
-  );
-  randomValues.forEach((v) => (random += charset[v % charset.length]));
-  return random;
-};
+// export const createRandomString = () => {
+//   const charset =
+//     '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz-_~.';
+//   let random = '';
+//   const randomValues = Array.from(
+//     getCrypto().getRandomValues(new Uint8Array(43))
+//   );
+//   randomValues.forEach((v) => (random += charset[v % charset.length]));
+//   return random;
+// };
 
 export const encode = (value: string) => btoa(value);
 export const decode = (value: string) => atob(value);

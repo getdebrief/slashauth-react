@@ -159,6 +159,13 @@ const Provider = (opts: SlashAuthProviderOptions): JSX.Element => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [connectOnStart]);
 
+  const detectMobile = () => {
+    if (typeof window === 'undefined') {
+      return false;
+    }
+    return isMobile();
+  };
+
   const connectAccount = useCallback(async () => {
     const acc = await connectWallet(false);
     if (acc && state.loginRequested) {
@@ -224,7 +231,7 @@ const Provider = (opts: SlashAuthProviderOptions): JSX.Element => {
         let fetchedNonce = state.nonceToSign;
         if (!state.nonceToSign || state.nonceToSign.length === 0) {
           fetchedNonce = await getNonceToSign();
-          if (isMobile()) {
+          if (detectMobile()) {
             return;
           }
         }
@@ -270,7 +277,7 @@ const Provider = (opts: SlashAuthProviderOptions): JSX.Element => {
     if (
       state.loginRequested &&
       account &&
-      !isMobile() &&
+      !detectMobile() &&
       state.step !== 'NONCE_REQUEST_STARTED'
     ) {
       dispatch({ type: 'LOGIN_REQUEST_FULFILLED' });
@@ -287,7 +294,7 @@ const Provider = (opts: SlashAuthProviderOptions): JSX.Element => {
 
   useEffect(() => {
     if (
-      isMobile() &&
+      detectMobile() &&
       account &&
       !state.nonceToSign &&
       state.step !== 'FETCHING_NONCE'
@@ -388,7 +395,7 @@ const Provider = (opts: SlashAuthProviderOptions): JSX.Element => {
   const contextValue = useMemo(() => {
     return {
       ...state,
-      isTwoStep: isMobile(),
+      isTwoStep: detectMobile(),
       provider,
       connectedWallet: account,
       connect,
@@ -402,7 +409,7 @@ const Provider = (opts: SlashAuthProviderOptions): JSX.Element => {
       checkSession,
       initialized,
       isLoginReady:
-        isMobile() && state.nonceToSign && state.step !== 'LOGGED_IN',
+        detectMobile() && state.nonceToSign && state.step !== 'LOGGED_IN',
     };
   }, [
     state,

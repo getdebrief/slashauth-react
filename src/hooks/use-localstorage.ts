@@ -16,6 +16,9 @@ function getItem(key: string) {
 }
 
 function setItem(key: string, value: any) {
+  if (typeof window === undefined) {
+    return;
+  }
   if (value === undefined) {
     window.localStorage.removeItem(key);
   } else {
