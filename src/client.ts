@@ -448,12 +448,7 @@ export default class SlashAuthClient {
     try {
       await this.getTokenSilently(options);
     } catch (error) {
-      if (error.error === 'Not logged in') {
-        return false;
-      }
-      if (!RECOVERABLE_ERRORS.includes(error.error)) {
-        throw error;
-      }
+      return false;
     }
     return true;
   }
