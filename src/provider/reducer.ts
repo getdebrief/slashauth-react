@@ -11,9 +11,9 @@ import { SlashAuthState } from '../auth-state';
 
 type Action =
   | { type: 'LOGIN_FLOW_STARTED' }
+  | { type: 'INITIALIZED'; account?: Account; isAuthenticated: boolean }
   | {
       type:
-        | 'INITIALIZED'
         | 'NONCE_REQUEST_STARTED'
         | 'NONCE_RECEIVED'
         | 'LOGIN_WITH_SIGNED_NONCE_STARTED'
@@ -73,7 +73,7 @@ export const reducer = (
     case 'INITIALIZED':
       return {
         ...state,
-        isAuthenticated: false,
+        isAuthenticated: action.isAuthenticated,
         isLoading: false,
         error: undefined,
         nonceToSign: null,

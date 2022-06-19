@@ -333,6 +333,7 @@ const Provider = (opts: SlashAuthProviderOptions): JSX.Element => {
         dispatch({
           type: 'INITIALIZED',
           account: await client.getAccount(),
+          isAuthenticated: !!token,
         });
       }
       return token;
@@ -343,16 +344,19 @@ const Provider = (opts: SlashAuthProviderOptions): JSX.Element => {
   const checkSession = useCallback(
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     async (opts?: GetTokenSilentlyOptions): Promise<any> => {
+      let isAuthenticated = false;
       try {
-        return client.checkSession(opts);
+        isAuthenticated = await client.checkSession(opts);
       } catch (error) {
-        return false;
+        isAuthenticated = false;
       } finally {
         dispatch({
+          isAuthenticated,
           type: 'INITIALIZED',
           account: await client.getAccount(),
         });
       }
+      return isAuthenticated;
     },
     [client]
   );
@@ -368,6 +372,7 @@ const Provider = (opts: SlashAuthProviderOptions): JSX.Element => {
         dispatch({
           type: 'INITIALIZED',
           account: await client.getAccount(),
+          isAuthenticated: false,
         });
         const account = await connectWallet(transparent);
         return account;
