@@ -328,13 +328,7 @@ const Provider = (opts: SlashAuthProviderOptions): JSX.Element => {
       try {
         token = await client.getTokenSilently(opts);
       } catch (error) {
-        let errorMessage = 'Unknown error';
-        if (error instanceof Error) {
-          errorMessage = error.message;
-        }
-        throw tokenError({
-          error: errorMessage,
-        });
+        return null;
       } finally {
         dispatch({
           type: 'INITIALIZED',

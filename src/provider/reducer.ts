@@ -73,7 +73,7 @@ export const reducer = (
     case 'INITIALIZED':
       return {
         ...state,
-        isAuthenticated: !!action.account,
+        isAuthenticated: false,
         isLoading: false,
         error: undefined,
         nonceToSign: null,
@@ -83,7 +83,7 @@ export const reducer = (
     case 'LOGIN_WITH_SIGNED_NONCE_COMPLETE':
       return {
         ...state,
-        isAuthenticated: !!action.account,
+        isAuthenticated: true,
         account: action.account,
         isLoading: false,
         error: undefined,
