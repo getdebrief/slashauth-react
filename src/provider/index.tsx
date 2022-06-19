@@ -328,17 +328,12 @@ const Provider = (opts: SlashAuthProviderOptions): JSX.Element => {
       try {
         token = await client.getTokenSilently(opts);
       } catch (error) {
-        let errorMessage = 'Unknown error';
-        if (error instanceof Error) {
-          errorMessage = error.message;
-        }
-        throw tokenError({
-          error: errorMessage,
-        });
+        return null;
       } finally {
         dispatch({
           type: 'INITIALIZED',
           account: await client.getAccount(),
+          isAuthenticated: !!token,
         });
       }
       return token;
@@ -349,22 +344,19 @@ const Provider = (opts: SlashAuthProviderOptions): JSX.Element => {
   const checkSession = useCallback(
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     async (opts?: GetTokenSilentlyOptions): Promise<any> => {
+      let isAuthenticated = false;
       try {
-        await client.checkSession(opts);
+        isAuthenticated = await client.checkSession(opts);
       } catch (error) {
-        let errorMessage = 'Unknown error';
-        if (error instanceof Error) {
-          errorMessage = error.message;
-        }
-        throw tokenError({
-          error: errorMessage,
-        });
+        isAuthenticated = false;
       } finally {
         dispatch({
+          isAuthenticated,
           type: 'INITIALIZED',
           account: await client.getAccount(),
         });
       }
+      return isAuthenticated;
     },
     [client]
   );
@@ -380,6 +372,7 @@ const Provider = (opts: SlashAuthProviderOptions): JSX.Element => {
         dispatch({
           type: 'INITIALIZED',
           account: await client.getAccount(),
+          isAuthenticated: false,
         });
         const account = await connectWallet(transparent);
         return account;

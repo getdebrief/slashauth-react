@@ -428,7 +428,9 @@ export default class SlashAuthClient {
    *
    * @param options
    */
-  public async checkSession(options?: GetTokenSilentlyOptions) {
+  public async checkSession(
+    options?: GetTokenSilentlyOptions
+  ): Promise<boolean> {
     if (!this.cookieStorage.get(this.isAuthenticatedCookieName)) {
       if (!this.cookieStorage.get(OLD_IS_AUTHENTICATED_COOKIE_NAME)) {
         return;
@@ -446,10 +448,14 @@ export default class SlashAuthClient {
     try {
       await this.getTokenSilently(options);
     } catch (error) {
+      if (error.error === 'Not logged in') {
+        return false;
+      }
       if (!RECOVERABLE_ERRORS.includes(error.error)) {
         throw error;
       }
     }
+    return true;
   }
 
   /**
@@ -622,7 +628,6 @@ export default class SlashAuthClient {
       });
       return resp.hasRole;
     } catch (err) {
-      console.error('Error from HasRole API ', err);
       return false;
     }
   }
