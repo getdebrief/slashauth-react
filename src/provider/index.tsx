@@ -344,15 +344,9 @@ const Provider = (opts: SlashAuthProviderOptions): JSX.Element => {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     async (opts?: GetTokenSilentlyOptions): Promise<any> => {
       try {
-        await client.checkSession(opts);
+        return client.checkSession(opts);
       } catch (error) {
-        let errorMessage = 'Unknown error';
-        if (error instanceof Error) {
-          errorMessage = error.message;
-        }
-        throw tokenError({
-          error: errorMessage,
-        });
+        return false;
       } finally {
         dispatch({
           type: 'INITIALIZED',
