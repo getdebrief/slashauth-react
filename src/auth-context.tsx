@@ -69,7 +69,7 @@ export interface SlashAuthContextInterface extends SlashAuthState {
 
   getIdTokenClaims: (options?: GetIdTokenClaimsOptions) => Promise<IdToken>;
 
-  checkSession: (options?: GetTokenSilentlyOptions) => void;
+  checkSession: (options?: GetTokenSilentlyOptions) => Promise<boolean>;
 }
 
 const stub = (): never => {
