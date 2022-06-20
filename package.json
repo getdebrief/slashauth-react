@@ -11,6 +11,7 @@
   "module": "dist/index.esm.js",
   "types": "dist/index.d.ts",
   "scripts": {
+    "prepublishOnly": "npm run build",
     "build": "node esbuild.js && tsc --emitDeclarationOnly --outDir dist",
     "test": "jest",
     "test:cover": "jest --coverage",
