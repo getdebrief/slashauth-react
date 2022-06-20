@@ -131,8 +131,12 @@ export const getCryptoSubtle = () => {
 //   return random;
 // };
 
-export const encode = (value: string) => btoa(value);
-export const decode = (value: string) => atob(value);
+export const encode = (value: string) => {
+  Buffer.from(value, 'utf-8').toString('base64');
+};
+export const decode = (value: string) => {
+  Buffer.from(value, 'base64').toString('utf-8');
+};
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export const createQueryParams = (params: any) => {
