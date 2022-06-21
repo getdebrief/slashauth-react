@@ -324,7 +324,8 @@ const Provider = (opts: SlashAuthProviderOptions): JSX.Element => {
   const getAccessTokenSilently = useCallback(
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     async (opts?: GetTokenSilentlyOptions): Promise<any> => {
-      let token;
+      let token: string | null = null;
+
       try {
         token = await client.getTokenSilently(opts);
       } catch (error) {

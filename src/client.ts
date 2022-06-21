@@ -469,7 +469,7 @@ export default class SlashAuthClient {
    */
   public async getTokenSilently(
     options?: GetTokenSilentlyOptions
-  ): Promise<string>;
+  ): Promise<string | null>;
 
   /**
    * Fetches a new access token, and either returns just the access token (the default) or the response from the /oauth/token endpoint, depending on the `detailedResponse` option.
@@ -506,7 +506,7 @@ export default class SlashAuthClient {
    */
   public async getTokenSilently(
     options: GetTokenSilentlyOptions = {}
-  ): Promise<string | GetTokenSilentlyVerboseResponse> {
+  ): Promise<string | GetTokenSilentlyVerboseResponse | null> {
     const { ignoreCache, ...getTokenOptions } = {
       audience: this.options.audience,
       ignoreCache: false,
@@ -526,7 +526,7 @@ export default class SlashAuthClient {
 
   private async _getTokenSilently(
     options: GetTokenSilentlyOptions = {}
-  ): Promise<string | GetTokenSilentlyVerboseResponse> {
+  ): Promise<string | GetTokenSilentlyVerboseResponse | null> {
     const { ignoreCache, ...getTokenOptions } = options;
 
     // Check the cache before acquiring the lock to avoid the latency of
@@ -593,6 +593,8 @@ export default class SlashAuthClient {
         }
 
         return authResult.access_token;
+      } catch (err) {
+        return null;
       } finally {
         await lock.releaseLock(GET_TOKEN_SILENTLY_LOCK_KEY);
       }
