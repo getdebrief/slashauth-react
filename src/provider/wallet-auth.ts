@@ -97,7 +97,6 @@ export const useWalletAuth = (options: ProviderOptions) => {
         });
         return accounts.at(0) || null;
       } catch (err) {
-        console.error(err);
         setInternalState({
           ...internalState,
           error: err,

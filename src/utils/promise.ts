@@ -1,7 +1,10 @@
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 const singlePromiseMap: Record<string, Promise<any>> = {};
 
-export const singlePromise = <T>(cb: () => Promise<T>, key: string) => {
+export const singlePromise = <T>(
+  cb: () => Promise<T>,
+  key: string
+): Promise<T> => {
   let promise = singlePromiseMap[key];
   if (!promise) {
     promise = cb().finally(() => {
