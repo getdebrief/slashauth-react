@@ -41,7 +41,6 @@ export {
   MfaRequiredError,
 } from './errors';
 
-export type { ICache, Cacheable } from './cache';
 export { LocalStorageCache, InMemoryCache } from './cache';
 
 export { default as SlashAuthProvider } from './provider';
