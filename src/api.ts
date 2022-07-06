@@ -116,11 +116,9 @@ export const getRoleMetadataAPICall = async ({
   clientID,
   roleName,
   accessToken,
-  key,
 }: GetRoleMetadataOptions): Promise<GetRoleMetadataResponse> => {
   const queryString = createQueryParams({
     role: Buffer.from(roleName).toString('base64'),
-    key,
   });
   return await getJSON<GetRoleMetadataResponse>(
     `${baseUrl}/p/${clientID}/role_metadata?${queryString}`,

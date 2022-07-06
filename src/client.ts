@@ -636,15 +636,9 @@ export default class SlashAuthClient {
    * @param options
    * @returns
    */
-  public async getRoleMetadata(
-    roleName: string,
-    key?: string
-  ): Promise<ObjectMap>;
+  public async getRoleMetadata(roleName: string): Promise<ObjectMap>;
 
-  public async getRoleMetadata(
-    roleName: string,
-    key?: string
-  ): Promise<ObjectMap> {
+  public async getRoleMetadata(roleName: string): Promise<ObjectMap> {
     try {
       const accessToken = await this.getTokenSilently();
       if (!accessToken) {
@@ -655,7 +649,6 @@ export default class SlashAuthClient {
         clientID: this.options.clientID,
         roleName,
         accessToken,
-        key,
       });
       return resp.metadata;
     } catch (err) {

@@ -324,8 +324,8 @@ const Provider = (opts: SlashAuthProviderOptions): JSX.Element => {
   );
 
   const getRoleMetadata = useCallback(
-    async (roleName: string, key?: string): Promise<ObjectMap> => {
-      return client.getRoleMetadata(roleName, key);
+    async (roleName: string): Promise<ObjectMap> => {
+      return client.getRoleMetadata(roleName);
     },
     [client]
   );

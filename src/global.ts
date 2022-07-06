@@ -352,7 +352,6 @@ export type GetRoleMetadataOptions = {
   clientID: string;
   roleName: string;
   accessToken: string;
-  key?: string;
 };
 
 export type GetRoleMetadataResponse = {
