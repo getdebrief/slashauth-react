@@ -36,6 +36,7 @@ export interface SlashAuthContextInterface extends SlashAuthState {
   getNonceToSign: () => Promise<string | null>;
 
   hasRole: (roleName: string) => Promise<boolean>;
+  getRoleMetadata: (roleName: string) => Promise<{ [key: string]: any }>;
   /*
     Gets an access token directly embedded in the page.
   */
@@ -85,6 +86,7 @@ const initialContextState: SlashAuthContextInterface = {
   connect: stub,
   ethereum: null,
   hasRole: stub,
+  getRoleMetadata: stub,
   getNonceToSign: stub,
   getAccessTokenSilently: stub,
   loginNoRedirectNoPopup: stub,

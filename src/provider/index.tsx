@@ -24,6 +24,7 @@ import { useWalletAuth } from './wallet-auth';
 import { CoinbaseWalletSDKOptions } from '@coinbase/wallet-sdk/dist/CoinbaseWalletSDK';
 import { IWalletConnectProviderOptions } from '@walletconnect/types';
 import { isMobile } from 'web3modal';
+import { ObjectMap } from '../utils/object';
 
 export type AppState = {
   returnTo?: string;
@@ -321,6 +322,13 @@ const Provider = (opts: SlashAuthProviderOptions): JSX.Element => {
     [client]
   );
 
+  const getRoleMetadata = useCallback(
+    async (roleName: string, key?: string): Promise<ObjectMap> => {
+      return client.getRoleMetadata(roleName, key);
+    },
+    [client]
+  );
+
   const getAccessTokenSilently = useCallback(
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     async (opts?: GetTokenSilentlyOptions): Promise<any> => {
@@ -395,6 +403,7 @@ const Provider = (opts: SlashAuthProviderOptions): JSX.Element => {
       connect,
       ethereum: library,
       hasRole,
+      getRoleMetadata,
       getAccessTokenSilently,
       getNonceToSign,
       loginNoRedirectNoPopup,
@@ -412,6 +421,7 @@ const Provider = (opts: SlashAuthProviderOptions): JSX.Element => {
     connect,
     library,
     hasRole,
+    getRoleMetadata,
     getAccessTokenSilently,
     getNonceToSign,
     loginNoRedirectNoPopup,
