@@ -54,7 +54,6 @@ import {
   GetNonceToSignOptions,
   RefreshTokenOptions,
   GetTokenSilentlyResult,
-  HasRoleOptions,
 } from './global';
 
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
@@ -69,7 +68,9 @@ import {
   refreshToken,
   logout as apiLogout,
   hasRoleAPICall,
+  getRoleMetadataAPICall,
 } from './api';
+import { ObjectMap } from './utils/object';
 
 // type GetTokenSilentlyResult = TokenEndpointResponse & {
 //   decodedToken: ReturnType<typeof verifyIdToken>;
@@ -626,6 +627,32 @@ export default class SlashAuthClient {
       return resp.hasRole;
     } catch (err) {
       return false;
+    }
+  }
+
+  /**
+   * Fetches the role metadata if a user has access
+   *
+   * @param options
+   * @returns
+   */
+  public async getRoleMetadata(roleName: string): Promise<ObjectMap>;
+
+  public async getRoleMetadata(roleName: string): Promise<ObjectMap> {
+    try {
+      const accessToken = await this.getTokenSilently();
+      if (!accessToken) {
+        return {};
+      }
+      const resp = await getRoleMetadataAPICall({
+        baseUrl: getDomain(this.domainUrl),
+        clientID: this.options.clientID,
+        roleName,
+        accessToken,
+      });
+      return resp.metadata;
+    } catch (err) {
+      return {};
     }
   }
 

@@ -1,5 +1,6 @@
 import { ICache } from './cache';
 import { verify as verifyIdToken } from './jwt';
+import { ObjectMap } from './utils/object';
 
 export enum Network {
   Unknown,
@@ -344,4 +345,15 @@ export type HasRoleOptions = {
 
 export type HasRoleResponse = {
   hasRole: boolean;
+};
+
+export type GetRoleMetadataOptions = {
+  baseUrl: string;
+  clientID: string;
+  roleName: string;
+  accessToken: string;
+};
+
+export type GetRoleMetadataResponse = {
+  metadata: ObjectMap;
 };
