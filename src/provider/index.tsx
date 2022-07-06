@@ -18,7 +18,7 @@ import {
   Network,
   SlashAuthClientOptions,
 } from '../global';
-import { loginError, tokenError } from '../utils';
+import { loginError } from '../utils';
 import { reducer } from './reducer';
 import { useWalletAuth } from './wallet-auth';
 import { CoinbaseWalletSDKOptions } from '@coinbase/wallet-sdk/dist/CoinbaseWalletSDK';
@@ -72,8 +72,9 @@ export interface SlashAuthProviderOptions {
   /**
    * Specify a custom cache implementation to use for token storage and retrieval. This setting takes precedence over `cacheLocation` if they are both specified.
    *
+   * NOTE: Not exposing this as exporting ICache type breaks ts < 3.8
    */
-  cache?: ICache;
+  // cache?: ICache;
   // useRefreshTokens?: boolean;
   /**
    * A maximum number of seconds to wait before declaring background calls to /authorize as failed for timeout
@@ -148,14 +149,14 @@ const Provider = (opts: SlashAuthProviderOptions): JSX.Element => {
     library,
     connectOnStart,
     connectWallet,
-    active,
     provider,
     deactivate,
   } = useWalletAuth(opts.providers);
 
   useEffect(() => {
-    if (connectOnStart && !active) {
+    if (connectOnStart) {
       connectWallet(true);
+      checkSession();
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [connectOnStart]);
@@ -355,6 +356,7 @@ const Provider = (opts: SlashAuthProviderOptions): JSX.Element => {
     async (opts?: GetTokenSilentlyOptions): Promise<any> => {
       let isAuthenticated = false;
       try {
+        console.log('about to check session');
         isAuthenticated = await client.checkSession(opts);
       } catch (error) {
         isAuthenticated = false;
@@ -450,6 +452,7 @@ const Provider = (opts: SlashAuthProviderOptions): JSX.Element => {
  *
  */
 const SlashAuthProvider = (opts: SlashAuthProviderOptions): JSX.Element => {
+  console.log('in wrapper');
   return <Provider {...opts} />;
 };
 

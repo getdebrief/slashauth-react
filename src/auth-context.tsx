@@ -11,6 +11,7 @@ import {
   LoginNoRedirectNoPopupOptions,
   LogoutOptions,
 } from './global';
+import { ObjectMap } from './utils/object';
 
 export type SlashAuthStep = string;
 
@@ -36,7 +37,7 @@ export interface SlashAuthContextInterface extends SlashAuthState {
   getNonceToSign: () => Promise<string | null>;
 
   hasRole: (roleName: string) => Promise<boolean>;
-  getRoleMetadata: (roleName: string) => Promise<{ [key: string]: any }>;
+  getRoleMetadata: (roleName: string) => Promise<ObjectMap>;
   /*
     Gets an access token directly embedded in the page.
   */
