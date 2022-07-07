@@ -566,7 +566,7 @@ export default class SlashAuthClient {
             return entry;
           }
         }
-
+        console.trace('about to get token using refresh token');
         const authResult = await this._getTokenUsingRefreshToken({
           audience: getTokenOptions.audience || 'default',
           baseUrl: getDomain(this.domainUrl),

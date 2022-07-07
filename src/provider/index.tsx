@@ -136,8 +136,6 @@ const toSlashAuthClientOptions = (
 };
 
 const Provider = (opts: SlashAuthProviderOptions): JSX.Element => {
-  const [initialized, setInitialized] = useState(false);
-
   const { children, skipRedirectCallback, ...clientOpts } = opts;
   const [client] = useState(
     () => new SlashAuthClient(toSlashAuthClientOptions(clientOpts))
@@ -154,12 +152,9 @@ const Provider = (opts: SlashAuthProviderOptions): JSX.Element => {
   } = useWalletAuth(opts.providers);
 
   useEffect(() => {
-    if (connectOnStart) {
-      connectWallet(true);
-      checkSession();
-    }
+    connectWallet(true).then(() => checkSession());
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [connectOnStart]);
+  }, []);
 
   const detectMobile = () => {
     if (typeof window === 'undefined') {
@@ -334,7 +329,6 @@ const Provider = (opts: SlashAuthProviderOptions): JSX.Element => {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     async (opts?: GetTokenSilentlyOptions): Promise<any> => {
       let token: string | null = null;
-
       try {
         token = await client.getTokenSilently(opts);
       } catch (error) {
@@ -356,7 +350,9 @@ const Provider = (opts: SlashAuthProviderOptions): JSX.Element => {
     async (opts?: GetTokenSilentlyOptions): Promise<any> => {
       let isAuthenticated = false;
       try {
-        console.log('about to check session');
+        dispatch({
+          type: 'CHECKING_SESSION',
+        });
         isAuthenticated = await client.checkSession(opts);
       } catch (error) {
         isAuthenticated = false;
@@ -389,8 +385,6 @@ const Provider = (opts: SlashAuthProviderOptions): JSX.Element => {
         return account;
       } catch (err) {
         console.error(err);
-      } finally {
-        setTimeout(() => setInitialized(true), 250);
       }
     },
     [connectWallet, client]
@@ -412,7 +406,7 @@ const Provider = (opts: SlashAuthProviderOptions): JSX.Element => {
       getIdTokenClaims,
       logout,
       checkSession,
-      initialized,
+      initialized: account !== undefined,
       isLoginReady:
         detectMobile() && state.nonceToSign && state.step !== 'LOGGED_IN',
     };
@@ -430,7 +424,6 @@ const Provider = (opts: SlashAuthProviderOptions): JSX.Element => {
     getIdTokenClaims,
     logout,
     checkSession,
-    initialized,
   ]);
 
   return (
