@@ -445,7 +445,6 @@ const Provider = (opts: SlashAuthProviderOptions): JSX.Element => {
  *
  */
 const SlashAuthProvider = (opts: SlashAuthProviderOptions): JSX.Element => {
-  console.log('in wrapper');
   return <Provider {...opts} />;
 };
 
