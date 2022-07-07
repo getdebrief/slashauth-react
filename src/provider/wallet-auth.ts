@@ -13,7 +13,7 @@ type InternalState = {
   error?: Error | null;
   provider: any;
   library: Web3Provider | null;
-  account: string | null;
+  account: string | null | undefined;
 };
 
 const initialState = {
@@ -22,7 +22,7 @@ const initialState = {
   error: null,
   provider: null,
   library: null,
-  account: null,
+  account: undefined,
 };
 
 export const useWalletAuth = (options: ProviderOptions) => {
@@ -81,6 +81,7 @@ export const useWalletAuth = (options: ProviderOptions) => {
         setInternalState({
           ...internalState,
           active: true,
+          account: null,
         });
         return;
       }
@@ -100,6 +101,7 @@ export const useWalletAuth = (options: ProviderOptions) => {
         setInternalState({
           ...internalState,
           error: err,
+          account: internalState.account || null,
         });
       }
     },

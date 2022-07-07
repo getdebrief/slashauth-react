@@ -10,6 +10,7 @@ import {
 import { SlashAuthState } from '../auth-state';
 
 type Action =
+  | { type: 'CHECKING_SESSION' }
   | { type: 'LOGIN_FLOW_STARTED' }
   | { type: 'INITIALIZED'; account?: Account; isAuthenticated: boolean }
   | {
@@ -39,6 +40,11 @@ export const reducer = (
   action: Action
 ): SlashAuthState => {
   switch (action.type) {
+    case 'CHECKING_SESSION':
+      return {
+        ...state,
+        isLoading: true,
+      };
     case 'LOGIN_FLOW_STARTED':
     case 'LOGIN_WITH_SIGNED_NONCE_STARTED':
     case 'NONCE_REQUEST_STARTED':
@@ -73,7 +79,8 @@ export const reducer = (
     case 'INITIALIZED':
       return {
         ...state,
-        isAuthenticated: action.isAuthenticated,
+        isAuthenticated: action.isAuthenticated || false,
+        account: action.account || null,
         isLoading: false,
         error: undefined,
         nonceToSign: null,
