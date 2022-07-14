@@ -5,7 +5,7 @@ import React, {
   useReducer,
   useState,
 } from 'react';
-import SlashAuthContext from '../auth-context';
+import SlashAuthContext, { SlashAuthContextInterface } from '../auth-context';
 import { initialAuthState } from '../auth-state';
 import SlashAuthClient from '../client';
 import { ICache } from '../cache';
@@ -35,6 +35,8 @@ export type ProviderOptions = {
   coinbasewallet?: CoinbaseWalletSDKOptions;
   walletconnect?: IWalletConnectProviderOptions;
 };
+
+export let activeContextValue: SlashAuthContextInterface = null;
 
 /**
  * The main configuration to instantiate the `SlashAuthProvider`.
@@ -391,7 +393,7 @@ const Provider = (opts: SlashAuthProviderOptions): JSX.Element => {
   );
 
   const contextValue = useMemo(() => {
-    return {
+    activeContextValue = {
       ...state,
       isTwoStep: detectMobile(),
       provider,
@@ -410,6 +412,7 @@ const Provider = (opts: SlashAuthProviderOptions): JSX.Element => {
       isLoginReady:
         detectMobile() && state.nonceToSign && state.step !== 'LOGGED_IN',
     };
+    return activeContextValue;
   }, [
     state,
     provider,
