@@ -1,5 +1,5 @@
 import { useContext } from 'react';
-import SlashAuthContext from './auth-context';
+import SlashAuthContext, { SlashAuthContextInterface } from './auth-context';
 
 import 'core-js/es/string/starts-with';
 import 'core-js/es/symbol';
@@ -10,6 +10,7 @@ import 'core-js/es/string/includes';
 import 'core-js/es/set';
 import SlashAuthClient from './client';
 import { SlashAuthClientOptions } from './global';
+import { activeContextValue } from './provider';
 
 export * from './global';
 
@@ -57,3 +58,7 @@ export const useSlashAuth = () => {
 
   return slashAuth;
 };
+
+export const getSlashauthContext = (): SlashAuthContextInterface => ({
+  ...activeContextValue,
+});
