@@ -320,6 +320,13 @@ const Provider = (opts: SlashAuthProviderOptions): JSX.Element => {
     [client]
   );
 
+  const hasOrgRole = useCallback(
+    async (organizationID: string, roleName: string): Promise<boolean> => {
+      return client.hasOrgRole(organizationID, roleName);
+    },
+    [client]
+  );
+
   const getRoleMetadata = useCallback(
     async (roleName: string): Promise<ObjectMap> => {
       return client.getRoleMetadata(roleName);
@@ -401,6 +408,7 @@ const Provider = (opts: SlashAuthProviderOptions): JSX.Element => {
       connect,
       ethereum: library,
       hasRole,
+      hasOrgRole,
       getRoleMetadata,
       getAccessTokenSilently,
       getNonceToSign,
@@ -420,6 +428,7 @@ const Provider = (opts: SlashAuthProviderOptions): JSX.Element => {
     connect,
     library,
     hasRole,
+    hasOrgRole,
     getRoleMetadata,
     getAccessTokenSilently,
     getNonceToSign,

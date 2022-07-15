@@ -4,6 +4,7 @@ import {
   GetNonceToSignResponse,
   GetRoleMetadataOptions,
   GetRoleMetadataResponse,
+  HasOrgRoleOptions,
   HasRoleOptions,
   HasRoleResponse,
   LoginWithSignedNonceOptions,
@@ -95,6 +96,35 @@ export const hasRoleAPICall = async ({
   });
   return await getJSON<HasRoleResponse>(
     `${baseUrl}/p/${clientID}/has_role?${queryString}`,
+    1000,
+    'default',
+    '',
+    {
+      method: 'GET',
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+        'Content-Type': 'application/json',
+        'X-SlashAuth-Client': Buffer.from(
+          JSON.stringify(DEFAULT_SLASHAUTH_CLIENT)
+        ).toString('base64'),
+      },
+    }
+  );
+};
+
+export const hasOrgRoleAPICall = async ({
+  baseUrl,
+  clientID,
+  organizationID,
+  roleName,
+  accessToken,
+}: HasOrgRoleOptions): Promise<HasRoleResponse> => {
+  const queryString = createQueryParams({
+    role: Buffer.from(roleName).toString('base64'),
+    encoded: true,
+  });
+  return await getJSON<HasRoleResponse>(
+    `${baseUrl}/p/${clientID}/organizations/${organizationID}/has_role?${queryString}`,
     1000,
     'default',
     '',

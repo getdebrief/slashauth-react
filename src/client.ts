@@ -69,6 +69,7 @@ import {
   logout as apiLogout,
   hasRoleAPICall,
   getRoleMetadataAPICall,
+  hasOrgRoleAPICall,
 } from './api';
 import { ObjectMap } from './utils/object';
 
@@ -620,6 +621,39 @@ export default class SlashAuthClient {
       const resp = await hasRoleAPICall({
         baseUrl: getDomain(this.domainUrl),
         clientID: this.options.clientID,
+        roleName,
+        accessToken,
+      });
+      return resp.hasRole;
+    } catch (err) {
+      return false;
+    }
+  }
+
+  /**
+   * Fetches whether the user has the provided role
+   *
+   * @param options
+   * @returns
+   */
+  public async hasOrgRole(
+    organizationID: string,
+    roleName: string
+  ): Promise<boolean>;
+
+  public async hasOrgRole(
+    organizationID: string,
+    roleName: string
+  ): Promise<boolean> {
+    try {
+      const accessToken = await this.getTokenSilently();
+      if (!accessToken) {
+        return false;
+      }
+      const resp = await hasOrgRoleAPICall({
+        baseUrl: getDomain(this.domainUrl),
+        clientID: this.options.clientID,
+        organizationID,
         roleName,
         accessToken,
       });
