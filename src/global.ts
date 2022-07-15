@@ -347,6 +347,14 @@ export type HasRoleResponse = {
   hasRole: boolean;
 };
 
+export type HasOrgRoleOptions = {
+  baseUrl: string;
+  clientID: string;
+  organizationID: string;
+  roleName: string;
+  accessToken: string;
+};
+
 export type GetRoleMetadataOptions = {
   baseUrl: string;
   clientID: string;
