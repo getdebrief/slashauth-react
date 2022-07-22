@@ -8,7 +8,6 @@ import React, {
 import SlashAuthContext, { SlashAuthContextInterface } from '../auth-context';
 import { initialAuthState } from '../auth-state';
 import SlashAuthClient from '../client';
-import { ICache } from '../cache';
 import {
   CacheLocation,
   GetIdTokenClaimsOptions,
@@ -144,14 +143,8 @@ const Provider = (opts: SlashAuthProviderOptions): JSX.Element => {
   );
   const [state, dispatch] = useReducer(reducer, initialAuthState);
 
-  const {
-    account,
-    library,
-    connectOnStart,
-    connectWallet,
-    provider,
-    deactivate,
-  } = useWalletAuth(opts.providers);
+  const { account, library, connectWallet, provider, deactivate } =
+    useWalletAuth(opts.providers);
 
   useEffect(() => {
     connectWallet(true).then(() => checkSession());

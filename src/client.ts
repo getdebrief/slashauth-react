@@ -28,12 +28,10 @@ import {
 } from './storage';
 
 import {
-  CACHE_LOCATION_MEMORY,
   DEFAULT_SESSION_CHECK_EXPIRY_DAYS,
   DEFAULT_SLASHAUTH_CLIENT,
   DEFAULT_NOW_PROVIDER,
   DEFAULT_FETCH_TIMEOUT_MS,
-  RECOVERABLE_ERRORS,
   CACHE_LOCATION_LOCAL_STORAGE,
 } from './constants';
 
@@ -61,7 +59,7 @@ import {
 // eslint-disable-next-line import/default
 // import TokenWorker from './worker/token.worker.ts';
 import { CacheKeyManifest } from './cache/key-manifest';
-import browserDeviceID from './device';
+import getDeviceID from './device';
 import {
   getNonceToSign,
   loginWithSignedNonce,
@@ -570,7 +568,7 @@ export default class SlashAuthClient {
         const authResult = await this._getTokenUsingRefreshToken({
           audience: getTokenOptions.audience || 'default',
           baseUrl: getDomain(this.domainUrl),
-          device_id: browserDeviceID,
+          device_id: getDeviceID(),
         });
 
         await this.cacheManager.set({
@@ -692,7 +690,7 @@ export default class SlashAuthClient {
   public async getNonceToSign(options: GetNonceToSignOptions): Promise<string> {
     const queryParameters = {
       address: options.address,
-      device_id: browserDeviceID,
+      device_id: getDeviceID(),
       client_id: this.options.clientID,
     };
 
@@ -733,7 +731,7 @@ export default class SlashAuthClient {
     const queryParameters = {
       address: options.address,
       signature: options.signature,
-      device_id: browserDeviceID,
+      device_id: getDeviceID(),
       client_id: this.options.clientID,
     };
 
@@ -828,7 +826,7 @@ export default class SlashAuthClient {
     }
 
     if (!options.device_id) {
-      options.device_id = browserDeviceID;
+      options.device_id = getDeviceID();
     }
 
     const { ...logoutOptions } = options;
@@ -908,7 +906,7 @@ export default class SlashAuthClient {
 
     const queryParameters = {
       refresh_token: cache.refresh_token,
-      device_id: browserDeviceID,
+      device_id: getDeviceID(),
     };
 
     const tokenResult = await refreshToken({
