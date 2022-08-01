@@ -2,6 +2,8 @@ import { ICache } from './cache';
 import { verify as verifyIdToken } from './jwt';
 import { ObjectMap } from './utils/object';
 
+export const CONNECT_MODAL_ID = 'SLASHAUTH_CONNECT_MODAL_ID';
+
 export enum Network {
   Unknown,
   Ethereum,

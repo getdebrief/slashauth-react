@@ -19,6 +19,7 @@
     "jsx": "react-jsx",
     "outDir": "dist",
     "declaration": true,
+    "emitDeclarationOnly": true
   },
   "compileOnSave": true,
   "include": [

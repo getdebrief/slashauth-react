@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-var-requires */
 const NodeModulesPolyfillPlugin =
   require('@esbuild-plugins/node-modules-polyfill').NodeModulesPolyfillPlugin;
 
@@ -12,7 +13,7 @@ esbuild.build({
   logLevel: 'info',
   entryPoints: ['src/index.ts'],
   bundle: true,
-  minify: true,
+  minify: false,
   target: 'es2019',
   format: 'esm',
   outfile: './dist/index.esm.js',
@@ -26,6 +27,12 @@ esbuild.build({
       buffer: true,
     }),
   ],
+  watch: {
+    onRebuild(error, result) {
+      if (error) console.error('watch build failed:', error);
+      else console.log('watch build succeeded:', result);
+    },
+  },
 });
 
 esbuild.build({
@@ -41,4 +48,10 @@ esbuild.build({
   external: ['react', 'react-dom'],
   plugins: [],
   platform: 'node',
+  watch: {
+    onRebuild(error, result) {
+      if (error) console.error('watch build failed:', error);
+      else console.log('watch build succeeded:', result);
+    },
+  },
 });
