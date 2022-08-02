@@ -12,7 +12,9 @@ export class ModalCore {
 
   constructor(w: WagmiConnector) {
     this.wagmiConnector = w;
-    this.renderModal();
+    setTimeout(() => {
+      this.renderModal();
+    }, 0);
   }
 
   public async toggleModal(): Promise<void> {

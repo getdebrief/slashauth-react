@@ -71,11 +71,25 @@ export const useWalletAuth = (options: ProviderOptions) => {
   }, []);
 
   if (!wagmiConnector) {
+    const extractedOptions = {
+      ...options,
+    };
+
+    if (!options.infura && options.walletconnect?.infuraId) {
+      extractedOptions.infura = {
+        apiKey: options.walletconnect.infuraId,
+      };
+    }
+
+    if (!options.appName && options.coinbasewallet?.appName) {
+      extractedOptions.appName = options.coinbasewallet.appName;
+    }
+
     const connector = new WagmiConnector({
-      appName: options.appName,
-      alchemy: options?.alchemy,
-      infura: options?.infura,
-      publicConf: options?.publicConf,
+      appName: extractedOptions.appName,
+      alchemy: extractedOptions?.alchemy,
+      infura: extractedOptions?.infura,
+      publicConf: extractedOptions?.publicConf,
     });
 
     connector.onAccountChange(_onAccountChange);

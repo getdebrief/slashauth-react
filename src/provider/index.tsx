@@ -145,12 +145,6 @@ const toSlashAuthClientOptions = (
   };
 };
 
-const options = {
-  infura: {
-    apiKey: 'ed0a2b655d424e718cc0d2d1a65a056d',
-  },
-};
-
 const Provider = (opts: SlashAuthProviderOptions): JSX.Element => {
   const { children, skipRedirectCallback, ...clientOpts } = opts;
   const [client] = useState(
@@ -159,8 +153,7 @@ const Provider = (opts: SlashAuthProviderOptions): JSX.Element => {
   const [state, dispatch] = useReducer(reducer, initialAuthState);
 
   const { account, signer, connectWallet, provider, deactivate } =
-    //useWalletAuth(opts.providers);
-    useWalletAuth(options);
+    useWalletAuth(opts.providers);
 
   useEffect(() => {
     connectWallet(true).then(() => checkSession());
