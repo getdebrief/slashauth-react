@@ -90,6 +90,5 @@ export const LoginModal = ({ wagmiConnector, resetState, onClose }: Props) => {
         wagmiConnector={wagmiConnector}
       />
     </div>
-    // </ReactModal>
   );
 };

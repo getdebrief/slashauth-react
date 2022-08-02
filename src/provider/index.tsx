@@ -23,6 +23,7 @@ import { useWalletAuth } from './wallet-auth';
 import { CoinbaseWalletSDKOptions } from '@coinbase/wallet-sdk/dist/CoinbaseWalletSDK';
 import { IWalletConnectProviderOptions } from '@walletconnect/types';
 import { ObjectMap } from '../utils/object';
+import isMobile from 'is-mobile';
 
 export type AppState = {
   returnTo?: string;
@@ -164,8 +165,7 @@ const Provider = (opts: SlashAuthProviderOptions): JSX.Element => {
     if (typeof window === 'undefined') {
       return false;
     }
-    // return isMobile();
-    return false;
+    return isMobile();
   };
 
   const connectAccount = useCallback(async () => {
