@@ -17,6 +17,7 @@ module.exports = {
     sourceType: 'module',
   },
   ignorePatterns: [
+    '/dist/**/*',
     '/lib/**/*', // Ignore built files.
     '.eslintrc.js',
     'config-overrides.js',

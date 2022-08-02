@@ -5,7 +5,7 @@ const NodeModulesPolyfillPlugin =
 const NodeGlobalPolyfillPlugin =
   require('@esbuild-plugins/node-globals-polyfill').NodeGlobalsPolyfillPlugin;
 
-const { nodeExternalsPlugin } = require('esbuild-node-externals');
+const { execSync } = require('child_process');
 
 const esbuild = require('esbuild');
 
@@ -26,13 +26,22 @@ esbuild.build({
       process: true,
       buffer: true,
     }),
+    // {
+    //   name: 'TypeScriptDeclarationsPlugin',
+    //   setup(build) {
+    //     build.onEnd((result) => {
+    //       if (result.errors.length > 0) return;
+    //       execSync('npx tsc');
+    //     });
+    //   },
+    // },
   ],
-  watch: {
-    onRebuild(error, result) {
-      if (error) console.error('watch build failed:', error);
-      else console.log('watch build succeeded:', result);
-    },
-  },
+  // watch: {
+  //   onRebuild(error, result) {
+  //     if (error) console.error('watch build failed:', error);
+  //     else console.log('watch build succeeded:', result);
+  //   },
+  // },
 });
 
 esbuild.build({
@@ -48,10 +57,10 @@ esbuild.build({
   external: ['react', 'react-dom'],
   plugins: [],
   platform: 'node',
-  watch: {
-    onRebuild(error, result) {
-      if (error) console.error('watch build failed:', error);
-      else console.log('watch build succeeded:', result);
-    },
-  },
+  // watch: {
+  //   onRebuild(error, result) {
+  //     if (error) console.error('watch build failed:', error);
+  //     else console.log('watch build succeeded:', result);
+  //   },
+  // },
 });

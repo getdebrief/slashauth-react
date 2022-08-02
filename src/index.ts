@@ -1,3 +1,4 @@
+import 'react-dom';
 import { useContext } from 'react';
 import SlashAuthContext, { SlashAuthContextInterface } from './auth-context';
 
@@ -54,7 +55,6 @@ export {
 } from './auth-context';
 
 export const useSlashAuth = () => {
-  console.log('here');
   const slashAuth = useContext(SlashAuthContext);
 
   return slashAuth;

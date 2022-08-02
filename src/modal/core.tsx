@@ -1,3 +1,4 @@
+import React from 'react';
 import ReactDOM from 'react-dom';
 import { LoginModal } from '.';
 import { CONNECT_MODAL_ID } from '../global';
@@ -9,14 +10,19 @@ export class ModalCore {
   private show = false;
   private wagmiConnector: WagmiConnector;
 
-  constructor(wagmiConnector: WagmiConnector) {
-    this.wagmiConnector = wagmiConnector;
-
+  constructor(w: WagmiConnector) {
+    this.wagmiConnector = w;
     this.renderModal();
   }
 
   public async toggleModal(): Promise<void> {
     await this._toggleModal();
+  }
+
+  public async hideModal(): Promise<void> {
+    if (this.show) {
+      await this._toggleModal();
+    }
   }
 
   private renderModal() {
@@ -28,7 +34,11 @@ export class ModalCore {
     }
 
     ReactDOM.render(
-      <LoginModal resetState={this.resetState} />,
+      <LoginModal
+        resetState={this.resetState}
+        onClose={this.onClose}
+        wagmiConnector={this.wagmiConnector}
+      />,
       document.getElementById(CONNECT_MODAL_ID)
     );
   }
@@ -51,8 +61,14 @@ export class ModalCore {
     Object.keys(state).forEach((key) => {
       this[key] = state[key];
     });
-    await window.updateWeb3Modal(state);
+    await window.updateModal(state);
   };
 
   private resetState = () => this.updateState({ ...INITIAL_STATE });
+
+  private onClose = async () => {
+    if (this.show) {
+      await this._toggleModal();
+    }
+  };
 }

@@ -19,12 +19,14 @@
     "jsx": "react-jsx",
     "outDir": "dist",
     "declaration": true,
-    "emitDeclarationOnly": true
+    "emitDeclarationOnly": true,
+    "downlevelIteration": true
   },
   "compileOnSave": true,
   "include": [
     "src"
   ],
+  "exclude": ["node_modules", "dist"],
   "paths": {
     "crypto": [
       "node_modules/crypto-browserify"

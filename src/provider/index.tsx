@@ -22,7 +22,6 @@ import { reducer } from './reducer';
 import { useWalletAuth } from './wallet-auth';
 import { CoinbaseWalletSDKOptions } from '@coinbase/wallet-sdk/dist/CoinbaseWalletSDK';
 import { IWalletConnectProviderOptions } from '@walletconnect/types';
-import { isMobile } from 'web3modal';
 import { ObjectMap } from '../utils/object';
 
 export type AppState = {
@@ -31,8 +30,18 @@ export type AppState = {
 };
 
 export type ProviderOptions = {
+  appName?: string;
   coinbasewallet?: CoinbaseWalletSDKOptions;
   walletconnect?: IWalletConnectProviderOptions;
+  alchemy?: {
+    apiKey: string;
+  };
+  infura?: {
+    apiKey: string;
+  };
+  publicConf?: {
+    disable: boolean;
+  };
 };
 
 export let activeContextValue: SlashAuthContextInterface = null;
@@ -136,6 +145,12 @@ const toSlashAuthClientOptions = (
   };
 };
 
+const options = {
+  infura: {
+    apiKey: 'ed0a2b655d424e718cc0d2d1a65a056d',
+  },
+};
+
 const Provider = (opts: SlashAuthProviderOptions): JSX.Element => {
   const { children, skipRedirectCallback, ...clientOpts } = opts;
   const [client] = useState(
@@ -143,8 +158,9 @@ const Provider = (opts: SlashAuthProviderOptions): JSX.Element => {
   );
   const [state, dispatch] = useReducer(reducer, initialAuthState);
 
-  const { account, library, connectWallet, provider, deactivate } =
-    useWalletAuth(opts.providers);
+  const { account, signer, connectWallet, provider, deactivate } =
+    //useWalletAuth(opts.providers);
+    useWalletAuth(options);
 
   useEffect(() => {
     connectWallet(true).then(() => checkSession());
@@ -155,7 +171,8 @@ const Provider = (opts: SlashAuthProviderOptions): JSX.Element => {
     if (typeof window === 'undefined') {
       return false;
     }
-    return isMobile();
+    // return isMobile();
+    return false;
   };
 
   const connectAccount = useCallback(async () => {
@@ -227,7 +244,7 @@ const Provider = (opts: SlashAuthProviderOptions): JSX.Element => {
             return;
           }
         }
-        const signature = await library.getSigner().signMessage(fetchedNonce);
+        const signature = await signer.signMessage(fetchedNonce);
         await client.loginNoRedirectNoPopup({
           ...options,
           address: account,
@@ -255,14 +272,7 @@ const Provider = (opts: SlashAuthProviderOptions): JSX.Element => {
         },
       });
     },
-    [
-      account,
-      client,
-      connectAccount,
-      getNonceToSign,
-      library,
-      state.nonceToSign,
-    ]
+    [account, client, connectAccount, getNonceToSign, signer, state.nonceToSign]
   );
 
   useEffect(() => {
@@ -399,7 +409,7 @@ const Provider = (opts: SlashAuthProviderOptions): JSX.Element => {
       provider,
       connectedWallet: account,
       connect,
-      ethereum: library,
+      ethereum: provider,
       hasRole,
       hasOrgRole,
       getRoleMetadata,
@@ -419,7 +429,6 @@ const Provider = (opts: SlashAuthProviderOptions): JSX.Element => {
     provider,
     account,
     connect,
-    library,
     hasRole,
     hasOrgRole,
     getRoleMetadata,
