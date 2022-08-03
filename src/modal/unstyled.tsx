@@ -60,7 +60,7 @@ const LIGHT_SLASHAUTH_ICON =
 export const UnstyledModal = ({ styles, wagmiConnector, viewOnly }: Props) => {
   const modalContentsStyle: React.CSSProperties = {
     width: '336px',
-    maxHeight: '443px',
+    maxHeight: '480px',
     flexGrow: 1,
     display: 'flex',
     flexDirection: 'column',
@@ -146,6 +146,7 @@ export const UnstyledModal = ({ styles, wagmiConnector, viewOnly }: Props) => {
           <div
             className="slashauth-modal-scrollable"
             style={{
+              padding: '1rem',
               overflowY: 'auto',
               width: '100%',
               display: 'flex',

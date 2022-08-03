@@ -45,6 +45,7 @@ export const ConnectorButton = ({
         paddingLeft: '1rem',
         paddingRight: '1rem',
         marginBottom: '0.5rem',
+        fontSize: '12px',
       }}
       onMouseEnter={() => setHover(true)}
       onMouseLeave={() => setHover(false)}
