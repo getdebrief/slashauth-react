@@ -52,6 +52,8 @@ import {
   GetNonceToSignOptions,
   RefreshTokenOptions,
   GetTokenSilentlyResult,
+  GetAppConfigOptions,
+  GetAppConfigResponse,
 } from './global';
 
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
@@ -68,6 +70,7 @@ import {
   hasRoleAPICall,
   getRoleMetadataAPICall,
   hasOrgRoleAPICall,
+  getAppConfig,
 } from './api';
 import { ObjectMap } from './utils/object';
 
@@ -685,6 +688,15 @@ export default class SlashAuthClient {
     } catch (err) {
       return {};
     }
+  }
+
+  public async getAppConfig(): Promise<GetAppConfigResponse> {
+    const result = await getAppConfig({
+      baseUrl: getDomain(this.domainUrl),
+      client_id: this.options.clientID,
+    });
+
+    return result;
   }
 
   public async getNonceToSign(options: GetNonceToSignOptions): Promise<string> {

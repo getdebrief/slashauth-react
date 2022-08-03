@@ -1,10 +1,9 @@
+/* eslint-disable @typescript-eslint/no-var-requires */
 const NodeModulesPolyfillPlugin =
   require('@esbuild-plugins/node-modules-polyfill').NodeModulesPolyfillPlugin;
 
 const NodeGlobalPolyfillPlugin =
   require('@esbuild-plugins/node-globals-polyfill').NodeGlobalsPolyfillPlugin;
-
-const { nodeExternalsPlugin } = require('esbuild-node-externals');
 
 const esbuild = require('esbuild');
 

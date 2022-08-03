@@ -10,6 +10,7 @@ import { initialAuthState } from '../auth-state';
 import SlashAuthClient from '../client';
 import {
   CacheLocation,
+  GetAppConfigResponse,
   GetIdTokenClaimsOptions,
   GetTokenSilentlyOptions,
   LoginNoRedirectNoPopupOptions,
@@ -22,8 +23,8 @@ import { reducer } from './reducer';
 import { useWalletAuth } from './wallet-auth';
 import { CoinbaseWalletSDKOptions } from '@coinbase/wallet-sdk/dist/CoinbaseWalletSDK';
 import { IWalletConnectProviderOptions } from '@walletconnect/types';
-import { isMobile } from 'web3modal';
 import { ObjectMap } from '../utils/object';
+import isMobile from 'is-mobile';
 
 export type AppState = {
   returnTo?: string;
@@ -31,8 +32,18 @@ export type AppState = {
 };
 
 export type ProviderOptions = {
+  appName?: string;
   coinbasewallet?: CoinbaseWalletSDKOptions;
   walletconnect?: IWalletConnectProviderOptions;
+  alchemy?: {
+    apiKey: string;
+  };
+  infura?: {
+    apiKey: string;
+  };
+  publicConf?: {
+    disable: boolean;
+  };
 };
 
 export let activeContextValue: SlashAuthContextInterface = null;
@@ -143,11 +154,30 @@ const Provider = (opts: SlashAuthProviderOptions): JSX.Element => {
   );
   const [state, dispatch] = useReducer(reducer, initialAuthState);
 
-  const { account, library, connectWallet, provider, deactivate } =
-    useWalletAuth(opts.providers);
+  const [appConfig, setAppConfig] = useState<GetAppConfigResponse>(null);
+
+  const { account, signer, connectWallet, provider, deactivate } =
+    useWalletAuth(opts.providers, appConfig);
+
+  const getAppConfig = async () => {
+    if (appConfig !== null) {
+      return appConfig;
+    }
+
+    try {
+      const conf = await client.getAppConfig();
+      setAppConfig(conf);
+    } catch (err) {
+      console.error('Failed fetching app config');
+      setAppConfig({
+        modalStyle: {},
+      });
+    }
+  };
 
   useEffect(() => {
     connectWallet(true).then(() => checkSession());
+    getAppConfig();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -227,7 +257,7 @@ const Provider = (opts: SlashAuthProviderOptions): JSX.Element => {
             return;
           }
         }
-        const signature = await library.getSigner().signMessage(fetchedNonce);
+        const signature = await signer.signMessage(fetchedNonce);
         await client.loginNoRedirectNoPopup({
           ...options,
           address: account,
@@ -255,14 +285,7 @@ const Provider = (opts: SlashAuthProviderOptions): JSX.Element => {
         },
       });
     },
-    [
-      account,
-      client,
-      connectAccount,
-      getNonceToSign,
-      library,
-      state.nonceToSign,
-    ]
+    [account, client, connectAccount, getNonceToSign, signer, state.nonceToSign]
   );
 
   useEffect(() => {
@@ -399,7 +422,7 @@ const Provider = (opts: SlashAuthProviderOptions): JSX.Element => {
       provider,
       connectedWallet: account,
       connect,
-      ethereum: library,
+      ethereum: provider,
       hasRole,
       hasOrgRole,
       getRoleMetadata,
@@ -419,7 +442,6 @@ const Provider = (opts: SlashAuthProviderOptions): JSX.Element => {
     provider,
     account,
     connect,
-    library,
     hasRole,
     hasOrgRole,
     getRoleMetadata,

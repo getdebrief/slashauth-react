@@ -1,0 +1,12 @@
+.slashauth-modal-scrollable::-webkit-scrollbar {
+  width: 10em;
+}
+ 
+.slashauth-modal-scrollable::-webkit-scrollbar-track {
+  box-shadow: inset 0 0 6px rgba(0, 0, 0, 0.3);
+}
+ 
+.slashauth-modal-scrollable::-webkit-scrollbar-thumb {
+  background-color: darkgrey;
+  outline: 1px solid slategrey;
+}

@@ -2,6 +2,8 @@ import { ICache } from './cache';
 import { verify as verifyIdToken } from './jwt';
 import { ObjectMap } from './utils/object';
 
+export const CONNECT_MODAL_ID = 'SLASHAUTH_CONNECT_MODAL_ID';
+
 export enum Network {
   Unknown,
   Ethereum,
@@ -146,6 +148,28 @@ export interface LoginWithSignedNonceOptions
 
 export interface GetNonceToSignResponse {
   nonce: string;
+}
+
+export interface GetAppConfigOptions {
+  baseUrl: string;
+  client_id: string;
+}
+
+export interface GetAppConfigAPIResponse {
+  data: GetAppConfigResponse;
+}
+
+export interface GetAppConfigResponse {
+  modalStyle: {
+    backgroundColor?: string;
+    borderRadius?: string;
+    alignItems?: string;
+    fontFamily?: string;
+    fontColor?: string;
+    buttonBackgroundColor?: string;
+    hoverButtonBackgroundColor?: string;
+    iconURL?: string;
+  };
 }
 
 export interface LoginWithSignedNonceResponse {
