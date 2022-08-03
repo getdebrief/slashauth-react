@@ -150,6 +150,28 @@ export interface GetNonceToSignResponse {
   nonce: string;
 }
 
+export interface GetAppConfigOptions {
+  baseUrl: string;
+  client_id: string;
+}
+
+export interface GetAppConfigAPIResponse {
+  data: GetAppConfigResponse;
+}
+
+export interface GetAppConfigResponse {
+  modalStyle: {
+    backgroundColor?: string;
+    borderRadius?: string;
+    alignItems?: string;
+    fontFamily?: string;
+    fontColor?: string;
+    buttonBackgroundColor?: string;
+    hoverButtonBackgroundColor?: string;
+    iconURL?: string;
+  };
+}
+
 export interface LoginWithSignedNonceResponse {
   access_token: string;
   refresh_token: string;

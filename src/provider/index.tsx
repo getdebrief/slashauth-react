@@ -10,6 +10,7 @@ import { initialAuthState } from '../auth-state';
 import SlashAuthClient from '../client';
 import {
   CacheLocation,
+  GetAppConfigResponse,
   GetIdTokenClaimsOptions,
   GetTokenSilentlyOptions,
   LoginNoRedirectNoPopupOptions,
@@ -153,11 +154,30 @@ const Provider = (opts: SlashAuthProviderOptions): JSX.Element => {
   );
   const [state, dispatch] = useReducer(reducer, initialAuthState);
 
+  const [appConfig, setAppConfig] = useState<GetAppConfigResponse>(null);
+
   const { account, signer, connectWallet, provider, deactivate } =
-    useWalletAuth(opts.providers);
+    useWalletAuth(opts.providers, appConfig);
+
+  const getAppConfig = async () => {
+    if (appConfig !== null) {
+      return appConfig;
+    }
+
+    try {
+      const conf = await client.getAppConfig();
+      setAppConfig(conf);
+    } catch (err) {
+      console.error('Failed fetching app config');
+      setAppConfig({
+        modalStyle: {},
+      });
+    }
+  };
 
   useEffect(() => {
     connectWallet(true).then(() => checkSession());
+    getAppConfig();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 

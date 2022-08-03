@@ -1,5 +1,8 @@
 import { DEFAULT_SLASHAUTH_CLIENT } from './constants';
 import {
+  GetAppConfigAPIResponse,
+  GetAppConfigOptions,
+  GetAppConfigResponse,
   GetNonceToSignEndpointOptions,
   GetNonceToSignResponse,
   GetRoleMetadataOptions,
@@ -22,6 +25,27 @@ export async function logout(url: string) {
       'X-SlashAuth-Client': btoa(JSON.stringify(DEFAULT_SLASHAUTH_CLIENT)),
     },
   });
+}
+
+export async function getAppConfig({
+  baseUrl,
+  client_id,
+}: GetAppConfigOptions): Promise<GetAppConfigResponse> {
+  return (
+    await getJSON<GetAppConfigAPIResponse>(
+      `${baseUrl}/p/${client_id}/config`,
+      1000,
+      'default',
+      '',
+      {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-SlashAuth-Client': btoa(JSON.stringify(DEFAULT_SLASHAUTH_CLIENT)),
+        },
+      }
+    )
+  ).data;
 }
 
 export async function getNonceToSign({

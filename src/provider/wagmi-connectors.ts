@@ -97,6 +97,11 @@ export class WagmiConnector {
     }) as WagmiClient;
   }
 
+  public async clearState() {
+    await this.connectedConnector?.disconnect();
+    this.client.clearState();
+  }
+
   public async autoConnect() {
     try {
       const resp = await this.client.autoConnect();

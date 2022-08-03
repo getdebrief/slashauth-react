@@ -87,8 +87,6 @@ export const UnstyledModal = ({ styles, wagmiConnector, viewOnly }: Props) => {
       resp.color = styles.fontColor;
     }
 
-    console.log(styles);
-
     return resp;
   }, [styles]);
 

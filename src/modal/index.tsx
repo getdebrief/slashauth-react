@@ -5,9 +5,11 @@ import {
 } from './unstyled';
 import React, { useEffect, useState } from 'react';
 import { WagmiConnector } from '../provider/wagmi-connectors';
+import { GetAppConfigResponse } from '../global';
 
 type Props = {
   wagmiConnector: WagmiConnector;
+  appConfig: GetAppConfigResponse | null;
   resetState: () => void;
   onClose: () => void;
 };
@@ -25,7 +27,12 @@ interface IModalState {
   containerStyles: IModalContainerStyles;
 }
 
-export const LoginModal = ({ wagmiConnector, resetState, onClose }: Props) => {
+export const LoginModal = ({
+  wagmiConnector,
+  appConfig,
+  resetState,
+  onClose,
+}: Props) => {
   const [modalState, setModalState] = useState<IModalState>({
     show: false,
     containerStyles: DEFAULT_MODAL_CONTAINER_STYLES,
@@ -64,6 +71,7 @@ export const LoginModal = ({ wagmiConnector, resetState, onClose }: Props) => {
       <UnstyledModal
         styles={{
           defaultModalBodyStyles: modalState.containerStyles,
+          ...(appConfig?.modalStyle || {}),
         }}
         wagmiConnector={wagmiConnector}
       />

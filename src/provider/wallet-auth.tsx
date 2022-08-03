@@ -1,9 +1,9 @@
-import { useCallback, useEffect, useMemo, useState } from 'react';
-import { useLocalStorage } from '../hooks/use-localstorage';
+import { useCallback, useState } from 'react';
 import { ProviderOptions } from '.';
 import { ModalCore } from '../modal/core';
 import { WagmiConnector } from './wagmi-connectors';
 import { Connector, Provider, Signer } from '@wagmi/core';
+import { GetAppConfigResponse } from '../global';
 
 type InternalState = {
   active: boolean;
@@ -25,7 +25,10 @@ const initialState = {
   account: undefined,
 };
 
-export const useWalletAuth = (options: ProviderOptions) => {
+export const useWalletAuth = (
+  options: ProviderOptions,
+  appConfig: GetAppConfigResponse
+) => {
   const [internalState, setInternalState] =
     useState<InternalState>(initialState);
 
@@ -46,6 +49,8 @@ export const useWalletAuth = (options: ProviderOptions) => {
   };
 
   const handleDeactivate = useCallback(() => {
+    wagmiConnector?.clearState();
+
     setInternalState((prevState) => ({
       ...prevState,
       provider: null,
@@ -54,7 +59,7 @@ export const useWalletAuth = (options: ProviderOptions) => {
       error: null,
     }));
     return;
-  }, []);
+  }, [wagmiConnector]);
 
   const _onConnect = useCallback(async (connector: Connector) => {
     const provider = await connector.getProvider();
@@ -106,6 +111,10 @@ export const useWalletAuth = (options: ProviderOptions) => {
     setConnectModal(modalCore);
 
     wagmiConnector.onConnect(() => modalCore.hideModal());
+  }
+
+  if (connectModal && !connectModal.appConfig && appConfig) {
+    connectModal.appConfig = appConfig;
   }
 
   const connectWallet = useCallback(

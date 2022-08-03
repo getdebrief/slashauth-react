@@ -1,23 +1,35 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 import { LoginModal } from '.';
-import { CONNECT_MODAL_ID } from '../global';
+import { CONNECT_MODAL_ID, GetAppConfigResponse } from '../global';
 import { WagmiConnector } from '../provider/wagmi-connectors';
 
 const INITIAL_STATE = { show: false };
 
 export class ModalCore {
   private show = false;
+  private isRendered = false;
   private wagmiConnector: WagmiConnector;
+  private _appConfig: GetAppConfigResponse | null = null;
 
   constructor(w: WagmiConnector) {
     this.wagmiConnector = w;
-    setTimeout(() => {
-      this.renderModal();
-    }, 0);
+  }
+
+  get appConfig() {
+    return this._appConfig;
+  }
+  set appConfig(v: GetAppConfigResponse | null) {
+    this._appConfig = v;
+    if (!this.isRendered) {
+      setTimeout(() => this.renderModal(), 0);
+    }
   }
 
   public async toggleModal(): Promise<void> {
+    if (!this.isRendered) {
+      this.renderModal();
+    }
     await this._toggleModal();
   }
 
@@ -35,10 +47,12 @@ export class ModalCore {
       document.body.appendChild(modalDiv);
     }
 
+    this.isRendered = true;
     ReactDOM.render(
       <LoginModal
         resetState={this.resetState}
         onClose={this.onClose}
+        appConfig={this._appConfig}
         wagmiConnector={this.wagmiConnector}
       />,
       document.getElementById(CONNECT_MODAL_ID)
