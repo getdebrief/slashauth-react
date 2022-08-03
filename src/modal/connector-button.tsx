@@ -3,10 +3,17 @@ import React, { useMemo, useState } from 'react';
 
 type Props = {
   connector: Connector;
+  backgroundColor: string;
+  hoverColor: string;
   onClick: () => void;
 };
 
-export const ConnectorButton = ({ connector, onClick }: Props) => {
+export const ConnectorButton = ({
+  connector,
+  backgroundColor,
+  hoverColor,
+  onClick,
+}: Props) => {
   const [isHover, setHover] = useState(false);
 
   const icon = useMemo(() => {
@@ -30,9 +37,9 @@ export const ConnectorButton = ({ connector, onClick }: Props) => {
         alignItems: 'center',
         display: 'inline-flex',
         width: '100%',
-        backgroundColor: isHover ? '#f5f5f5' : 'white',
-        border: '1px solid #e6e6e6',
-        borderRadius: '8px',
+        backgroundColor: isHover ? hoverColor : backgroundColor,
+        border: '1px solid #e5e7eb',
+        borderRadius: '15px',
         paddingTop: '0.5rem',
         paddingBottom: '0.5rem',
         paddingLeft: '1rem',

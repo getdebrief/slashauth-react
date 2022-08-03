@@ -63,3 +63,12 @@ export const useSlashAuth = () => {
 export const getSlashauthContext = (): SlashAuthContextInterface => ({
   ...activeContextValue,
 });
+
+export { UnstyledModal } from './modal/unstyled';
+export {
+  isFamilySupported,
+  addFontFamily,
+  addAllFontFamilies,
+  supportedFontFamilies,
+} from './fonts';
+export { WagmiConnector } from './provider/wagmi-connectors';

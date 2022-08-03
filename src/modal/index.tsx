@@ -1,4 +1,8 @@
-import { UnstyledModal } from './unstyled';
+import {
+  DEFAULT_MODAL_CONTAINER_STYLES,
+  IModalContainerStyles,
+  UnstyledModal,
+} from './unstyled';
 import React, { useEffect, useState } from 'react';
 import { WagmiConnector } from '../provider/wagmi-connectors';
 
@@ -15,34 +19,6 @@ declare global {
     updateModal: any;
   }
 }
-
-interface IModalContainerStyles {
-  position: 'absolute' | 'fixed' | 'relative' | 'static';
-  top: string;
-  left: string;
-  right: string;
-  bottom: string;
-  marginRight: string;
-  transform: string;
-  borderRadius: string;
-  padding: string;
-  border: string;
-  background: string;
-}
-
-const DEFAULT_MODAL_CONTAINER_STYLES: IModalContainerStyles = {
-  position: 'absolute' as const,
-  top: '50%',
-  left: '50%',
-  right: 'auto',
-  bottom: 'auto',
-  marginRight: '-50%',
-  transform: 'translate(-50%, -50%)',
-  borderRadius: '8px',
-  padding: '0px',
-  border: 'none',
-  background: 'white',
-};
 
 interface IModalState {
   show: boolean;
@@ -86,7 +62,9 @@ export const LoginModal = ({ wagmiConnector, resetState, onClose }: Props) => {
       onClick={onClose}
     >
       <UnstyledModal
-        styles={modalState.containerStyles}
+        styles={{
+          defaultModalBodyStyles: modalState.containerStyles,
+        }}
         wagmiConnector={wagmiConnector}
       />
     </div>
