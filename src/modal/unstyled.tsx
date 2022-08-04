@@ -92,15 +92,11 @@ export const UnstyledModal = ({ styles, wagmiConnector, viewOnly }: Props) => {
 
   const bodyStyles = useMemo(() => {
     const resp: React.CSSProperties = {
-      width: '336px',
-      maxHeight: '443px',
+      width: '100%',
       flexGrow: 1,
       display: 'flex',
       flexDirection: 'column' as const,
-      paddingTop: '2rem',
       alignItems: 'center',
-      paddingLeft: '0.5rem',
-      paddingRight: '0.5rem',
       overflowY: 'hidden' as const,
     };
 
@@ -146,34 +142,40 @@ export const UnstyledModal = ({ styles, wagmiConnector, viewOnly }: Props) => {
           <div
             className="slashauth-modal-scrollable"
             style={{
-              padding: '1rem',
-              overflowY: 'auto',
+              overflowY: 'hidden',
               width: '100%',
-              display: 'flex',
-              flexDirection: 'column',
             }}
           >
-            {wagmiConnector.connectors
-              .filter((connector) => connector.ready)
-              .map((connector) => (
-                <ConnectorButton
-                  key={connector.id}
-                  backgroundColor={styles.buttonBackgroundColor || '#ffffff'}
-                  hoverColor={styles.hoverButtonBackgroundColor || '#f5f5f5'}
-                  connector={connector}
-                  onClick={() =>
-                    !viewOnly &&
-                    connector
-                      .connect({
-                        chainId: wagmiConnector.client.lastUsedChainId,
-                      })
-                      .then(() => {
-                        wagmiConnector.onConnectorConnect(connector);
-                      })
-                      .catch((err) => console.error(err))
-                  }
-                />
-              ))}
+            <div
+              style={{
+                padding: '1rem',
+                display: 'flex',
+                flexDirection: 'column',
+                overflowY: 'auto',
+              }}
+            >
+              {wagmiConnector.connectors
+                .filter((connector) => connector.ready)
+                .map((connector) => (
+                  <ConnectorButton
+                    key={connector.id}
+                    backgroundColor={styles.buttonBackgroundColor || '#ffffff'}
+                    hoverColor={styles.hoverButtonBackgroundColor || '#f5f5f5'}
+                    connector={connector}
+                    onClick={() =>
+                      !viewOnly &&
+                      connector
+                        .connect({
+                          chainId: wagmiConnector.client.lastUsedChainId,
+                        })
+                        .then(() => {
+                          wagmiConnector.onConnectorConnect(connector);
+                        })
+                        .catch((err) => console.error(err))
+                    }
+                  />
+                ))}
+            </div>
           </div>
         </div>
       </div>
