@@ -108,7 +108,6 @@ export class ModalCore {
   }
 
   public async hideModal(): Promise<void> {
-    console.trace('hiding');
     if (this.show) {
       await this._toggleModal();
     }

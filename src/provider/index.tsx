@@ -198,7 +198,7 @@ const Provider = (opts: SlashAuthProviderOptions): JSX.Element => {
   };
 
   useEffect(() => {
-    checkSession();
+    checkSession().then();
     getAppConfig();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
@@ -229,11 +229,12 @@ const Provider = (opts: SlashAuthProviderOptions): JSX.Element => {
         resolve(account);
       });
       eventEmitter.once(LOGIN_FAILURE_EVENT, () => {
+        wagmiConnector.clearState();
         setTimeout(() => connectModal.hideModal(), 0);
         reject(new Error('Login failed or was rejected by the user'));
       });
     });
-  }, [connectModal]);
+  }, [connectModal, wagmiConnector]);
 
   const getNonceToSign = useCallback(async () => {
     if (!account) {
@@ -270,25 +271,30 @@ const Provider = (opts: SlashAuthProviderOptions): JSX.Element => {
       return;
     }
     dispatch({ type: 'LOGIN_WITH_SIGNED_NONCE_STARTED' });
-    const signature = await signer.signMessage(state.nonceToSign);
-    await client.loginNoRedirectNoPopup({
-      ...(state.loginOptions || {}),
-      address: account,
-      signature,
-    });
-
-    const clientAccount = await client.getAccount();
-    if (
-      clientAccount &&
-      clientAccount['type'] === TokenTypeInformationRequiredToken
-    ) {
-      // We need to get more information from the user.
-      dispatch({
-        type: 'MORE_INFORMATION_REQUIRED',
-        requirements: clientAccount['requirements'],
+    try {
+      const signature = await signer.signMessage(state.nonceToSign);
+      await client.loginNoRedirectNoPopup({
+        ...(state.loginOptions || {}),
+        address: account,
+        signature,
       });
-    } else {
-      dispatch({ type: 'LOGIN_WITH_SIGNED_NONCE_COMPLETE' });
+
+      const clientAccount = await client.getAccount();
+      if (
+        clientAccount &&
+        clientAccount['type'] === TokenTypeInformationRequiredToken
+      ) {
+        // We need to get more information from the user.
+        dispatch({
+          type: 'MORE_INFORMATION_REQUIRED',
+          requirements: clientAccount['requirements'],
+        });
+      } else {
+        dispatch({ type: 'LOGIN_WITH_SIGNED_NONCE_COMPLETE' });
+      }
+    } catch (error) {
+      console.error(error);
+      dispatch({ type: 'ERROR', error });
     }
   }, [account, client, signer, state.loginOptions, state.nonceToSign]);
 
@@ -397,7 +403,10 @@ const Provider = (opts: SlashAuthProviderOptions): JSX.Element => {
           error: new Error('Login cancelled'),
         });
       });
-      if (!account) {
+
+      const acc = await client.getAccount();
+      if (!acc || !account) {
+        wagmiConnector.clearState();
         connectModal.setConnectWalletStep();
         eventEmitter.once(CONNECT_EVENT, () => {
           dispatch({ type: 'AWAITING_ACCOUNT' });
@@ -413,12 +422,13 @@ const Provider = (opts: SlashAuthProviderOptions): JSX.Element => {
           resolve();
         });
         eventEmitter.once(LOGIN_FAILURE_EVENT, () => {
+          wagmiConnector.clearState();
           setTimeout(() => connectModal.hideModal(), 0);
           reject(new Error('Login failed or was rejected by the user'));
         });
       });
     },
-    [account, connectModal]
+    [account, client, connectModal, wagmiConnector]
   );
 
   useEffect(() => {

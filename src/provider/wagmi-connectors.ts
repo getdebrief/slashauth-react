@@ -2,9 +2,11 @@ import {
   ChainProviderFn,
   Client,
   configureChains,
+  connect,
   Connector,
   createClient,
   defaultChains,
+  disconnect,
   InjectedConnector,
 } from '@wagmi/core';
 import { alchemyProvider } from '@wagmi/core/providers/alchemy';
@@ -61,18 +63,12 @@ export class WagmiConnector {
   constructor(config: Config) {
     this.config = config;
 
-    this.createClient();
+    this.createClient(true);
     this.attachClientListeners();
   }
 
   public async clearState() {
-    await this.connectedConnector?.disconnect();
-    this.client.setLastUsedConnector(null);
-    this.client.destroy();
-    this.unsubscribeFns.forEach((fn) => fn());
-    this.unsubscribeFns = [];
-    this.createClient();
-    this.attachClientListeners();
+    return disconnect();
   }
 
   public onConnect(listener: ConnectListener) {
@@ -113,6 +109,10 @@ export class WagmiConnector {
     );
   }
 
+  public async disconnect(): Promise<void> {
+    return disconnect();
+  }
+
   public async autoConnect(): Promise<string | null> {
     await this.client.autoConnect();
     const account = await this.connectedConnector?.getAccount();
@@ -120,8 +120,11 @@ export class WagmiConnector {
   }
 
   public async connectToConnector(connector: Connector) {
-    this.client.setLastUsedConnector(connector.id);
-    await this.client.autoConnect();
+    await connect({
+      chainId: this.client.lastUsedChainId,
+      connector,
+    });
+
     if (this.client.status === 'connected') {
       this.onConnectorConnect();
     }
@@ -149,7 +152,7 @@ export class WagmiConnector {
     this.connectListeners.forEach((l) => l(this.connectedConnector));
   };
 
-  private createClient() {
+  private createClient(autoConnect: boolean) {
     const providers: ChainProviderFn[] = [];
     const { alchemy, infura, publicConf, appName } = this.config;
     if (alchemy) {
@@ -192,7 +195,7 @@ export class WagmiConnector {
     ];
 
     this.client = createClient({
-      autoConnect: true,
+      autoConnect,
       connectors: this.connectors,
       provider,
       webSocketProvider,
@@ -249,8 +252,8 @@ export class WagmiConnector {
   }
 
   public onConnectorDisconnect = () => {
-    this.connectedConnector.off('change');
-    this.connectedConnector.off('disconnect');
-    this.connectedConnector.off('message');
+    this.connectedConnector?.off('change');
+    this.connectedConnector?.off('disconnect');
+    this.connectedConnector?.off('message');
   };
 }

@@ -67,8 +67,6 @@ export const useWalletAuth = () => {
   };
 
   const handleDeactivate = useCallback(() => {
-    // wagmiConnector?.clearState();
-
     setInternalState((prevState) => ({
       ...prevState,
       provider: null,
