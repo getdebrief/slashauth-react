@@ -14,3 +14,6 @@ export const LOGIN_FAILURE_EVENT: SlashauthEvent = 'LOGIN_FAILURE';
 export const ACCOUNT_CONNECTED_EVENT: SlashauthEvent = 'ACCOUNT_CONNECTED';
 
 export const LOGIN_STEP_CHANGED_EVENT: SlashauthEvent = 'LOGIN_STEP_CHANGED';
+
+export const ADDITIONAL_INFO_SUBMIT_EVENT: SlashauthEvent =
+  'ADDITIONAL_INFO_SUBMIT';

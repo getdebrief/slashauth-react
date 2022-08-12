@@ -5,6 +5,9 @@ import {
   SlashAuthStepLoggedIn,
   SlashAuthStepLoggingIn,
   SlashAuthStepLoggingInAwaitingAccount,
+  SlashAuthStepLoggingInInformationRequired,
+  SlashAuthStepLoggingInInformationSubmitted,
+  SlashAuthStepLoggingInMoreInformationComplete,
   SlashauthStepLoginFlowStarted,
   SlashAuthStepNonceReceived,
   SlashAuthStepNone,
@@ -39,7 +42,15 @@ type Action =
       loginIDFlow: number | null;
     }
   | { type: 'LOGOUT' }
-  | { type: 'ERROR'; error: Error };
+  | { type: 'ERROR'; error: Error }
+  | { type: 'MORE_INFORMATION_REQUIRED'; requirements: string[] }
+  | {
+      type: 'MORE_INFORMATION_SUBMITTED';
+      info: { email?: string; nickname?: string };
+    }
+  | {
+      type: 'MORE_INFORMATION_SUBMITTED_COMPLETE';
+    };
 
 /**
  * Handles how that state changes in the `/auth` hook.
@@ -60,6 +71,8 @@ export const reducer = (
         step: SlashauthStepLoginFlowStarted,
         isLoading: true,
         isLoggingIn: true,
+        requirements: null,
+        additionalInfo: null,
       };
     case 'LOGIN_WITH_SIGNED_NONCE_STARTED':
       return {
@@ -75,46 +88,6 @@ export const reducer = (
         step: SlashAuthStepLoggingInAwaitingAccount,
       };
     case 'NONCE_REQUEST_STARTED':
-      // try {
-      //   let fetchedNonce = state.nonceToSign;
-      //   if (!state.nonceToSign || state.nonceToSign.length === 0) {
-      //     fetchedNonce = await getNonceToSign();
-      //     dispatch({
-      //       type: 'NONCE_RECEIVED',
-      //       nonceToSign: fetchedNonce,
-      //     });
-      //     if (detectMobile()) {
-      //       // TODO: More to do here.
-      //       return;
-      //     }
-      //   } else {
-      //     dispatch({
-      //       type: 'NONCE_RECEIVED',
-      //       nonceToSign: fetchedNonce,
-      //     });
-      //   }
-      // } catch (error) {
-      //   let errorMessage = 'Unknown error';
-      //   if (error instanceof Error) {
-      //     errorMessage = error.message;
-      //   }
-      //   dispatch({
-      //     type: 'ERROR',
-      //     error: loginError({
-      //       error: errorMessage,
-      //     }),
-      //   });
-      //   return;
-      // }
-      // // const account = await client.getAccount({});
-      // dispatch({
-      //   type: 'LOGIN_WITH_SIGNED_NONCE_COMPLETE',
-      //   account: {
-      //     address: account,
-      //     network: Network.Ethereum,
-      //   },
-      // });
-
       return {
         ...state,
         step:
@@ -166,6 +139,7 @@ export const reducer = (
         nonceToSign: null,
         step: SlashAuthStepLoggedIn,
         isLoggingIn: false,
+        requirements: null,
       };
     case 'NONCE_RECEIVED':
       return {
@@ -184,6 +158,8 @@ export const reducer = (
         isLoggingIn: false,
         isLoading: false,
         nonceToSign: null,
+        requirements: null,
+        additionalInfo: null,
       };
     case 'ERROR':
       eventEmitter.emit(LOGIN_FAILURE_EVENT);
@@ -196,6 +172,25 @@ export const reducer = (
         step: SlashAuthStepNone,
         isLoggingIn: false,
         loginFlowID: null,
+        requirements: null,
+        additionalInfo: null,
+      };
+    case 'MORE_INFORMATION_REQUIRED':
+      return {
+        ...state,
+        step: SlashAuthStepLoggingInInformationRequired,
+        requirements: action.requirements,
+      };
+    case 'MORE_INFORMATION_SUBMITTED':
+      return {
+        ...state,
+        additionalInfo: action.info,
+        step: SlashAuthStepLoggingInInformationSubmitted,
+      };
+    case 'MORE_INFORMATION_SUBMITTED_COMPLETE':
+      return {
+        ...state,
+        step: SlashAuthStepLoggingInMoreInformationComplete,
       };
   }
 };

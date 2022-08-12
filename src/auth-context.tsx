@@ -23,6 +23,12 @@ export const SlashAuthStepFetchingNonce: SlashAuthStep = 'FETCHING_NONCE';
 export const SlashAuthStepNonceReceived: SlashAuthStep = 'NONCE_RECEIVED';
 export const SlashAuthStepLoggingInAwaitingAccount: SlashAuthStep =
   'AWAITING_ACCOUNT';
+export const SlashAuthStepLoggingInInformationRequired: SlashAuthStep =
+  'INFORMATION_REQUIRED';
+export const SlashAuthStepLoggingInInformationSubmitted: SlashAuthStep =
+  'INFORMATION_SUBMITTED';
+export const SlashAuthStepLoggingInMoreInformationComplete: SlashAuthStep =
+  'INFORMATION_COMPLETE';
 export const SlashAuthStepLoggingIn: SlashAuthStep = 'LOGGING_IN';
 export const SlashAuthStepLoggedIn: SlashAuthStep = 'LOGGED_IN';
 

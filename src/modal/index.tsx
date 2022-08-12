@@ -38,6 +38,7 @@ export const LoginModal = ({
   onClose,
 }: Props) => {
   const [loginStep, setLoginStep] = useState<LoginStep>(initialLoginStep);
+  const [requirements, setRequirements] = useState<string[]>(null);
   const [modalState, setModalState] = useState<IModalState>({
     show: false,
     containerStyles: DEFAULT_MODAL_CONTAINER_STYLES,
@@ -53,9 +54,12 @@ export const LoginModal = ({
         containerStyles: state.containerStyles || cur.containerStyles,
       }));
     };
-    const handleLoginStepChanged = (input: { loginStep: LoginStep }) => {
-      console.log('handling change', input);
+    const handleLoginStepChanged = (input: {
+      loginStep: LoginStep;
+      requirements?: string[];
+    }) => {
       setLoginStep(input.loginStep);
+      setRequirements(input.requirements || null);
     };
     eventEmitter.on(LOGIN_STEP_CHANGED_EVENT, handleLoginStepChanged);
     return () => {
@@ -65,8 +69,6 @@ export const LoginModal = ({
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
-
-  console.log('login step: ', loginStep);
 
   return (
     <div
@@ -82,6 +84,7 @@ export const LoginModal = ({
       onClick={onClose}
     >
       <UnstyledModal
+        requirements={requirements}
         loginStep={loginStep}
         styles={{
           defaultModalBodyStyles: modalState.containerStyles,

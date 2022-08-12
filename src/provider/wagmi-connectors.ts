@@ -146,7 +146,6 @@ export class WagmiConnector {
     this.connectedConnector.on('message', (message) => {
       // Connect this for messages
     });
-    console.log('sending to listeners: ', this.connectListeners);
     this.connectListeners.forEach((l) => l(this.connectedConnector));
   };
 
@@ -207,10 +206,6 @@ export class WagmiConnector {
         status,
       }),
       (state, prevState) => {
-        console.log('addr listener, ', {
-          prevState,
-          state,
-        });
         if (
           state.address !== prevState.address &&
           state.status === 'connected'
@@ -235,10 +230,6 @@ export class WagmiConnector {
         connector,
       }),
       (state, prevState) => {
-        console.log('connector listener, ', {
-          prevState,
-          state,
-        });
         if (
           state.connector?.id !== prevState.connector?.id &&
           // This fires twice sometimes.

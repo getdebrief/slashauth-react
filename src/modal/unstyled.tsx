@@ -5,8 +5,9 @@ import { ConnectorButton } from './connector-button';
 import { isFamilySupported, addFontFamily } from '../fonts';
 import { LoginStep } from './core';
 import { SigningTransactionModalContents } from './signing-transaction';
+import { RequirementsNeededModalContents } from './requirements-needed';
 
-type ModalStyles = {
+export type ModalStyles = {
   defaultModalBodyStyles?: React.CSSProperties;
   backgroundColor?: string;
   borderRadius?: string;
@@ -19,10 +20,11 @@ type ModalStyles = {
 };
 
 type Props = {
-  loginStep: LoginStep;
+  loginStep?: LoginStep;
   styles: ModalStyles;
   wagmiConnector: WagmiConnector;
   viewOnly?: boolean;
+  requirements?: string[] | null;
 };
 
 export interface IModalContainerStyles {
@@ -65,6 +67,7 @@ export const UnstyledModal = ({
   styles,
   wagmiConnector,
   viewOnly,
+  requirements,
 }: Props) => {
   const modalContentsStyle: React.CSSProperties = {
     width: '336px',
@@ -111,8 +114,6 @@ export const UnstyledModal = ({
     if (styles.alignItems) {
       resp.alignItems = styles.alignItems;
     }
-
-    console.log('body styles: ', resp);
 
     return resp;
   }, [styles.alignItems]);
@@ -171,6 +172,17 @@ export const UnstyledModal = ({
       return walletLoginContents;
     } else if (loginStep === LoginStep.SIGN_NONCE) {
       return <SigningTransactionModalContents />;
+    } else if (loginStep === LoginStep.ADDITIONAL_INFO) {
+      return (
+        <RequirementsNeededModalContents
+          requirements={requirements}
+          styles={{
+            buttonBackgroundColor: styles.buttonBackgroundColor || '#ffffff',
+            hoverButtonBackgroundColor:
+              styles.hoverButtonBackgroundColor || '#f5f5f5',
+          }}
+        />
+      );
     }
     return walletLoginContents;
   }, [loginStep, walletLoginContents]);

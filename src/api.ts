@@ -1,5 +1,6 @@
 import { DEFAULT_SLASHAUTH_CLIENT } from './constants';
 import {
+  ExchangeTokenEndpointOptions,
   GetAppConfigAPIResponse,
   GetAppConfigOptions,
   GetAppConfigResponse,
@@ -68,6 +69,33 @@ export async function getNonceToSign({
   );
 }
 
+export async function exchangeToken({
+  baseUrl,
+  requirements,
+  accessToken,
+  ...options
+}: ExchangeTokenEndpointOptions) {
+  const body = {
+    ...requirements,
+  };
+  const queryString = createQueryParams(options);
+  return await getJSON<LoginWithSignedNonceResponse>(
+    `${baseUrl}/exchange_token?${queryString}`,
+    10000,
+    'default',
+    '',
+    {
+      method: 'POST',
+      body: JSON.stringify(body),
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+        'Content-Type': 'application/json',
+        'X-SlashAuth-Client': btoa(JSON.stringify(DEFAULT_SLASHAUTH_CLIENT)),
+      },
+    }
+  );
+}
+
 export async function loginWithSignedNonce({
   baseUrl,
   ...options
@@ -75,7 +103,7 @@ export async function loginWithSignedNonce({
   const queryString = createQueryParams(options);
   return await getJSON<LoginWithSignedNonceResponse>(
     `${baseUrl}/loginWithSignedNonce?${queryString}`,
-    1000,
+    10000,
     'default',
     '',
     {
@@ -95,7 +123,7 @@ export async function refreshToken({
   const queryString = createQueryParams(options);
   return await getJSON<RefreshTokenResponse>(
     `${baseUrl}/refresh_token?${queryString}`,
-    1000,
+    10000,
     'default',
     '',
     {

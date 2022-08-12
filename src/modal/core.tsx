@@ -75,6 +75,7 @@ export class ModalCore {
   };
 
   public setAdditionalInfoStep = (
+    requirements: string[],
     callbackFn: (info: Record<string, string>) => void
   ) => {
     this.loginState = {
@@ -84,6 +85,7 @@ export class ModalCore {
     };
     eventEmitter.emit(LOGIN_STEP_CHANGED_EVENT, {
       loginStep: LoginStep.ADDITIONAL_INFO,
+      requirements,
     });
   };
 
@@ -106,7 +108,7 @@ export class ModalCore {
   }
 
   public async hideModal(): Promise<void> {
-    console.log('hiding modal');
+    console.trace('hiding');
     if (this.show) {
       await this._toggleModal();
     }

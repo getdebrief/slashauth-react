@@ -84,50 +84,14 @@ export const useWalletAuth = () => {
     eventEmitter.on(CHAIN_CHANGE_EVENT, _onChainChange);
     eventEmitter.on(DISCONNECT_EVENT, handleDeactivate);
     eventEmitter.on(CONNECT_EVENT, _onConnect);
-  });
 
-  // const connectWallet = useCallback(
-  //   async (transparent: boolean) => {
-
-  //   }
-  // )
-
-  // const connectWallet = useCallback(
-  //   async (transparent: boolean) => {
-  //     if (!connectModal) {
-  //       return;
-  //     }
-  //     if (transparent) {
-  //       let isConnected = false;
-  //       try {
-  //         isConnected = !!(await wagmiConnector.autoConnect());
-  //       } catch (err) {
-  //         // Silently ignore error
-  //       }
-  //       if (!isConnected) {
-  //         setInternalState({
-  //           ...internalState,
-  //           active: true,
-  //           account: null,
-  //         });
-  //         return;
-  //       } else {
-  //         return await _onConnect(wagmiConnector.connectedConnector);
-  //       }
-  //     }
-  //     try {
-  //       await connectModal.toggleModal();
-  //       return null;
-  //     } catch (err) {
-  //       setInternalState({
-  //         ...internalState,
-  //         error: err,
-  //         account: internalState.account || null,
-  //       });
-  //     }
-  //   },
-  //   [_onConnect, connectModal, internalState, wagmiConnector]
-  // );
+    return () => {
+      eventEmitter.off(ACCOUNT_CHANGE_EVENT, _onAccountChange);
+      eventEmitter.off(CHAIN_CHANGE_EVENT, _onChainChange);
+      eventEmitter.off(DISCONNECT_EVENT, handleDeactivate);
+      eventEmitter.off(CONNECT_EVENT, _onConnect);
+    };
+  }, [handleDeactivate]);
 
   return {
     active: internalState.active,
@@ -136,7 +100,6 @@ export const useWalletAuth = () => {
     signer: internalState.signer,
     error: internalState.error,
     provider: internalState.provider,
-    // connectWallet,
     deactivate: handleDeactivate,
   };
 };

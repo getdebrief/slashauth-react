@@ -35,6 +35,11 @@ export interface GetNonceToSignOptions extends BaseLoginOptions {
   address: string;
 }
 
+export interface ExchangeTokenOptions extends BaseLoginOptions {
+  address: string;
+  requirements: Record<string, string>;
+}
+
 export interface SlashAuthClientOptions extends BaseLoginOptions {
   /*
     The domain for logging in. Will likely be companyname.slashauth.xyz
@@ -139,6 +144,17 @@ export interface GetNonceToSignEndpointOptions {
   address: string;
   client_id: string;
   device_id: string;
+}
+
+export interface ExchangeTokenEndpointOptions {
+  baseUrl: string;
+  address: string;
+  client_id: string;
+  device_id: string;
+  accessToken: string;
+  requirements: {
+    [key: string]: string;
+  };
 }
 
 export interface LoginWithSignedNonceOptions
@@ -389,3 +405,7 @@ export type GetRoleMetadataOptions = {
 export type GetRoleMetadataResponse = {
   metadata: ObjectMap;
 };
+
+export const TokenTypeAccessToken = 'access_token';
+export const TokenTypeInformationRequiredToken =
+  'access_token_requirements_needed';

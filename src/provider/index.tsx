@@ -8,6 +8,9 @@ import React, {
 import SlashAuthContext, {
   SlashAuthContextInterface,
   SlashAuthStepLoggingInAwaitingAccount,
+  SlashAuthStepLoggingInInformationRequired,
+  SlashAuthStepLoggingInInformationSubmitted,
+  SlashAuthStepLoggingInMoreInformationComplete,
   SlashauthStepLoginFlowStarted,
   SlashAuthStepNonceReceived,
   SlashAuthStepNone,
@@ -21,6 +24,7 @@ import {
   LoginNoRedirectNoPopupOptions,
   LogoutOptions,
   SlashAuthClientOptions,
+  TokenTypeInformationRequiredToken,
 } from '../global';
 import { loginError } from '../utils';
 import { reducer } from './reducer';
@@ -32,6 +36,7 @@ import isMobile from 'is-mobile';
 import { useModalCore } from '../hooks/use-modal-core';
 import {
   ACCOUNT_CONNECTED_EVENT,
+  ADDITIONAL_INFO_SUBMIT_EVENT,
   CONNECT_EVENT,
   eventEmitter,
   LOGIN_COMPLETE_EVENT,
@@ -193,12 +198,14 @@ const Provider = (opts: SlashAuthProviderOptions): JSX.Element => {
   };
 
   useEffect(() => {
-    //wagmiConnector?.autoConnect().then((c) => c && checkSession());
-    //checkSession().then((resp) => console.log(resp));
     checkSession();
     getAppConfig();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  useEffect(() => {
+    // TODO: Log the user out when the account doesn't match the token.
+  }, [account]);
 
   const detectMobile = () => {
     if (typeof window === 'undefined') {
@@ -219,7 +226,6 @@ const Provider = (opts: SlashAuthProviderOptions): JSX.Element => {
 
     return new Promise<string>((resolve, reject) => {
       eventEmitter.once(ACCOUNT_CONNECTED_EVENT, ({ account }) => {
-        setTimeout(() => connectModal.hideModal(), 0);
         resolve(account);
       });
       eventEmitter.once(LOGIN_FAILURE_EVENT, () => {
@@ -271,8 +277,60 @@ const Provider = (opts: SlashAuthProviderOptions): JSX.Element => {
       signature,
     });
 
-    dispatch({ type: 'LOGIN_WITH_SIGNED_NONCE_COMPLETE' });
+    const clientAccount = await client.getAccount();
+    if (
+      clientAccount &&
+      clientAccount['type'] === TokenTypeInformationRequiredToken
+    ) {
+      // We need to get more information from the user.
+      dispatch({
+        type: 'MORE_INFORMATION_REQUIRED',
+        requirements: clientAccount['requirements'],
+      });
+    } else {
+      dispatch({ type: 'LOGIN_WITH_SIGNED_NONCE_COMPLETE' });
+    }
   }, [account, client, signer, state.loginOptions, state.nonceToSign]);
+
+  const informationRequiredLogin = useCallback(async () => {
+    if (!state.requirements) {
+      dispatch({ type: 'ERROR', error: new Error('No requirements') });
+      return;
+    }
+    // eslint-disable-next-line @typescript-eslint/no-empty-function
+    connectModal.setAdditionalInfoStep(state.requirements, () => {});
+    return new Promise<void>((resolve) => {
+      eventEmitter.once(
+        ADDITIONAL_INFO_SUBMIT_EVENT,
+        (input: { email?: string; nickname?: string }) => {
+          // If the user is submitting the data, let's continue submitting!
+          dispatch({ type: 'MORE_INFORMATION_SUBMITTED', info: { ...input } });
+          resolve();
+        }
+      );
+    });
+  }, [connectModal, state.requirements]);
+
+  const handleInformationSubmitted = useCallback(async () => {
+    if (!state.additionalInfo) {
+      dispatch({ type: 'ERROR', error: new Error('No info') });
+      return;
+    }
+    // TODO: Validate additional info
+    try {
+      await client.exchangeToken({
+        address: account,
+        requirements: state.additionalInfo,
+      });
+      dispatch({ type: 'MORE_INFORMATION_SUBMITTED_COMPLETE' });
+    } catch (error) {
+      console.error(error);
+      dispatch({
+        type: 'ERROR',
+        error,
+      });
+    }
+  }, [account, client, state.additionalInfo]);
 
   const loginWithSignedNonce = useCallback(
     async (loginIDFlow: number) => {
@@ -370,10 +428,18 @@ const Provider = (opts: SlashAuthProviderOptions): JSX.Element => {
       loginWithSignedNonce(state.loginFlowID);
     } else if (state.step === SlashAuthStepNonceReceived) {
       continueLoginWithSignedNonce();
+    } else if (state.step === SlashAuthStepLoggingInInformationRequired) {
+      informationRequiredLogin();
+    } else if (state.step === SlashAuthStepLoggingInInformationSubmitted) {
+      handleInformationSubmitted();
+    } else if (state.step === SlashAuthStepLoggingInMoreInformationComplete) {
+      dispatch({ type: 'LOGIN_WITH_SIGNED_NONCE_COMPLETE' });
     }
   }, [
     account,
     continueLoginWithSignedNonce,
+    handleInformationSubmitted,
+    informationRequiredLogin,
     loginWithSignedNonce,
     state.loginFlowID,
     state.step,
@@ -422,10 +488,11 @@ const Provider = (opts: SlashAuthProviderOptions): JSX.Element => {
         console.error('error: ', error);
         return null;
       } finally {
+        const account = await client.getAccount();
         dispatch({
           type: 'INITIALIZED',
-          account: await client.getAccount(),
-          isAuthenticated: !!token,
+          account: account,
+          isAuthenticated: account && account['type'] === 'access_token',
         });
       }
       return token;
@@ -446,10 +513,11 @@ const Provider = (opts: SlashAuthProviderOptions): JSX.Element => {
         console.error('error: ', error);
         isAuthenticated = false;
       } finally {
+        const account = await client.getAccount();
         dispatch({
-          isAuthenticated,
           type: 'INITIALIZED',
-          account: await client.getAccount(),
+          account,
+          isAuthenticated: account && account['type'] === 'access_token',
         });
       }
       return isAuthenticated;
@@ -465,10 +533,11 @@ const Provider = (opts: SlashAuthProviderOptions): JSX.Element => {
   const connect = useCallback(
     async (transparent?: boolean) => {
       try {
+        const account = await client.getAccount();
         dispatch({
           type: 'INITIALIZED',
-          account: await client.getAccount(),
-          isAuthenticated: false,
+          account,
+          isAuthenticated: account && account['type'] === 'access_token',
         });
         if (transparent) {
           return wagmiConnector.autoConnect();
