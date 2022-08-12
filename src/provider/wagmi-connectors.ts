@@ -39,17 +39,120 @@ type DisconnectListener = () => void;
 
 export class WagmiConnector {
   connectors: Connector[];
-  client: WagmiClient;
+  private client: WagmiClient;
+
+  private config: Config;
 
   private accountChangeListeners: AccountChangeListener[] = [];
   private chainChangeListeners: ChainChangeListener[] = [];
   private connectListeners: ConnectListener[] = [];
   private disconnectListeners: DisconnectListener[] = [];
 
-  connectedConnector: Connector;
+  get connectedConnector(): Connector | null {
+    return this.client.connector;
+  }
 
-  constructor({ appName, alchemy, infura, publicConf }: Config) {
+  get lastUsedChainId() {
+    return this.client.lastUsedChainId;
+  }
+
+  private unsubscribeFns: (() => void)[] = [];
+
+  constructor(config: Config) {
+    this.config = config;
+
+    this.createClient();
+    this.attachClientListeners();
+  }
+
+  public async clearState() {
+    await this.connectedConnector?.disconnect();
+    this.client.setLastUsedConnector(null);
+    this.client.destroy();
+    this.unsubscribeFns.forEach((fn) => fn());
+    this.unsubscribeFns = [];
+    this.createClient();
+    this.attachClientListeners();
+  }
+
+  public onConnect(listener: ConnectListener) {
+    this.connectListeners.push(listener);
+  }
+
+  public offConnect(listener: ConnectListener) {
+    this.connectListeners = this.connectListeners.filter((l) => l !== listener);
+  }
+
+  public onAccountChange(listener: AccountChangeListener) {
+    this.accountChangeListeners.push(listener);
+  }
+
+  public offAccountChange(listener: AccountChangeListener) {
+    this.accountChangeListeners = this.accountChangeListeners.filter(
+      (l) => l !== listener
+    );
+  }
+
+  public onChainChange(listener: ChainChangeListener) {
+    this.chainChangeListeners.push(listener);
+  }
+
+  public offChainChange(listener: ChainChangeListener) {
+    this.chainChangeListeners = this.chainChangeListeners.filter(
+      (l) => l !== listener
+    );
+  }
+
+  public onDisconnect(listener: DisconnectListener) {
+    this.disconnectListeners.push(listener);
+  }
+
+  public offDisconnect(listener: DisconnectListener) {
+    this.disconnectListeners = this.disconnectListeners.filter(
+      (l) => l !== listener
+    );
+  }
+
+  public async autoConnect(): Promise<string | null> {
+    await this.client.autoConnect();
+    const account = await this.connectedConnector?.getAccount();
+    return account || null;
+  }
+
+  public async connectToConnector(connector: Connector) {
+    this.client.setLastUsedConnector(connector.id);
+    await this.client.autoConnect();
+    if (this.client.status === 'connected') {
+      this.onConnectorConnect();
+    }
+  }
+
+  private onConnectorConnect = () => {
+    this.connectedConnector.on('change', (state) => {
+      if (state.account) {
+        this.accountChangeListeners.forEach((l) => l(state.account));
+      }
+      if (state.chain) {
+        this.chainChangeListeners.forEach((l) =>
+          l(state.chain.id, state.chain.unsupported)
+        );
+      }
+    });
+
+    this.connectedConnector.on('disconnect', () => {
+      this.disconnectListeners.forEach((l) => l());
+    });
+
+    this.connectedConnector.on('message', (message) => {
+      // Connect this for messages
+    });
+    console.log('sending to listeners: ', this.connectListeners);
+    this.connectListeners.forEach((l) => l(this.connectedConnector));
+  };
+
+  private createClient() {
     const providers: ChainProviderFn[] = [];
+    const { alchemy, infura, publicConf, appName } = this.config;
     if (alchemy) {
       providers.push(alchemyProvider(alchemy));
     }
@@ -97,88 +200,62 @@ export class WagmiConnector {
     }) as WagmiClient;
   }
 
-  public async clearState() {
-    await this.connectedConnector?.disconnect();
-    this.client.clearState();
-  }
-
-  public async autoConnect() {
-    try {
-      const resp = await this.client.autoConnect();
-      if (resp) {
-        const connector = this.client.connector;
-        this.onConnectorConnect(connector);
-        return connector;
+  private attachClientListeners() {
+    const unsubscribe = this.client.subscribe(
+      ({ data, status }) => ({
+        address: data?.account,
+        status,
+      }),
+      (state, prevState) => {
+        console.log('addr listener, ', {
+          prevState,
+          state,
+        });
+        if (
+          state.address !== prevState.address &&
+          state.status === 'connected'
+        ) {
+          this.onConnectorConnect();
+        } else if (state.status !== prevState.status) {
+          if (state.status === 'connected') {
+            this.onConnectorConnect();
+          } else if (prevState.status === 'connected') {
+            this.onConnectorDisconnect();
+          }
+        }
+      },
+      {
+        equalityFn: (a, b) => a.address === b.address && a.status === b.status,
+        fireImmediately: true,
       }
-    } catch (err) {
-      console.error('error: ', err);
-      // Silently catch the error.
-    }
-    return null;
-  }
-
-  public onConnect(listener: ConnectListener) {
-    this.connectListeners.push(listener);
-  }
-
-  public offConnect(listener: ConnectListener) {
-    this.connectListeners = this.connectListeners.filter((l) => l !== listener);
-  }
-
-  public onAccountChange(listener: AccountChangeListener) {
-    this.accountChangeListeners.push(listener);
-  }
-
-  public offAccountChange(listener: AccountChangeListener) {
-    this.accountChangeListeners = this.accountChangeListeners.filter(
-      (l) => l !== listener
     );
-  }
 
-  public onChainChange(listener: ChainChangeListener) {
-    this.chainChangeListeners.push(listener);
-  }
-
-  public offChainChange(listener: ChainChangeListener) {
-    this.chainChangeListeners = this.chainChangeListeners.filter(
-      (l) => l !== listener
-    );
-  }
-
-  public onDisconnect(listener: DisconnectListener) {
-    this.disconnectListeners.push(listener);
-  }
-
-  public offDisconnect(listener: DisconnectListener) {
-    this.disconnectListeners = this.disconnectListeners.filter(
-      (l) => l !== listener
-    );
-  }
-
-  public onConnectorConnect = (connector: Connector) => {
-    this.connectedConnector = connector;
-
-    this.connectedConnector.on('change', (state) => {
-      if (state.account) {
-        this.accountChangeListeners.forEach((l) => l(state.account));
+    const connectorListenUnsubscribe = this.client.subscribe(
+      ({ connector }) => ({
+        connector,
+      }),
+      (state, prevState) => {
+        console.log('connector listener, ', {
+          prevState,
+          state,
+        });
+        if (
+          state.connector?.id !== prevState.connector?.id &&
+          // This fires twice sometimes.
+          this.connectedConnector?.id !== state.connector?.id
+        ) {
+          this.onConnectorConnect();
+        }
+      },
+      {
+        equalityFn: (a, b) => a.connector?.id === b.connector?.id,
+        fireImmediately: true,
       }
-      if (state.chain) {
-        this.chainChangeListeners.forEach((l) =>
-          l(state.chain.id, state.chain.unsupported)
-        );
-      }
-    });
+    );
 
-    this.connectedConnector.on('disconnect', () => {
-      this.disconnectListeners.forEach((l) => l());
-    });
-
-    this.connectedConnector.on('message', (message) => {
-      // Connect this for messages
-    });
-
-    this.connectListeners.forEach((l) => l(this.connectedConnector));
-  };
+    this.unsubscribeFns.push(unsubscribe);
+    this.unsubscribeFns.push(connectorListenUnsubscribe);
+  }
 
   public onConnectorDisconnect = () => {
     this.connectedConnector.off('change');

@@ -787,6 +787,8 @@ export default class SlashAuthClient {
 
     const decodedToken = await this._verifyIdToken(authResult.access_token);
 
+    console.log(decodedToken);
+
     const cacheEntry = {
       ...authResult,
       decodedToken,

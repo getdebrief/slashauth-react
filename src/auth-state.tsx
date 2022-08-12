@@ -2,6 +2,7 @@ import { Account, LoginNoRedirectNoPopupOptions } from './global';
 import { SlashAuthStep, SlashAuthStepNone } from './auth-context';
 
 export type SlashAuthState = {
+  loginFlowID: number | null;
   step: SlashAuthStep;
   nonceToSign: string | null;
   error?: Error;
@@ -16,6 +17,7 @@ export type SlashAuthState = {
 };
 
 export const initialAuthState: SlashAuthState = {
+  loginFlowID: null,
   loginRequested: false,
   loginOptions: null,
   loginType: null,

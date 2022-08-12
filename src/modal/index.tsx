@@ -6,8 +6,11 @@ import {
 import React, { useEffect, useState } from 'react';
 import { WagmiConnector } from '../provider/wagmi-connectors';
 import { GetAppConfigResponse } from '../global';
+import { LoginStep } from './core';
+import { eventEmitter, LOGIN_STEP_CHANGED_EVENT } from '../events';
 
 type Props = {
+  initialLoginStep: LoginStep;
   wagmiConnector: WagmiConnector;
   appConfig: GetAppConfigResponse | null;
   resetState: () => void;
@@ -28,11 +31,13 @@ interface IModalState {
 }
 
 export const LoginModal = ({
+  initialLoginStep,
   wagmiConnector,
   appConfig,
   resetState,
   onClose,
 }: Props) => {
+  const [loginStep, setLoginStep] = useState<LoginStep>(initialLoginStep);
   const [modalState, setModalState] = useState<IModalState>({
     show: false,
     containerStyles: DEFAULT_MODAL_CONTAINER_STYLES,
@@ -48,12 +53,20 @@ export const LoginModal = ({
         containerStyles: state.containerStyles || cur.containerStyles,
       }));
     };
+    const handleLoginStepChanged = (input: { loginStep: LoginStep }) => {
+      console.log('handling change', input);
+      setLoginStep(input.loginStep);
+    };
+    eventEmitter.on(LOGIN_STEP_CHANGED_EVENT, handleLoginStepChanged);
     return () => {
       // eslint-disable-next-line @typescript-eslint/no-empty-function
       window.updateModal = () => {};
+      eventEmitter.off(LOGIN_STEP_CHANGED_EVENT, handleLoginStepChanged);
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  console.log('login step: ', loginStep);
 
   return (
     <div
@@ -69,6 +82,7 @@ export const LoginModal = ({
       onClick={onClose}
     >
       <UnstyledModal
+        loginStep={loginStep}
         styles={{
           defaultModalBodyStyles: modalState.containerStyles,
           ...(appConfig?.modalStyle || {}),

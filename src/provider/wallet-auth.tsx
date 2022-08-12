@@ -1,9 +1,13 @@
-import { useCallback, useState } from 'react';
-import { ProviderOptions } from '.';
-import { ModalCore } from '../modal/core';
-import { WagmiConnector } from './wagmi-connectors';
+import { useCallback, useEffect, useState } from 'react';
 import { Connector, Provider, Signer } from '@wagmi/core';
-import { GetAppConfigResponse } from '../global';
+import {
+  ACCOUNT_CHANGE_EVENT,
+  ACCOUNT_CONNECTED_EVENT,
+  CHAIN_CHANGE_EVENT,
+  CONNECT_EVENT,
+  DISCONNECT_EVENT,
+  eventEmitter,
+} from '../events';
 
 type InternalState = {
   active: boolean;
@@ -25,31 +29,45 @@ const initialState = {
   account: undefined,
 };
 
-export const useWalletAuth = (
-  options: ProviderOptions,
-  appConfig: GetAppConfigResponse
-) => {
+export const useWalletAuth = () => {
   const [internalState, setInternalState] =
     useState<InternalState>(initialState);
 
-  const [connectModal, setConnectModal] = useState<ModalCore | null>(null);
-  const [wagmiConnector, setWagmiConnector] = useState<WagmiConnector | null>(
-    null
-  );
-
-  const _onAccountChange = (account: string | null) => {
+  const _onAccountChange = (input: { account: string | null }) => {
     setInternalState((prevState) => ({
       ...prevState,
-      account,
+      account: input.account,
     }));
   };
 
-  const _onChainChange = (chainId: number | string, unsupported: boolean) => {
+  const _onChainChange = (input: {
+    chainId: number | string;
+    unsupported: boolean;
+  }) => {
     console.log('chain changed');
   };
 
+  const _onConnect = async (input: { connector: Connector }) => {
+    const provider = await input.connector.getProvider();
+    const signer = await input.connector.getSigner();
+    const account = await input.connector.getAccount();
+    setInternalState((prevState) => ({
+      ...prevState,
+      provider,
+      signer,
+      active: true,
+      account,
+    }));
+    if (account) {
+      eventEmitter.emit(ACCOUNT_CONNECTED_EVENT, {
+        account,
+      });
+    }
+    return account || null;
+  };
+
   const handleDeactivate = useCallback(() => {
-    wagmiConnector?.clearState();
+    // wagmiConnector?.clearState();
 
     setInternalState((prevState) => ({
       ...prevState,
@@ -59,100 +77,57 @@ export const useWalletAuth = (
       error: null,
     }));
     return;
-  }, [wagmiConnector]);
-
-  const _onConnect = useCallback(async (connector: Connector) => {
-    const provider = await connector.getProvider();
-    const signer = await connector.getSigner();
-    const account = await connector.getAccount();
-    setInternalState((prevState) => ({
-      ...prevState,
-      provider,
-      signer,
-      active: true,
-      account: account,
-    }));
-    return account || null;
   }, []);
 
-  if (!wagmiConnector) {
-    const extractedOptions = {
-      ...options,
-    };
+  useEffect(() => {
+    eventEmitter.on(ACCOUNT_CHANGE_EVENT, _onAccountChange);
+    eventEmitter.on(CHAIN_CHANGE_EVENT, _onChainChange);
+    eventEmitter.on(DISCONNECT_EVENT, handleDeactivate);
+    eventEmitter.on(CONNECT_EVENT, _onConnect);
+  });
 
-    if (!options.infura && options.walletconnect?.infuraId) {
-      extractedOptions.infura = {
-        apiKey: options.walletconnect.infuraId,
-      };
-    }
+  // const connectWallet = useCallback(
+  //   async (transparent: boolean) => {
 
-    if (!options.appName && options.coinbasewallet?.appName) {
-      extractedOptions.appName = options.coinbasewallet.appName;
-    }
+  //   }
+  // )
 
-    const connector = new WagmiConnector({
-      appName: extractedOptions.appName,
-      alchemy: extractedOptions?.alchemy,
-      infura: extractedOptions?.infura,
-      publicConf: extractedOptions?.publicConf,
-    });
-
-    connector.onAccountChange(_onAccountChange);
-    connector.onChainChange(_onChainChange);
-    connector.onDisconnect(handleDeactivate);
-    connector.onConnect(_onConnect);
-
-    setWagmiConnector(connector);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }
-
-  if (wagmiConnector && !connectModal) {
-    const modalCore = new ModalCore(wagmiConnector);
-    setConnectModal(modalCore);
-
-    wagmiConnector.onConnect(() => modalCore.hideModal());
-  }
-
-  if (connectModal && !connectModal.appConfig && appConfig) {
-    connectModal.appConfig = appConfig;
-  }
-
-  const connectWallet = useCallback(
-    async (transparent: boolean) => {
-      if (!connectModal) {
-        return;
-      }
-      if (transparent) {
-        let isConnected = false;
-        try {
-          isConnected = !!(await wagmiConnector.autoConnect());
-        } catch (err) {
-          // Silently ignore error
-        }
-        if (!isConnected) {
-          setInternalState({
-            ...internalState,
-            active: true,
-            account: null,
-          });
-          return;
-        } else {
-          return await _onConnect(wagmiConnector.connectedConnector);
-        }
-      }
-      try {
-        await connectModal.toggleModal();
-        return null;
-      } catch (err) {
-        setInternalState({
-          ...internalState,
-          error: err,
-          account: internalState.account || null,
-        });
-      }
-    },
-    [_onConnect, connectModal, internalState, wagmiConnector]
-  );
+  // const connectWallet = useCallback(
+  //   async (transparent: boolean) => {
+  //     if (!connectModal) {
+  //       return;
+  //     }
+  //     if (transparent) {
+  //       let isConnected = false;
+  //       try {
+  //         isConnected = !!(await wagmiConnector.autoConnect());
+  //       } catch (err) {
+  //         // Silently ignore error
+  //       }
+  //       if (!isConnected) {
+  //         setInternalState({
+  //           ...internalState,
+  //           active: true,
+  //           account: null,
+  //         });
+  //         return;
+  //       } else {
+  //         return await _onConnect(wagmiConnector.connectedConnector);
+  //       }
+  //     }
+  //     try {
+  //       await connectModal.toggleModal();
+  //       return null;
+  //     } catch (err) {
+  //       setInternalState({
+  //         ...internalState,
+  //         error: err,
+  //         account: internalState.account || null,
+  //       });
+  //     }
+  //   },
+  //   [_onConnect, connectModal, internalState, wagmiConnector]
+  // );
 
   return {
     active: internalState.active,
@@ -161,7 +136,7 @@ export const useWalletAuth = (
     signer: internalState.signer,
     error: internalState.error,
     provider: internalState.provider,
-    connectWallet,
+    // connectWallet,
     deactivate: handleDeactivate,
   };
 };

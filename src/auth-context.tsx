@@ -17,8 +17,12 @@ export type SlashAuthStep = string;
 
 export const SlashAuthStepNone: SlashAuthStep = 'NONE';
 export const SlashAuthStepInitialized: SlashAuthStep = 'INITIALIZED';
+export const SlashauthStepLoginFlowStarted: SlashAuthStep =
+  'LOGIN_FLOW_STARTED';
 export const SlashAuthStepFetchingNonce: SlashAuthStep = 'FETCHING_NONCE';
 export const SlashAuthStepNonceReceived: SlashAuthStep = 'NONCE_RECEIVED';
+export const SlashAuthStepLoggingInAwaitingAccount: SlashAuthStep =
+  'AWAITING_ACCOUNT';
 export const SlashAuthStepLoggingIn: SlashAuthStep = 'LOGGING_IN';
 export const SlashAuthStepLoggedIn: SlashAuthStep = 'LOGGED_IN';
 

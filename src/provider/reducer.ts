@@ -4,15 +4,23 @@ import {
   SlashAuthStepInitialized,
   SlashAuthStepLoggedIn,
   SlashAuthStepLoggingIn,
+  SlashAuthStepLoggingInAwaitingAccount,
+  SlashauthStepLoginFlowStarted,
   SlashAuthStepNonceReceived,
   SlashAuthStepNone,
 } from '../auth-context';
 import { SlashAuthState } from '../auth-state';
+import {
+  eventEmitter,
+  LOGIN_COMPLETE_EVENT,
+  LOGIN_FAILURE_EVENT,
+} from '../events';
 
 type Action =
   | { type: 'CHECKING_SESSION' }
   | { type: 'LOGIN_FLOW_STARTED' }
   | { type: 'INITIALIZED'; account?: Account; isAuthenticated: boolean }
+  | { type: 'AWAITING_ACCOUNT' }
   | {
       type:
         | 'NONCE_REQUEST_STARTED'
@@ -28,6 +36,7 @@ type Action =
       type: 'LOGIN_REQUESTED';
       loginOptions: LoginNoRedirectNoPopupOptions | null;
       loginType: 'LoginNoRedirectNoPopup' | null;
+      loginIDFlow: number | null;
     }
   | { type: 'LOGOUT' }
   | { type: 'ERROR'; error: Error };
@@ -46,8 +55,66 @@ export const reducer = (
         isLoading: true,
       };
     case 'LOGIN_FLOW_STARTED':
+      return {
+        ...state,
+        step: SlashauthStepLoginFlowStarted,
+        isLoading: true,
+        isLoggingIn: true,
+      };
     case 'LOGIN_WITH_SIGNED_NONCE_STARTED':
+      return {
+        ...state,
+        step: SlashAuthStepLoggingIn,
+      };
+    case 'AWAITING_ACCOUNT':
+      if (state.step === SlashAuthStepLoggingInAwaitingAccount) {
+        return state;
+      }
+      return {
+        ...state,
+        step: SlashAuthStepLoggingInAwaitingAccount,
+      };
     case 'NONCE_REQUEST_STARTED':
+      // try {
+      //   let fetchedNonce = state.nonceToSign;
+      //   if (!state.nonceToSign || state.nonceToSign.length === 0) {
+      //     fetchedNonce = await getNonceToSign();
+      //     dispatch({
+      //       type: 'NONCE_RECEIVED',
+      //       nonceToSign: fetchedNonce,
+      //     });
+      //     if (detectMobile()) {
+      //       // TODO: More to do here.
+      //       return;
+      //     }
+      //   } else {
+      //     dispatch({
+      //       type: 'NONCE_RECEIVED',
+      //       nonceToSign: fetchedNonce,
+      //     });
+      //   }
+      // } catch (error) {
+      //   let errorMessage = 'Unknown error';
+      //   if (error instanceof Error) {
+      //     errorMessage = error.message;
+      //   }
+      //   dispatch({
+      //     type: 'ERROR',
+      //     error: loginError({
+      //       error: errorMessage,
+      //     }),
+      //   });
+      //   return;
+      // }
+      // // const account = await client.getAccount({});
+      // dispatch({
+      //   type: 'LOGIN_WITH_SIGNED_NONCE_COMPLETE',
+      //   account: {
+      //     address: account,
+      //     network: Network.Ethereum,
+      //   },
+      // });
+
       return {
         ...state,
         step:
@@ -75,6 +142,7 @@ export const reducer = (
         loginRequested: true,
         loginType: action.loginType,
         loginOptions: action.loginOptions,
+        loginFlowID: action.loginIDFlow,
       };
     case 'INITIALIZED':
       return {
@@ -88,6 +156,7 @@ export const reducer = (
         isLoggingIn: false,
       };
     case 'LOGIN_WITH_SIGNED_NONCE_COMPLETE':
+      eventEmitter.emit(LOGIN_COMPLETE_EVENT);
       return {
         ...state,
         isAuthenticated: true,
@@ -117,6 +186,7 @@ export const reducer = (
         nonceToSign: null,
       };
     case 'ERROR':
+      eventEmitter.emit(LOGIN_FAILURE_EVENT);
       return {
         ...state,
         loginRequested: false,
@@ -125,6 +195,7 @@ export const reducer = (
         nonceToSign: null,
         step: SlashAuthStepNone,
         isLoggingIn: false,
+        loginFlowID: null,
       };
   }
 };
