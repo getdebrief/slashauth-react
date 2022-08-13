@@ -190,7 +190,8 @@ const Provider = (opts: SlashAuthProviderOptions): JSX.Element => {
       const conf = await client.getAppConfig();
       setAppConfig(conf);
     } catch (err) {
-      console.error('Failed fetching app config');
+      // TODO: We should show an error message here? Maybe?
+      console.error('Failed fetching app config', err);
       setAppConfig({
         modalStyle: {},
       });
@@ -202,10 +203,6 @@ const Provider = (opts: SlashAuthProviderOptions): JSX.Element => {
     getAppConfig();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
-
-  useEffect(() => {
-    // TODO: Log the user out when the account doesn't match the token.
-  }, [account]);
 
   const detectMobile = () => {
     if (typeof window === 'undefined') {
@@ -270,9 +267,11 @@ const Provider = (opts: SlashAuthProviderOptions): JSX.Element => {
       dispatch({ type: 'ERROR', error: new Error('No nonce to sign') });
       return;
     }
+    connectModal.setSignNonceStep();
     dispatch({ type: 'LOGIN_WITH_SIGNED_NONCE_STARTED' });
     try {
       const signature = await signer.signMessage(state.nonceToSign);
+      connectModal.setLoadingState();
       await client.loginNoRedirectNoPopup({
         ...(state.loginOptions || {}),
         address: account,
@@ -296,7 +295,14 @@ const Provider = (opts: SlashAuthProviderOptions): JSX.Element => {
       console.error(error);
       dispatch({ type: 'ERROR', error });
     }
-  }, [account, client, signer, state.loginOptions, state.nonceToSign]);
+  }, [
+    account,
+    client,
+    connectModal,
+    signer,
+    state.loginOptions,
+    state.nonceToSign,
+  ]);
 
   const informationRequiredLogin = useCallback(async () => {
     if (!state.requirements) {
@@ -310,6 +316,7 @@ const Provider = (opts: SlashAuthProviderOptions): JSX.Element => {
         ADDITIONAL_INFO_SUBMIT_EVENT,
         (input: { email?: string; nickname?: string }) => {
           // If the user is submitting the data, let's continue submitting!
+          connectModal.setLoadingState();
           dispatch({ type: 'MORE_INFORMATION_SUBMITTED', info: { ...input } });
           resolve();
         }
@@ -344,15 +351,23 @@ const Provider = (opts: SlashAuthProviderOptions): JSX.Element => {
         // We need to cancel this flow (TODO)
       }
       dispatch({ type: 'NONCE_REQUEST_STARTED' });
-      connectModal.setSignNonceStep();
+      connectModal.setLoadingState();
       try {
         let fetchedNonce = state.nonceToSign;
         if (!state.nonceToSign || state.nonceToSign.length === 0) {
           fetchedNonce = await getNonceToSign();
+          if (!fetchedNonce) {
+            dispatch({
+              type: 'ERROR',
+              error: new Error('No nonce retrieved'),
+            });
+            return;
+          }
           dispatch({
             type: 'NONCE_RECEIVED',
             nonceToSign: fetchedNonce,
           });
+          // TODO: We need to dismiss the modal here.
           if (detectMobile()) {
             return;
           }
@@ -375,14 +390,6 @@ const Provider = (opts: SlashAuthProviderOptions): JSX.Element => {
         });
         return;
       }
-      // const account = await client.getAccount({});
-      // dispatch({
-      //   type: 'LOGIN_WITH_SIGNED_NONCE_COMPLETE',
-      //   account: {
-      //     address: account,
-      //     network: Network.Ethereum,
-      //   },
-      // });
     },
     [connectModal, getNonceToSign, state.loginFlowID, state.nonceToSign]
   );
@@ -409,6 +416,7 @@ const Provider = (opts: SlashAuthProviderOptions): JSX.Element => {
         wagmiConnector.clearState();
         connectModal.setConnectWalletStep();
         eventEmitter.once(CONNECT_EVENT, () => {
+          connectModal.setLoadingState();
           dispatch({ type: 'AWAITING_ACCOUNT' });
         });
       } else {
@@ -466,6 +474,20 @@ const Provider = (opts: SlashAuthProviderOptions): JSX.Element => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
     [client]
   );
+
+  useEffect(() => {
+    // TODO: Log the user out when the account doesn't match the token.
+    console.log('in the use effect');
+    client?.getAccount().then((acc) => {
+      console.log('response and ', {
+        acc,
+        account,
+      });
+      if (acc && account && acc.sub.toLowerCase() !== account.toLowerCase()) {
+        logout();
+      }
+    });
+  }, [account, client, logout]);
 
   const hasRole = useCallback(
     async (roleName: string): Promise<boolean> => {

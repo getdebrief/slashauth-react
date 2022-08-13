@@ -10,9 +10,10 @@ export enum Network {
 }
 
 export class Account {
-  network: Network;
-  address: string;
-  updatedAt?: string;
+  sub: string;
+  client_id: string;
+  type: string;
+  wallet_type: string;
 }
 
 // eslint-disable-next-line @typescript-eslint/no-empty-interface
@@ -176,6 +177,9 @@ export interface GetAppConfigAPIResponse {
 }
 
 export interface GetAppConfigResponse {
+  clientID?: string;
+  name?: string;
+  description?: string;
   modalStyle: {
     backgroundColor?: string;
     borderRadius?: string;

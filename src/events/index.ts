@@ -17,3 +17,5 @@ export const LOGIN_STEP_CHANGED_EVENT: SlashauthEvent = 'LOGIN_STEP_CHANGED';
 
 export const ADDITIONAL_INFO_SUBMIT_EVENT: SlashauthEvent =
   'ADDITIONAL_INFO_SUBMIT';
+
+export const APP_CONFIG_UPDATED_EVENT: SlashauthEvent = 'APP_CONFIG_UPDATED';

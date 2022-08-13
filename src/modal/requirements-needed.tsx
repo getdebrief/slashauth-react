@@ -7,11 +7,13 @@ type Styles = {
 };
 
 type Props = {
+  appName: string | null;
   requirements: string[];
   styles: Styles;
 };
 
 export const RequirementsNeededModalContents = ({
+  appName,
   requirements,
   styles,
 }: Props) => {
@@ -32,7 +34,9 @@ export const RequirementsNeededModalContents = ({
           alignItems: 'start',
         }}
       >
-        <label htmlFor="email">Email</label>
+        <label htmlFor="email" style={{ fontSize: '12px', fontWeight: 700 }}>
+          Email
+        </label>
         <input
           style={{
             width: '100%',
@@ -60,7 +64,9 @@ export const RequirementsNeededModalContents = ({
           alignItems: 'start',
         }}
       >
-        <label htmlFor="nickname">Nickname</label>
+        <label htmlFor="nickname" style={{ fontSize: '12px', fontWeight: 700 }}>
+          Nickname
+        </label>
         <input
           style={{
             width: '100%',
@@ -75,43 +81,66 @@ export const RequirementsNeededModalContents = ({
     );
   }, [nicknameValue, requirements]);
 
+  const disabled = useMemo(
+    () =>
+      (requirements.includes('email') && !emailValue) ||
+      (requirements.includes('nickname') && !nicknameValue),
+    [requirements, emailValue, nicknameValue]
+  );
+
+  const buttonBackgroundColor = useMemo(() => {
+    if (disabled) {
+      return 'rgba(3, 59, 239, 0.6)';
+    } else if (isHover) {
+      return 'rgb(47, 95, 252)';
+    } else {
+      return 'rgb(3, 59, 239)';
+    }
+  }, [disabled, isHover]);
+
   return (
     <div
+      className="slashauth-modal-scrollable"
       style={{
-        marginBottom: '1rem',
-        padding: '2rem 1rem',
-        textAlign: 'center',
+        overflowY: 'hidden',
         width: '100%',
+        padding: '2rem 1rem',
       }}
     >
-      <p style={{ fontSize: '16px', fontWeight: 500 }}>
-        More info is required to login:
-      </p>
-      {emailDiv}
-      {nicknameDiv}
-      <button
+      <div
         style={{
-          marginTop: '1rem',
-          padding: '0.5rem 1rem',
-          border: `1px solid ${styles.buttonBackgroundColor}`,
-          backgroundColor: isHover ? 'rgb(47, 95, 252)' : 'rgb(3, 59, 239)',
-          color: 'white',
-        }}
-        onMouseEnter={() => setHover(true)}
-        onMouseLeave={() => setHover(false)}
-        disabled={
-          (requirements.includes('email') && !emailValue) ||
-          (requirements.includes('nickname') && !nicknameValue)
-        }
-        onClick={() => {
-          eventEmitter.emit(ADDITIONAL_INFO_SUBMIT_EVENT, {
-            email: emailValue || undefined,
-            nickname: nicknameValue || undefined,
-          });
+          overflowY: 'auto',
+          textAlign: 'center',
+          width: '100%',
         }}
       >
-        Continue
-      </button>
+        <p style={{ fontSize: '14px', fontWeight: 400 }}>
+          <span style={{ fontWeight: 700 }}>{appName || 'Unnamed app'}</span>{' '}
+          requires the following information to log in
+        </p>
+        {emailDiv}
+        {nicknameDiv}
+        <button
+          style={{
+            marginTop: '1rem',
+            padding: '0.5rem 1rem',
+            border: `1px solid ${styles.buttonBackgroundColor}`,
+            backgroundColor: buttonBackgroundColor,
+            color: 'white',
+          }}
+          onMouseEnter={() => setHover(true)}
+          onMouseLeave={() => setHover(false)}
+          disabled={disabled}
+          onClick={() => {
+            eventEmitter.emit(ADDITIONAL_INFO_SUBMIT_EVENT, {
+              email: emailValue || undefined,
+              nickname: nicknameValue || undefined,
+            });
+          }}
+        >
+          Continue
+        </button>
+      </div>
     </div>
   );
 };

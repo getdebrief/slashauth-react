@@ -1,7 +1,11 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 import { LoginModal } from '.';
-import { eventEmitter, LOGIN_STEP_CHANGED_EVENT } from '../events';
+import {
+  APP_CONFIG_UPDATED_EVENT,
+  eventEmitter,
+  LOGIN_STEP_CHANGED_EVENT,
+} from '../events';
 import { CONNECT_MODAL_ID, GetAppConfigResponse } from '../global';
 import { WagmiConnector } from '../provider/wagmi-connectors';
 
@@ -32,6 +36,7 @@ export class ModalCore {
 
   constructor(w: WagmiConnector) {
     this.wagmiConnector = w;
+    setTimeout(() => this.renderModal(), 0);
   }
 
   get appConfig() {
@@ -39,9 +44,9 @@ export class ModalCore {
   }
   set appConfig(v: GetAppConfigResponse | null) {
     this._appConfig = v;
-    if (!this.isRendered) {
-      setTimeout(() => this.renderModal(), 0);
-    }
+    eventEmitter.emit(APP_CONFIG_UPDATED_EVENT, {
+      appConfig: this._appConfig,
+    });
   }
 
   public setLoadingState = () => {

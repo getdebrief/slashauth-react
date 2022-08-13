@@ -75,7 +75,7 @@ export const useModalCore = (options: ProviderOptions) => {
   }
 
   const handleDeactivate = useCallback(() => {
-    wagmiConnector?.clearState();
+    wagmiConnector?.disconnect();
 
     // TODO: Disconnect listeners?
   }, [wagmiConnector]);
