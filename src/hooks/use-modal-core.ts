@@ -66,8 +66,6 @@ export const useModalCore = (options: ProviderOptions) => {
   if (wagmiConnector && !connectModal) {
     const modalCore = new ModalCore(wagmiConnector);
     setConnectModal(modalCore);
-
-    // TODO: Hide the modal when everything is connected!
   }
 
   if (connectModal && !connectModal.appConfig && appConfig) {
@@ -76,8 +74,6 @@ export const useModalCore = (options: ProviderOptions) => {
 
   const handleDeactivate = useCallback(() => {
     wagmiConnector?.disconnect();
-
-    // TODO: Disconnect listeners?
   }, [wagmiConnector]);
 
   return {
