@@ -110,7 +110,7 @@ export class WagmiConnector {
   }
 
   public async disconnect(): Promise<void> {
-    return disconnect();
+    await disconnect();
   }
 
   public async autoConnect(): Promise<string | null> {
@@ -217,8 +217,10 @@ export class WagmiConnector {
         } else if (state.status !== prevState.status) {
           if (state.status === 'connected') {
             this.onConnectorConnect();
+            this.connectListeners.forEach((l) => l(this.connectedConnector));
           } else if (prevState.status === 'connected') {
             this.onConnectorDisconnect();
+            this.disconnectListeners.forEach((l) => l());
           }
         }
       },
@@ -239,6 +241,7 @@ export class WagmiConnector {
           this.connectedConnector?.id !== state.connector?.id
         ) {
           this.onConnectorConnect();
+          this.connectListeners.forEach((l) => l(this.connectedConnector));
         }
       },
       {

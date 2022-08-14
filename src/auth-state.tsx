@@ -16,6 +16,7 @@ export type SlashAuthState = {
   loginType: 'LoginNoRedirectNoPopup' | null;
   requirements: string[] | null;
   additionalInfo: { email?: string; nickname?: string } | null;
+  initialized: boolean;
 };
 
 export const initialAuthState: SlashAuthState = {
@@ -31,6 +32,7 @@ export const initialAuthState: SlashAuthState = {
   isLoggingIn: false,
   requirements: null,
   additionalInfo: null,
+  initialized: false,
 };
 
 export const initialMetamaskContext = {

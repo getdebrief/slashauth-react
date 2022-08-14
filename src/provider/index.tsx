@@ -7,13 +7,16 @@ import React, {
 } from 'react';
 import SlashAuthContext, {
   SlashAuthContextInterface,
+  SlashAuthStepCancel,
+  SlashAuthStepFetchingNonce,
+  SlashAuthStepInitialized,
+  SlashAuthStepLoggingIn,
   SlashAuthStepLoggingInAwaitingAccount,
   SlashAuthStepLoggingInInformationRequired,
   SlashAuthStepLoggingInInformationSubmitted,
   SlashAuthStepLoggingInMoreInformationComplete,
   SlashauthStepLoginFlowStarted,
   SlashAuthStepNonceReceived,
-  SlashAuthStepNone,
 } from '../auth-context';
 import { initialAuthState } from '../auth-state';
 import SlashAuthClient from '../client';
@@ -21,7 +24,6 @@ import {
   CacheLocation,
   GetIdTokenClaimsOptions,
   GetTokenSilentlyOptions,
-  LoginNoRedirectNoPopupOptions,
   LogoutOptions,
   SlashAuthClientOptions,
   TokenTypeInformationRequiredToken,
@@ -37,7 +39,6 @@ import { useModalCore } from '../hooks/use-modal-core';
 import {
   ACCOUNT_CONNECTED_EVENT,
   ADDITIONAL_INFO_SUBMIT_EVENT,
-  CONNECT_EVENT,
   eventEmitter,
   LOGIN_COMPLETE_EVENT,
   LOGIN_FAILURE_EVENT,
@@ -205,33 +206,66 @@ const Provider = (opts: SlashAuthProviderOptions): JSX.Element => {
   }, []);
 
   const detectMobile = () => {
+    return true;
     if (typeof window === 'undefined') {
       return false;
     }
     return isMobile();
   };
 
-  const connectAccount = useCallback(async () => {
-    connectModal.setLoadingState();
-    connectModal.showModal(() => {
-      dispatch({
-        type: 'ERROR',
-        error: new Error('Login cancelled'),
-      });
-    });
-    connectModal.setConnectWalletStep();
+  const connectAccount = useCallback(
+    async (keepModalOpen?: boolean) => {
+      // connectModal.setLoadingState();
+      // connectModal.showModal(() => {
+      //   dispatch({
+      //     type: 'CANCEL',
+      //   });
+      // });
+      // connectModal.setConnectWalletStep();
 
-    return new Promise<string>((resolve, reject) => {
-      eventEmitter.once(ACCOUNT_CONNECTED_EVENT, ({ account }) => {
-        resolve(account);
+      const loginIDFlow = Date.now();
+      // Make sure the cache is clear for the user
+      await client.logout({
+        localOnly: true,
       });
-      eventEmitter.once(LOGIN_FAILURE_EVENT, () => {
+      dispatch({
+        type: 'LOGIN_REQUESTED',
+        loginType: 'LoginNoRedirectNoPopup',
+        loginOptions: null,
+        loginIDFlow,
+      });
+      connectModal.setLoadingState();
+      connectModal.showModal(() => {
+        dispatch({
+          type: 'CANCEL',
+        });
+      });
+
+      const acc = await client.getAccount();
+      if (!acc || !account) {
         wagmiConnector.clearState();
-        setTimeout(() => connectModal.hideModal(), 0);
-        reject(new Error('Login failed or was rejected by the user'));
+        connectModal.setConnectWalletStep();
+      } else {
+        // Return early if the account is already connected!
+        return Promise.resolve(acc.sub);
+      }
+
+      return new Promise<string>((resolve, reject) => {
+        eventEmitter.once(ACCOUNT_CONNECTED_EVENT, ({ account }) => {
+          if (!keepModalOpen) {
+            setTimeout(() => connectModal.hideModal(), 0);
+          }
+          resolve(account);
+        });
+        eventEmitter.once(LOGIN_FAILURE_EVENT, () => {
+          wagmiConnector.clearState();
+          setTimeout(() => connectModal.hideModal(), 0);
+          reject(new Error('Login failed or was rejected by the user'));
+        });
       });
-    });
-  }, [connectModal, wagmiConnector]);
+    },
+    [account, client, connectModal, wagmiConnector]
+  );
 
   const getNonceToSign = useCallback(async () => {
     if (!account) {
@@ -241,10 +275,15 @@ const Provider = (opts: SlashAuthProviderOptions): JSX.Element => {
       });
       return;
     }
+    dispatch({ type: 'NONCE_REQUEST_STARTED' });
     try {
       const nonceResp = await client.getNonceToSign({
         ...opts,
         address: account,
+      });
+      dispatch({
+        type: 'NONCE_RECEIVED',
+        nonceToSign: nonceResp,
       });
       return nonceResp;
     } catch (error) {
@@ -292,8 +331,13 @@ const Provider = (opts: SlashAuthProviderOptions): JSX.Element => {
         dispatch({ type: 'LOGIN_WITH_SIGNED_NONCE_COMPLETE' });
       }
     } catch (error) {
-      console.error(error);
-      dispatch({ type: 'ERROR', error });
+      if (error && error['code'] === 4001) {
+        // This is a metamask error where the user cancelled signing
+        dispatch({ type: 'CANCEL' });
+      } else {
+        console.error(error);
+        dispatch({ type: 'ERROR', error });
+      }
     }
   }, [
     account,
@@ -350,7 +394,6 @@ const Provider = (opts: SlashAuthProviderOptions): JSX.Element => {
       if (state.loginFlowID !== loginIDFlow) {
         // We need to cancel this flow (TODO)
       }
-      dispatch({ type: 'NONCE_REQUEST_STARTED' });
       connectModal.setLoadingState();
       try {
         let fetchedNonce = state.nonceToSign;
@@ -363,12 +406,8 @@ const Provider = (opts: SlashAuthProviderOptions): JSX.Element => {
             });
             return;
           }
-          dispatch({
-            type: 'NONCE_RECEIVED',
-            nonceToSign: fetchedNonce,
-          });
-          // TODO: We need to dismiss the modal here.
           if (detectMobile()) {
+            connectModal.hideModal();
             return;
           }
         } else {
@@ -395,33 +434,21 @@ const Provider = (opts: SlashAuthProviderOptions): JSX.Element => {
   );
 
   const loginNoRedirectNoPopup = useCallback(
-    async (options: LoginNoRedirectNoPopupOptions) => {
-      const loginIDFlow = Date.now();
-      dispatch({
-        type: 'LOGIN_REQUESTED',
-        loginType: 'LoginNoRedirectNoPopup',
-        loginOptions: options,
-        loginIDFlow,
-      });
-      connectModal.setLoadingState();
-      connectModal.showModal(() => {
-        dispatch({
-          type: 'ERROR',
-          error: new Error('Login cancelled'),
+    async (options?: Record<string, unknown>) => {
+      if (account && state.step === SlashAuthStepNonceReceived) {
+        // The nonce has been received. We will continue
+        // the flow.
+        connectModal.setLoadingState();
+        connectModal.showModal(() => {
+          dispatch({
+            type: 'CANCEL',
+          });
         });
-      });
-
-      const acc = await client.getAccount();
-      if (!acc || !account) {
-        wagmiConnector.clearState();
-        connectModal.setConnectWalletStep();
-        eventEmitter.once(CONNECT_EVENT, () => {
-          connectModal.setLoadingState();
-          dispatch({ type: 'AWAITING_ACCOUNT' });
-        });
+        continueLoginWithSignedNonce();
       } else {
-        // In this case we are going to kick off the login flow immediately.
-        dispatch({ type: 'LOGIN_FLOW_STARTED' });
+        dispatch({ type: 'AWAITING_ACCOUNT' });
+        // No need to await here.
+        connectAccount(true);
       }
 
       return new Promise<void>((resolve, reject) => {
@@ -429,14 +456,28 @@ const Provider = (opts: SlashAuthProviderOptions): JSX.Element => {
           setTimeout(() => connectModal.hideModal(), 0);
           resolve();
         });
-        eventEmitter.once(LOGIN_FAILURE_EVENT, () => {
-          wagmiConnector.clearState();
-          setTimeout(() => connectModal.hideModal(), 0);
-          reject(new Error('Login failed or was rejected by the user'));
-        });
+        eventEmitter.once(
+          LOGIN_FAILURE_EVENT,
+          (input: { userCancel: boolean }) => {
+            wagmiConnector.clearState();
+            setTimeout(() => connectModal.hideModal(), 0);
+            if (input.userCancel) {
+              resolve();
+            } else {
+              reject(new Error('Login failed or was rejected by the user'));
+            }
+          }
+        );
       });
     },
-    [account, client, connectModal, wagmiConnector]
+    [
+      account,
+      connectAccount,
+      connectModal,
+      continueLoginWithSignedNonce,
+      state.step,
+      wagmiConnector,
+    ]
   );
 
   useEffect(() => {
@@ -445,13 +486,19 @@ const Provider = (opts: SlashAuthProviderOptions): JSX.Element => {
     } else if (state.step === SlashauthStepLoginFlowStarted && account) {
       loginWithSignedNonce(state.loginFlowID);
     } else if (state.step === SlashAuthStepNonceReceived) {
-      continueLoginWithSignedNonce();
+      // We stop the login flow when the user is mobile.
+      if (!detectMobile()) {
+        continueLoginWithSignedNonce();
+      }
     } else if (state.step === SlashAuthStepLoggingInInformationRequired) {
       informationRequiredLogin();
     } else if (state.step === SlashAuthStepLoggingInInformationSubmitted) {
       handleInformationSubmitted();
     } else if (state.step === SlashAuthStepLoggingInMoreInformationComplete) {
       dispatch({ type: 'LOGIN_WITH_SIGNED_NONCE_COMPLETE' });
+    } else if (state.step === SlashAuthStepCancel) {
+      wagmiConnector?.disconnect();
+      dispatch({ type: 'RESET' });
     }
   }, [
     account,
@@ -461,6 +508,7 @@ const Provider = (opts: SlashAuthProviderOptions): JSX.Element => {
     loginWithSignedNonce,
     state.loginFlowID,
     state.step,
+    wagmiConnector,
   ]);
 
   const logout = useCallback(
@@ -568,15 +616,27 @@ const Provider = (opts: SlashAuthProviderOptions): JSX.Element => {
         if (transparent) {
           return wagmiConnector.autoConnect();
         } else {
-          return await connectAccount();
+          await connectAccount(false);
         }
       } catch (err) {
         console.error(err);
-        return null;
+        throw err;
       }
     },
     [client, connectAccount, wagmiConnector]
   );
+
+  useEffect(() => {
+    if (
+      detectMobile() &&
+      account &&
+      !state.nonceToSign &&
+      (state.step === SlashAuthStepInitialized ||
+        state.step === SlashAuthStepLoggingIn)
+    ) {
+      getNonceToSign();
+    }
+  }, [account, getNonceToSign, state.nonceToSign, state.step]);
 
   const contextValue = useMemo(() => {
     activeContextValue = {
@@ -595,7 +655,6 @@ const Provider = (opts: SlashAuthProviderOptions): JSX.Element => {
       getIdTokenClaims,
       logout,
       checkSession,
-      initialized: state.step !== SlashAuthStepNone,
       isLoginReady:
         detectMobile() && state.nonceToSign && state.step !== 'LOGGED_IN',
     };

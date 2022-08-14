@@ -164,6 +164,9 @@ export class ModalCore {
 
   private onClose = async () => {
     if (this.show) {
+      if (this.loginState.dismissCallback) {
+        this.loginState.dismissCallback();
+      }
       await this._toggleModal();
     }
   };

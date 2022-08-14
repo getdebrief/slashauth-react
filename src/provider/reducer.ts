@@ -1,5 +1,6 @@
 import { Account, LoginNoRedirectNoPopupOptions } from '../global';
 import {
+  SlashAuthStepCancel,
   SlashAuthStepFetchingNonce,
   SlashAuthStepInitialized,
   SlashAuthStepLoggedIn,
@@ -12,7 +13,7 @@ import {
   SlashAuthStepNonceReceived,
   SlashAuthStepNone,
 } from '../auth-context';
-import { SlashAuthState } from '../auth-state';
+import { initialAuthState, SlashAuthState } from '../auth-state';
 import {
   eventEmitter,
   LOGIN_COMPLETE_EVENT,
@@ -43,6 +44,8 @@ type Action =
     }
   | { type: 'LOGOUT' }
   | { type: 'ERROR'; error: Error }
+  | { type: 'CANCEL' }
+  | { type: 'RESET' }
   | { type: 'MORE_INFORMATION_REQUIRED'; requirements: string[] }
   | {
       type: 'MORE_INFORMATION_SUBMITTED';
@@ -59,6 +62,7 @@ export const reducer = (
   state: SlashAuthState,
   action: Action
 ): SlashAuthState => {
+  state.initialized = true;
   switch (action.type) {
     case 'CHECKING_SESSION':
       return {
@@ -110,6 +114,7 @@ export const reducer = (
         account: action.account,
       };
     case 'LOGIN_REQUESTED':
+      console.log('login requested and state: ', state);
       return {
         ...state,
         loginRequested: true,
@@ -161,15 +166,30 @@ export const reducer = (
         requirements: null,
         additionalInfo: null,
       };
+    case 'RESET':
+      return {
+        ...initialAuthState,
+        step: SlashAuthStepNone,
+        initialized: true,
+      };
+    case 'CANCEL':
     case 'ERROR':
-      eventEmitter.emit(LOGIN_FAILURE_EVENT);
+      eventEmitter.emit(LOGIN_FAILURE_EVENT, {
+        userCancel: action.type === 'CANCEL',
+      });
+      // eslint-disable-next-line no-case-declarations
+      let err: Error | null = null;
+      if (action.type === 'ERROR') {
+        err = action.error;
+      }
       return {
         ...state,
         loginRequested: false,
+        account: null,
         isLoading: false,
-        error: action.error,
+        error: err,
         nonceToSign: null,
-        step: SlashAuthStepNone,
+        step: SlashAuthStepCancel,
         isLoggingIn: false,
         loginFlowID: null,
         requirements: null,

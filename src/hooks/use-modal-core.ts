@@ -19,6 +19,8 @@ export const useModalCore = (options: ProviderOptions) => {
   );
   const [appConfig, setAppConfig] = useState<GetAppConfigResponse | null>(null);
 
+  const [walletAddress, setWalletAddress] = useState<string>(null);
+
   if (!wagmiConnector) {
     const extractedOptions = {
       ...options,
@@ -52,7 +54,10 @@ export const useModalCore = (options: ProviderOptions) => {
         unsupported,
       })
     );
-    connector.onDisconnect(() => eventEmitter.emit(DISCONNECT_EVENT));
+    connector.onDisconnect(() => {
+      console.log('in disconnect');
+      eventEmitter.emit(DISCONNECT_EVENT);
+    });
     connector.onConnect((connector: Connector) => {
       eventEmitter.emit(CONNECT_EVENT, {
         connector,

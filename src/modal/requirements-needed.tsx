@@ -1,5 +1,7 @@
 import { useMemo, useState } from 'react';
+import validate from 'email-validator';
 import { ADDITIONAL_INFO_SUBMIT_EVENT, eventEmitter } from '../events';
+import { invertColor } from '../utils/color';
 
 type Styles = {
   buttonBackgroundColor: string;
@@ -20,6 +22,7 @@ export const RequirementsNeededModalContents = ({
   const [emailValue, setEmailValue] = useState('');
   const [nicknameValue, setNicknameValue] = useState('');
   const [isHover, setHover] = useState(false);
+  const [emailValid, setEmailValid] = useState(true);
 
   const emailDiv = useMemo(() => {
     if (!requirements.includes('email')) {
@@ -32,6 +35,7 @@ export const RequirementsNeededModalContents = ({
           display: 'flex',
           flexDirection: 'column',
           alignItems: 'start',
+          width: '100%',
         }}
       >
         <label htmlFor="email" style={{ fontSize: '12px', fontWeight: 700 }}>
@@ -41,15 +45,31 @@ export const RequirementsNeededModalContents = ({
           style={{
             width: '100%',
             borderRadius: '8px',
-            border: '1px solid #ccc',
+            border: `1px solid ${styles.buttonBackgroundColor}`,
             padding: '0.5rem',
+            backgroundColor: styles.buttonBackgroundColor,
+            color: invertColor(styles.buttonBackgroundColor),
           }}
           value={emailValue}
-          onChange={(e) => setEmailValue(e.target.value)}
+          onChange={(e) => {
+            setEmailValue(e.target.value);
+            setEmailValid(validate.validate(e.target.value));
+          }}
         />
+        {!emailValid && (
+          <div
+            style={{
+              fontSize: '10px',
+              color: '#ff0000',
+              fontWeight: 700,
+            }}
+          >
+            Enter a valid email
+          </div>
+        )}
       </div>
     );
-  }, [emailValue, requirements]);
+  }, [emailValue, requirements, styles.buttonBackgroundColor]);
 
   const nicknameDiv = useMemo(() => {
     if (!requirements.includes('nickname')) {
@@ -62,6 +82,7 @@ export const RequirementsNeededModalContents = ({
           display: 'flex',
           flexDirection: 'column',
           alignItems: 'start',
+          width: '100%',
         }}
       >
         <label htmlFor="nickname" style={{ fontSize: '12px', fontWeight: 700 }}>
@@ -71,21 +92,25 @@ export const RequirementsNeededModalContents = ({
           style={{
             width: '100%',
             borderRadius: '8px',
-            border: '1px solid #ccc',
+            border: `1px solid ${
+              emailValid ? styles.buttonBackgroundColor : '#ff0000'
+            }`,
             padding: '0.5rem',
+            backgroundColor: styles.buttonBackgroundColor,
+            color: invertColor(styles.buttonBackgroundColor),
           }}
           value={nicknameValue}
           onChange={(e) => setNicknameValue(e.target.value)}
         />
       </div>
     );
-  }, [nicknameValue, requirements]);
+  }, [emailValid, nicknameValue, requirements, styles.buttonBackgroundColor]);
 
   const disabled = useMemo(
     () =>
-      (requirements.includes('email') && !emailValue) ||
+      (requirements.includes('email') && (!emailValue || !emailValid)) ||
       (requirements.includes('nickname') && !nicknameValue),
-    [requirements, emailValue, nicknameValue]
+    [requirements, emailValue, emailValid, nicknameValue]
   );
 
   const buttonBackgroundColor = useMemo(() => {
@@ -112,6 +137,7 @@ export const RequirementsNeededModalContents = ({
           overflowY: 'auto',
           textAlign: 'center',
           width: '100%',
+          padding: '0 2px 0 2px',
         }}
       >
         <p style={{ fontSize: '14px', fontWeight: 400 }}>

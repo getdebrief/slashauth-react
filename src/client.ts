@@ -784,7 +784,7 @@ export default class SlashAuthClient {
       ...queryParameters,
     });
 
-    this.processToken(authResult);
+    await this.processToken(authResult);
 
     // if (stateIn !== iframeResult.state) {
     //   throw new Error('Invalid state');

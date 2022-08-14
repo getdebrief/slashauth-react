@@ -16,6 +16,7 @@ import { ObjectMap } from './utils/object';
 export type SlashAuthStep = string;
 
 export const SlashAuthStepNone: SlashAuthStep = 'NONE';
+export const SlashAuthStepCancel: SlashAuthStep = 'CANCEL';
 export const SlashAuthStepInitialized: SlashAuthStep = 'INITIALIZED';
 export const SlashauthStepLoginFlowStarted: SlashAuthStep =
   'LOGIN_FLOW_STARTED';
