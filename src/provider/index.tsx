@@ -206,7 +206,6 @@ const Provider = (opts: SlashAuthProviderOptions): JSX.Element => {
   }, []);
 
   const detectMobile = () => {
-    return true;
     if (typeof window === 'undefined') {
       return false;
     }
