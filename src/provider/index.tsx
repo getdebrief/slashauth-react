@@ -476,13 +476,7 @@ const Provider = (opts: SlashAuthProviderOptions): JSX.Element => {
   );
 
   useEffect(() => {
-    // TODO: Log the user out when the account doesn't match the token.
-    console.log('in the use effect');
     client?.getAccount().then((acc) => {
-      console.log('response and ', {
-        acc,
-        account,
-      });
       if (acc && account && acc.sub.toLowerCase() !== account.toLowerCase()) {
         logout();
       }
