@@ -114,7 +114,6 @@ export const reducer = (
         account: action.account,
       };
     case 'LOGIN_REQUESTED':
-      console.log('login requested and state: ', state);
       return {
         ...state,
         loginRequested: true,

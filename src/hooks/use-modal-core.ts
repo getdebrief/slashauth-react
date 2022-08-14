@@ -55,7 +55,6 @@ export const useModalCore = (options: ProviderOptions) => {
       })
     );
     connector.onDisconnect(() => {
-      console.log('in disconnect');
       eventEmitter.emit(DISCONNECT_EVENT);
     });
     connector.onConnect((connector: Connector) => {
