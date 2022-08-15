@@ -262,11 +262,11 @@ export const UnstyledModal = ({
           />
           {hasFetchedAppConfig && (
             <div style={{ marginTop: '1rem', textAlign: headerTextAlign }}>
-              <h1 style={{ fontSize: '24px', fontWeight: 700 }}>Login to</h1>
-              <h2 style={{ fontSize: '16px', fontWeight: 500 }}>
+              <div style={{ fontSize: '24px', fontWeight: 700 }}>Login to</div>
+              <div style={{ fontSize: '16px', fontWeight: 500 }}>
                 {' '}
                 {appName || 'Unnamed App'}
-              </h2>
+              </div>
             </div>
           )}
           {modalStepContents}
