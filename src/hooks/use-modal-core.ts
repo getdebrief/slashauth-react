@@ -85,8 +85,6 @@ export const useModalCore = (options: ProviderOptions) => {
     wagmiConnector?.disconnect();
   }, [wagmiConnector]);
 
-  console.log({ walletAddress });
-
   return {
     appConfig,
     connectModal,
