@@ -37,6 +37,7 @@ export interface SlashAuthContextInterface extends SlashAuthState {
   initialized: boolean;
   isTwoStep: boolean;
   isLoginReady: boolean;
+  authedWallet: string | null;
   connect: (transparent: boolean) => Promise<string | null>;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   ethereum: any;
@@ -97,6 +98,7 @@ const initialContextState: SlashAuthContextInterface = {
   isTwoStep: false,
   isLoginReady: false,
   connect: stub,
+  authedWallet: null,
   ethereum: null,
   hasRole: stub,
   hasOrgRole: stub,

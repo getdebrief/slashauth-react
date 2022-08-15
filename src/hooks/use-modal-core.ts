@@ -18,6 +18,7 @@ export const useModalCore = (options: ProviderOptions) => {
     null
   );
   const [appConfig, setAppConfig] = useState<GetAppConfigResponse | null>(null);
+  const [walletAddress, setWalletAddress] = useState<string>(null);
 
   if (!wagmiConnector) {
     const extractedOptions = {
@@ -41,11 +42,12 @@ export const useModalCore = (options: ProviderOptions) => {
       publicConf: extractedOptions?.publicConf,
     });
 
-    connector.onAccountChange((account: string | null) =>
+    connector.onAccountChange((account: string | null) => {
+      setWalletAddress(account);
       eventEmitter.emit(ACCOUNT_CHANGE_EVENT, {
         account,
-      })
-    );
+      });
+    });
     connector.onChainChange((chainId: number | string, unsupported: boolean) =>
       eventEmitter.emit(CHAIN_CHANGE_EVENT, {
         chainId,
@@ -53,9 +55,14 @@ export const useModalCore = (options: ProviderOptions) => {
       })
     );
     connector.onDisconnect(() => {
+      setWalletAddress(null);
       eventEmitter.emit(DISCONNECT_EVENT);
     });
     connector.onConnect((connector: Connector) => {
+      connector.getAccount().then((address) => {
+        setWalletAddress(address);
+      });
+
       eventEmitter.emit(CONNECT_EVENT, {
         connector,
       });
@@ -78,9 +85,12 @@ export const useModalCore = (options: ProviderOptions) => {
     wagmiConnector?.disconnect();
   }, [wagmiConnector]);
 
+  console.log({ walletAddress });
+
   return {
     appConfig,
     connectModal,
+    walletAddress,
     wagmiConnector,
     handleDeactivate,
     setAppConfig,

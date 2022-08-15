@@ -171,8 +171,13 @@ const Provider = (opts: SlashAuthProviderOptions): JSX.Element => {
   );
   const [state, dispatch] = useReducer(reducer, initialAuthState);
 
-  const { appConfig, connectModal, wagmiConnector, setAppConfig } =
-    useModalCore(opts.providers);
+  const {
+    appConfig,
+    connectModal,
+    walletAddress,
+    wagmiConnector,
+    setAppConfig,
+  } = useModalCore(opts.providers);
 
   const { account, signer, provider } = useWalletAuth();
 
@@ -514,6 +519,19 @@ const Provider = (opts: SlashAuthProviderOptions): JSX.Element => {
     [client, wagmiConnector]
   );
 
+  /**
+   * Function to logout a user when they switch wallets
+   */
+  useEffect(() => {
+    if (
+      state.account?.sub &&
+      walletAddress &&
+      state.account.sub !== walletAddress
+    ) {
+      logout();
+    }
+  }, [logout, state.account?.sub, walletAddress]);
+
   useEffect(() => {
     client?.getAccount().then((acc) => {
       if (acc && account && acc.sub.toLowerCase() !== account.toLowerCase()) {
@@ -634,7 +652,8 @@ const Provider = (opts: SlashAuthProviderOptions): JSX.Element => {
       ...state,
       isTwoStep: detectMobile(),
       provider,
-      connectedWallet: account,
+      authedWallet: state.account?.sub || null,
+      connectedWallet: walletAddress,
       connect,
       ethereum: provider,
       hasRole,
@@ -653,7 +672,6 @@ const Provider = (opts: SlashAuthProviderOptions): JSX.Element => {
   }, [
     state,
     provider,
-    account,
     connect,
     hasRole,
     hasOrgRole,
@@ -664,6 +682,7 @@ const Provider = (opts: SlashAuthProviderOptions): JSX.Element => {
     getIdTokenClaims,
     logout,
     checkSession,
+    walletAddress,
   ]);
 
   return (
