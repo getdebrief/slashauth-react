@@ -53,7 +53,6 @@ export const RequirementsNeededModalContents = ({
           value={emailValue}
           onChange={(e) => {
             setEmailValue(e.target.value);
-            setEmailValid(validate.validate(e.target.value));
           }}
         />
         {!emailValid && (
@@ -69,7 +68,7 @@ export const RequirementsNeededModalContents = ({
         )}
       </div>
     );
-  }, [emailValue, requirements, styles.buttonBackgroundColor]);
+  }, [emailValid, emailValue, requirements, styles.buttonBackgroundColor]);
 
   const nicknameDiv = useMemo(() => {
     if (!requirements.includes('nickname')) {
@@ -108,9 +107,9 @@ export const RequirementsNeededModalContents = ({
 
   const disabled = useMemo(
     () =>
-      (requirements.includes('email') && (!emailValue || !emailValid)) ||
+      (requirements.includes('email') && !emailValue) ||
       (requirements.includes('nickname') && !nicknameValue),
-    [requirements, emailValue, emailValid, nicknameValue]
+    [requirements, emailValue, nicknameValue]
   );
 
   const buttonBackgroundColor = useMemo(() => {
@@ -158,6 +157,12 @@ export const RequirementsNeededModalContents = ({
           onMouseLeave={() => setHover(false)}
           disabled={disabled}
           onClick={() => {
+            if (requirements.includes('email')) {
+              if (!validate.validate(emailValue)) {
+                setEmailValid(false);
+                return;
+              }
+            }
             eventEmitter.emit(ADDITIONAL_INFO_SUBMIT_EVENT, {
               email: emailValue || undefined,
               nickname: nicknameValue || undefined,

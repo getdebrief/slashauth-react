@@ -384,7 +384,6 @@ const Provider = (opts: SlashAuthProviderOptions): JSX.Element => {
 
   const loginWithSignedNonce = useCallback(
     async (loginIDFlow: number) => {
-      console.log('in loginwithsignednonce: ', state);
       if (state.loginFlowID !== loginIDFlow) {
         // We need to cancel this flow (TODO)
       }
@@ -429,7 +428,6 @@ const Provider = (opts: SlashAuthProviderOptions): JSX.Element => {
 
   const loginNoRedirectNoPopup = useCallback(
     async (options?: Record<string, unknown>) => {
-      console.log('login no redirect no popup: ', state, account);
       if (account && state.step === SlashAuthStepNonceReceived) {
         // The nonce has been received. We will continue
         // the flow.
@@ -510,9 +508,7 @@ const Provider = (opts: SlashAuthProviderOptions): JSX.Element => {
     async (opts: LogoutOptions = {}): Promise<void> => {
       const maybePromise = client.logout(opts);
       await wagmiConnector?.disconnect();
-      console.log('here');
       dispatch({ type: 'LOGOUT' });
-      console.log(wagmiConnector);
       return maybePromise;
     },
     [client, wagmiConnector]
