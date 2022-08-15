@@ -45,7 +45,7 @@ export const RequirementsNeededModalContents = ({
           style={{
             width: '100%',
             borderRadius: '8px',
-            border: `1px solid ${styles.buttonBackgroundColor}`,
+            border: `1px solid ${invertColor(styles.buttonBackgroundColor)}`,
             padding: '0.5rem',
             backgroundColor: styles.buttonBackgroundColor,
             color: invertColor(styles.buttonBackgroundColor),
@@ -92,7 +92,7 @@ export const RequirementsNeededModalContents = ({
             width: '100%',
             borderRadius: '8px',
             border: `1px solid ${
-              emailValid ? styles.buttonBackgroundColor : '#ff0000'
+              emailValid ? invertColor(styles.buttonBackgroundColor) : '#ff0000'
             }`,
             padding: '0.5rem',
             backgroundColor: styles.buttonBackgroundColor,
