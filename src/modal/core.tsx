@@ -119,24 +119,26 @@ export class ModalCore {
   }
 
   private renderModal() {
-    let modalDiv = document.getElementById(CONNECT_MODAL_ID);
-    if (!modalDiv) {
-      modalDiv = document.createElement('div');
-      modalDiv.id = CONNECT_MODAL_ID;
-      document.body.appendChild(modalDiv);
-    }
+    if (typeof window !== 'undefined') {
+      let modalDiv = document.getElementById(CONNECT_MODAL_ID);
+      if (!modalDiv) {
+        modalDiv = document.createElement('div');
+        modalDiv.id = CONNECT_MODAL_ID;
+        document.body.appendChild(modalDiv);
+      }
 
-    this.isRendered = true;
-    ReactDOM.render(
-      <LoginModal
-        initialLoginStep={this.loginState.step}
-        resetState={this.resetState}
-        onClose={this.onClose}
-        appConfig={this._appConfig}
-        wagmiConnector={this.wagmiConnector}
-      />,
-      document.getElementById(CONNECT_MODAL_ID)
-    );
+      this.isRendered = true;
+      ReactDOM.render(
+        <LoginModal
+          initialLoginStep={this.loginState.step}
+          resetState={this.resetState}
+          onClose={this.onClose}
+          appConfig={this._appConfig}
+          wagmiConnector={this.wagmiConnector}
+        />,
+        document.getElementById(CONNECT_MODAL_ID)
+      );
+    }
   }
 
   private _toggleModal = async () => {
