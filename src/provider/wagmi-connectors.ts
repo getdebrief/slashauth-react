@@ -219,8 +219,8 @@ export class WagmiConnector {
             this.onConnectorConnect();
             this.connectListeners.forEach((l) => l(this.connectedConnector));
           } else if (prevState.status === 'connected') {
-            this.onConnectorDisconnect();
             this.disconnectListeners.forEach((l) => l());
+            this.onConnectorDisconnect();
           }
         }
       },

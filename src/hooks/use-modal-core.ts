@@ -19,8 +19,6 @@ export const useModalCore = (options: ProviderOptions) => {
   );
   const [appConfig, setAppConfig] = useState<GetAppConfigResponse | null>(null);
 
-  const [walletAddress, setWalletAddress] = useState<string>(null);
-
   if (!wagmiConnector) {
     const extractedOptions = {
       ...options,

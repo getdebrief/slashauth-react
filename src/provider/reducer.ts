@@ -158,7 +158,7 @@ export const reducer = (
         ...state,
         isAuthenticated: false,
         account: undefined,
-        step: SlashAuthStepInitialized,
+        step: SlashAuthStepNone,
         isLoggingIn: false,
         isLoading: false,
         nonceToSign: null,

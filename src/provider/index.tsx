@@ -8,7 +8,6 @@ import React, {
 import SlashAuthContext, {
   SlashAuthContextInterface,
   SlashAuthStepCancel,
-  SlashAuthStepFetchingNonce,
   SlashAuthStepInitialized,
   SlashAuthStepLoggingIn,
   SlashAuthStepLoggingInAwaitingAccount,
@@ -172,15 +171,10 @@ const Provider = (opts: SlashAuthProviderOptions): JSX.Element => {
   );
   const [state, dispatch] = useReducer(reducer, initialAuthState);
 
-  const {
-    appConfig,
-    connectModal,
-    wagmiConnector,
-    handleDeactivate,
-    setAppConfig,
-  } = useModalCore(opts.providers);
+  const { appConfig, connectModal, wagmiConnector, setAppConfig } =
+    useModalCore(opts.providers);
 
-  const { account, signer, provider, deactivate } = useWalletAuth();
+  const { account, signer, provider } = useWalletAuth();
 
   const getAppConfig = async () => {
     if (appConfig !== null) {
@@ -390,6 +384,7 @@ const Provider = (opts: SlashAuthProviderOptions): JSX.Element => {
 
   const loginWithSignedNonce = useCallback(
     async (loginIDFlow: number) => {
+      console.log('in loginwithsignednonce: ', state);
       if (state.loginFlowID !== loginIDFlow) {
         // We need to cancel this flow (TODO)
       }
@@ -429,11 +424,12 @@ const Provider = (opts: SlashAuthProviderOptions): JSX.Element => {
         return;
       }
     },
-    [connectModal, getNonceToSign, state.loginFlowID, state.nonceToSign]
+    [connectModal, getNonceToSign, state]
   );
 
   const loginNoRedirectNoPopup = useCallback(
     async (options?: Record<string, unknown>) => {
+      console.log('login no redirect no popup: ', state, account);
       if (account && state.step === SlashAuthStepNonceReceived) {
         // The nonce has been received. We will continue
         // the flow.
@@ -474,7 +470,7 @@ const Provider = (opts: SlashAuthProviderOptions): JSX.Element => {
       connectAccount,
       connectModal,
       continueLoginWithSignedNonce,
-      state.step,
+      state,
       wagmiConnector,
     ]
   );
@@ -513,13 +509,13 @@ const Provider = (opts: SlashAuthProviderOptions): JSX.Element => {
   const logout = useCallback(
     async (opts: LogoutOptions = {}): Promise<void> => {
       const maybePromise = client.logout(opts);
-      deactivate();
-      handleDeactivate();
+      await wagmiConnector?.disconnect();
+      console.log('here');
       dispatch({ type: 'LOGOUT' });
+      console.log(wagmiConnector);
       return maybePromise;
     },
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    [client]
+    [client, wagmiConnector]
   );
 
   useEffect(() => {
