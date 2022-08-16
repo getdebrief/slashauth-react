@@ -54,6 +54,8 @@ import {
   GetTokenSilentlyResult,
   GetAppConfigOptions,
   GetAppConfigResponse,
+  ExchangeTokenOptions,
+  LoginWithSignedNonceResponse,
 } from './global';
 
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
@@ -71,6 +73,7 @@ import {
   getRoleMetadataAPICall,
   hasOrgRoleAPICall,
   getAppConfig,
+  exchangeToken,
 } from './api';
 import { ObjectMap } from './utils/object';
 
@@ -714,6 +717,28 @@ export default class SlashAuthClient {
     return nonceResult.nonce;
   }
 
+  public async exchangeToken(options: ExchangeTokenOptions) {
+    const queryParameters = {
+      address: options.address,
+      device_id: getDeviceID(),
+      client_id: this.options.clientID,
+    };
+
+    const accessToken = await this.getTokenSilently();
+    if (!accessToken) {
+      return null;
+    }
+
+    const exchangeTokenResult = await exchangeToken({
+      baseUrl: getDomain(this.domainUrl),
+      requirements: options.requirements,
+      accessToken,
+      ...queryParameters,
+    });
+
+    this.processToken(exchangeTokenResult);
+  }
+
   /**
    *
    * @returns
@@ -759,6 +784,8 @@ export default class SlashAuthClient {
       ...queryParameters,
     });
 
+    await this.processToken(authResult);
+
     // if (stateIn !== iframeResult.state) {
     //   throw new Error('Invalid state');
     // }
@@ -784,7 +811,9 @@ export default class SlashAuthClient {
     // );
 
     // const organizationId = options.organization || this.options.organization;
+  }
 
+  private async processToken(authResult: LoginWithSignedNonceResponse) {
     const decodedToken = await this._verifyIdToken(authResult.access_token);
 
     const cacheEntry = {

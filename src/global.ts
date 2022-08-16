@@ -10,9 +10,10 @@ export enum Network {
 }
 
 export class Account {
-  network: Network;
-  address: string;
-  updatedAt?: string;
+  sub: string;
+  client_id: string;
+  type: string;
+  wallet_type: string;
 }
 
 // eslint-disable-next-line @typescript-eslint/no-empty-interface
@@ -33,6 +34,11 @@ export interface BaseLoginOptions {
 
 export interface GetNonceToSignOptions extends BaseLoginOptions {
   address: string;
+}
+
+export interface ExchangeTokenOptions extends BaseLoginOptions {
+  address: string;
+  requirements: Record<string, string>;
 }
 
 export interface SlashAuthClientOptions extends BaseLoginOptions {
@@ -141,6 +147,17 @@ export interface GetNonceToSignEndpointOptions {
   device_id: string;
 }
 
+export interface ExchangeTokenEndpointOptions {
+  baseUrl: string;
+  address: string;
+  client_id: string;
+  device_id: string;
+  accessToken: string;
+  requirements: {
+    [key: string]: string;
+  };
+}
+
 export interface LoginWithSignedNonceOptions
   extends GetNonceToSignEndpointOptions {
   signature: string;
@@ -160,6 +177,9 @@ export interface GetAppConfigAPIResponse {
 }
 
 export interface GetAppConfigResponse {
+  clientID?: string;
+  name?: string;
+  description?: string;
   modalStyle: {
     backgroundColor?: string;
     borderRadius?: string;
@@ -389,3 +409,7 @@ export type GetRoleMetadataOptions = {
 export type GetRoleMetadataResponse = {
   metadata: ObjectMap;
 };
+
+export const TokenTypeAccessToken = 'access_token';
+export const TokenTypeInformationRequiredToken =
+  'access_token_requirements_needed';

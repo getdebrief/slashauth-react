@@ -3,8 +3,12 @@ import './style.css';
 import { WagmiConnector } from '../provider/wagmi-connectors';
 import { ConnectorButton } from './connector-button';
 import { isFamilySupported, addFontFamily } from '../fonts';
+import { LoginStep } from './core';
+import { SigningTransactionModalContents } from './signing-transaction';
+import { RequirementsNeededModalContents } from './requirements-needed';
+import { LoadingModalContents } from './loading';
 
-type ModalStyles = {
+export type ModalStyles = {
   defaultModalBodyStyles?: React.CSSProperties;
   backgroundColor?: string;
   borderRadius?: string;
@@ -17,9 +21,13 @@ type ModalStyles = {
 };
 
 type Props = {
+  hasFetchedAppConfig: boolean;
+  appName?: string;
+  loginStep?: LoginStep;
   styles: ModalStyles;
   wagmiConnector: WagmiConnector;
   viewOnly?: boolean;
+  requirements?: string[] | null;
 };
 
 export interface IModalContainerStyles {
@@ -57,10 +65,18 @@ const DARK_SLASHAUTH_ICON =
 const LIGHT_SLASHAUTH_ICON =
   'https://d1l2xccggl7xwv.cloudfront.net/icons/slashauth-light.png';
 
-export const UnstyledModal = ({ styles, wagmiConnector, viewOnly }: Props) => {
+export const UnstyledModal = ({
+  hasFetchedAppConfig,
+  appName,
+  loginStep,
+  styles,
+  wagmiConnector,
+  viewOnly,
+  requirements,
+}: Props) => {
   const modalContentsStyle: React.CSSProperties = {
     width: '336px',
-    maxHeight: '480px',
+    height: '446px',
     flexGrow: 1,
     display: 'flex',
     flexDirection: 'column',
@@ -107,6 +123,119 @@ export const UnstyledModal = ({ styles, wagmiConnector, viewOnly }: Props) => {
     return resp;
   }, [styles.alignItems]);
 
+  const walletLoginContents = useMemo(
+    () => (
+      <>
+        <div
+          className="slashauth-modal-scrollable"
+          style={{
+            overflowY: 'hidden',
+            width: '100%',
+            padding: '0 1rem',
+            marginTop: '2rem',
+          }}
+        >
+          <div
+            style={{
+              display: 'flex',
+              flexDirection: 'column',
+              overflowY: 'auto',
+            }}
+          >
+            <div>
+              <p
+                style={{
+                  fontSize: '14px',
+                  fontWeight: 700,
+                  textAlign: 'start',
+                }}
+              >
+                Connect your wallet:
+              </p>
+            </div>
+            {wagmiConnector.connectors
+              .filter((connector) => connector.ready)
+              .map((connector) => (
+                <ConnectorButton
+                  key={connector.id}
+                  backgroundColor={styles.buttonBackgroundColor || '#ffffff'}
+                  hoverColor={styles.hoverButtonBackgroundColor || '#f5f5f5'}
+                  connector={connector}
+                  onClick={() =>
+                    !viewOnly &&
+                    wagmiConnector
+                      .connectToConnector(connector)
+                      .catch((err) => console.error(err))
+                  }
+                />
+              ))}
+          </div>
+        </div>
+      </>
+    ),
+    [
+      styles.buttonBackgroundColor,
+      styles.hoverButtonBackgroundColor,
+      viewOnly,
+      wagmiConnector,
+    ]
+  );
+
+  const modalStepContents = useMemo(() => {
+    if (!hasFetchedAppConfig) {
+      return <LoadingModalContents textColor={styles.fontColor || '#000000'} />;
+    }
+
+    if (loginStep === LoginStep.CONNECT_WALLET) {
+      return walletLoginContents;
+    } else if (loginStep === LoginStep.SIGN_NONCE) {
+      return <SigningTransactionModalContents />;
+    } else if (loginStep === LoginStep.ADDITIONAL_INFO) {
+      if (requirements === null) {
+        return (
+          <LoadingModalContents textColor={styles.fontColor || '#000000'} />
+        );
+      }
+      return (
+        <RequirementsNeededModalContents
+          appName={appName || null}
+          requirements={requirements}
+          styles={{
+            buttonBackgroundColor: styles.buttonBackgroundColor || '#ffffff',
+            hoverButtonBackgroundColor:
+              styles.hoverButtonBackgroundColor || '#f5f5f5',
+          }}
+        />
+      );
+    } else if (loginStep === LoginStep.LOADING) {
+      return <LoadingModalContents textColor={styles.fontColor || '#000000'} />;
+    }
+    return walletLoginContents;
+  }, [
+    appName,
+    hasFetchedAppConfig,
+    loginStep,
+    requirements,
+    styles.buttonBackgroundColor,
+    styles.fontColor,
+    styles.hoverButtonBackgroundColor,
+    walletLoginContents,
+  ]);
+
+  const headerTextAlign = useMemo(() => {
+    switch (styles.alignItems) {
+      case 'flex-start':
+        return 'left';
+      case 'flex-end':
+        return 'right';
+      case 'center':
+      case undefined:
+      case null:
+      default:
+        return 'center';
+    }
+  }, [styles.alignItems]);
+
   if (!wagmiConnector) {
     return <div />;
   }
@@ -131,52 +260,16 @@ export const UnstyledModal = ({ styles, wagmiConnector, viewOnly }: Props) => {
               objectPosition: 'center',
             }}
           />
-          <div style={{ marginTop: '1rem' }}>
-            <h1 style={{ fontSize: '24px', fontWeight: 700 }}>Welcome!</h1>
-          </div>
-          <div style={{ marginBottom: '1rem' }}>
-            <p style={{ fontSize: '16px', fontWeight: 400 }}>
-              Login to continue
-            </p>
-          </div>
-          <div
-            className="slashauth-modal-scrollable"
-            style={{
-              overflowY: 'hidden',
-              width: '100%',
-            }}
-          >
-            <div
-              style={{
-                padding: '1rem',
-                display: 'flex',
-                flexDirection: 'column',
-                overflowY: 'auto',
-              }}
-            >
-              {wagmiConnector.connectors
-                .filter((connector) => connector.ready)
-                .map((connector) => (
-                  <ConnectorButton
-                    key={connector.id}
-                    backgroundColor={styles.buttonBackgroundColor || '#ffffff'}
-                    hoverColor={styles.hoverButtonBackgroundColor || '#f5f5f5'}
-                    connector={connector}
-                    onClick={() =>
-                      !viewOnly &&
-                      connector
-                        .connect({
-                          chainId: wagmiConnector.client.lastUsedChainId,
-                        })
-                        .then(() => {
-                          wagmiConnector.onConnectorConnect(connector);
-                        })
-                        .catch((err) => console.error(err))
-                    }
-                  />
-                ))}
+          {hasFetchedAppConfig && (
+            <div style={{ marginTop: '1rem', textAlign: headerTextAlign }}>
+              <div style={{ fontSize: '24px', fontWeight: 700 }}>Login to</div>
+              <div style={{ fontSize: '16px', fontWeight: 500 }}>
+                {' '}
+                {appName || 'Unnamed App'}
+              </div>
             </div>
-          </div>
+          )}
+          {modalStepContents}
         </div>
       </div>
       <div

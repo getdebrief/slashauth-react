@@ -2,9 +2,11 @@ import {
   ChainProviderFn,
   Client,
   configureChains,
+  connect,
   Connector,
   createClient,
   defaultChains,
+  disconnect,
   InjectedConnector,
 } from '@wagmi/core';
 import { alchemyProvider } from '@wagmi/core/providers/alchemy';
@@ -39,82 +41,34 @@ type DisconnectListener = () => void;
 
 export class WagmiConnector {
   connectors: Connector[];
-  client: WagmiClient;
+  private client: WagmiClient;
+
+  private config: Config;
 
   private accountChangeListeners: AccountChangeListener[] = [];
   private chainChangeListeners: ChainChangeListener[] = [];
   private connectListeners: ConnectListener[] = [];
   private disconnectListeners: DisconnectListener[] = [];
 
-  connectedConnector: Connector;
+  get connectedConnector(): Connector | null {
+    return this.client.connector;
+  }
 
-  constructor({ appName, alchemy, infura, publicConf }: Config) {
-    const providers: ChainProviderFn[] = [];
-    if (alchemy) {
-      providers.push(alchemyProvider(alchemy));
-    }
-    if (infura) {
-      providers.push(infuraProvider(infura));
-    }
-    if (!publicConf?.disable) {
-      providers.push(publicProvider());
-    }
+  get lastUsedChainId() {
+    return this.client.lastUsedChainId;
+  }
 
-    const { chains, provider, webSocketProvider } = configureChains(
-      defaultChains,
-      providers,
-      { pollingInterval: 30_000 }
-    );
+  private unsubscribeFns: (() => void)[] = [];
 
-    this.connectors = [
-      new MetaMaskConnector({ chains }),
-      new CoinbaseWalletConnector({
-        chains,
-        options: {
-          appName,
-        },
-      }),
-      new WalletConnectConnector({
-        chains,
-        options: {
-          qrcode: true,
-        },
-      }),
-      new InjectedConnector({
-        chains,
-        options: {
-          name: 'Injected',
-          shimDisconnect: true,
-        },
-      }),
-    ];
+  constructor(config: Config) {
+    this.config = config;
 
-    this.client = createClient({
-      autoConnect: true,
-      connectors: this.connectors,
-      provider,
-      webSocketProvider,
-    }) as WagmiClient;
+    this.createClient(true);
+    this.attachClientListeners();
   }
 
   public async clearState() {
-    await this.connectedConnector?.disconnect();
-    this.client.clearState();
-  }
-
-  public async autoConnect() {
-    try {
-      const resp = await this.client.autoConnect();
-      if (resp) {
-        const connector = this.client.connector;
-        this.onConnectorConnect(connector);
-        return connector;
-      }
-    } catch (err) {
-      console.error('error: ', err);
-      // Silently catch the error.
-    }
-    return null;
+    return disconnect();
   }
 
   public onConnect(listener: ConnectListener) {
@@ -155,9 +109,28 @@ export class WagmiConnector {
     );
   }
 
-  public onConnectorConnect = (connector: Connector) => {
-    this.connectedConnector = connector;
+  public async disconnect(): Promise<void> {
+    await disconnect();
+  }
 
+  public async autoConnect(): Promise<string | null> {
+    await this.client.autoConnect();
+    const account = await this.connectedConnector?.getAccount();
+    return account || null;
+  }
+
+  public async connectToConnector(connector: Connector) {
+    await connect({
+      chainId: this.client.lastUsedChainId,
+      connector,
+    });
+
+    if (this.client.status === 'connected') {
+      this.onConnectorConnect();
+    }
+  }
+
+  private onConnectorConnect = () => {
     this.connectedConnector.on('change', (state) => {
       if (state.account) {
         this.accountChangeListeners.forEach((l) => l(state.account));
@@ -176,13 +149,115 @@ export class WagmiConnector {
     this.connectedConnector.on('message', (message) => {
       // Connect this for messages
     });
-
     this.connectListeners.forEach((l) => l(this.connectedConnector));
   };
 
+  private createClient(autoConnect: boolean) {
+    const providers: ChainProviderFn[] = [];
+    const { alchemy, infura, publicConf, appName } = this.config;
+    if (alchemy) {
+      providers.push(alchemyProvider(alchemy));
+    }
+    if (infura) {
+      providers.push(infuraProvider(infura));
+    }
+    if (!publicConf?.disable) {
+      providers.push(publicProvider());
+    }
+
+    const { chains, provider, webSocketProvider } = configureChains(
+      defaultChains,
+      providers,
+      { pollingInterval: 30_000 }
+    );
+
+    this.connectors = [
+      new MetaMaskConnector({ chains }),
+      new CoinbaseWalletConnector({
+        chains,
+        options: {
+          appName,
+        },
+      }),
+      new WalletConnectConnector({
+        chains,
+        options: {
+          qrcode: true,
+        },
+      }),
+      new InjectedConnector({
+        chains,
+        options: {
+          name: 'Injected',
+          shimDisconnect: true,
+        },
+      }),
+    ];
+
+    this.client = createClient({
+      autoConnect,
+      connectors: this.connectors,
+      provider,
+      webSocketProvider,
+    }) as WagmiClient;
+  }
+
+  private attachClientListeners() {
+    const unsubscribe = this.client.subscribe(
+      ({ data, status }) => ({
+        address: data?.account,
+        status,
+      }),
+      (state, prevState) => {
+        if (
+          state.address !== prevState.address &&
+          state.status === 'connected'
+        ) {
+          this.onConnectorConnect();
+          this.connectListeners.forEach((l) => l(this.connectedConnector));
+        } else if (state.status !== prevState.status) {
+          if (state.status === 'connected') {
+            this.onConnectorConnect();
+            this.connectListeners.forEach((l) => l(this.connectedConnector));
+          } else if (state.status === 'disconnected') {
+            this.disconnectListeners.forEach((l) => l());
+            this.onConnectorDisconnect();
+          }
+        }
+      },
+      {
+        equalityFn: (a, b) => a.address === b.address && a.status === b.status,
+        fireImmediately: true,
+      }
+    );
+
+    const connectorListenUnsubscribe = this.client.subscribe(
+      ({ connector }) => ({
+        connector,
+      }),
+      (state, prevState) => {
+        if (
+          state.connector?.id !== prevState.connector?.id &&
+          // This fires twice sometimes.
+          this.connectedConnector?.id !== state.connector?.id
+        ) {
+          this.onConnectorConnect();
+          this.connectListeners.forEach((l) => l(this.connectedConnector));
+        }
+      },
+      {
+        equalityFn: (a, b) => a.connector?.id === b.connector?.id,
+        fireImmediately: true,
+      }
+    );
+
+    this.unsubscribeFns.push(unsubscribe);
+    this.unsubscribeFns.push(connectorListenUnsubscribe);
+  }
+
   public onConnectorDisconnect = () => {
-    this.connectedConnector.off('change');
-    this.connectedConnector.off('disconnect');
-    this.connectedConnector.off('message');
+    this.connectedConnector?.off('change');
+    this.connectedConnector?.off('disconnect');
+    this.connectedConnector?.off('message');
   };
 }

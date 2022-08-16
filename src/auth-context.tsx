@@ -16,9 +16,20 @@ import { ObjectMap } from './utils/object';
 export type SlashAuthStep = string;
 
 export const SlashAuthStepNone: SlashAuthStep = 'NONE';
+export const SlashAuthStepCancel: SlashAuthStep = 'CANCEL';
 export const SlashAuthStepInitialized: SlashAuthStep = 'INITIALIZED';
+export const SlashauthStepLoginFlowStarted: SlashAuthStep =
+  'LOGIN_FLOW_STARTED';
 export const SlashAuthStepFetchingNonce: SlashAuthStep = 'FETCHING_NONCE';
 export const SlashAuthStepNonceReceived: SlashAuthStep = 'NONCE_RECEIVED';
+export const SlashAuthStepLoggingInAwaitingAccount: SlashAuthStep =
+  'AWAITING_ACCOUNT';
+export const SlashAuthStepLoggingInInformationRequired: SlashAuthStep =
+  'INFORMATION_REQUIRED';
+export const SlashAuthStepLoggingInInformationSubmitted: SlashAuthStep =
+  'INFORMATION_SUBMITTED';
+export const SlashAuthStepLoggingInMoreInformationComplete: SlashAuthStep =
+  'INFORMATION_COMPLETE';
 export const SlashAuthStepLoggingIn: SlashAuthStep = 'LOGGING_IN';
 export const SlashAuthStepLoggedIn: SlashAuthStep = 'LOGGED_IN';
 
@@ -26,6 +37,7 @@ export interface SlashAuthContextInterface extends SlashAuthState {
   initialized: boolean;
   isTwoStep: boolean;
   isLoginReady: boolean;
+  authedWallet: string | null;
   connect: (transparent: boolean) => Promise<string | null>;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   ethereum: any;
@@ -86,6 +98,7 @@ const initialContextState: SlashAuthContextInterface = {
   isTwoStep: false,
   isLoginReady: false,
   connect: stub,
+  authedWallet: null,
   ethereum: null,
   hasRole: stub,
   hasOrgRole: stub,

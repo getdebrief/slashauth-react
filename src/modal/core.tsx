@@ -1,10 +1,28 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 import { LoginModal } from '.';
+import {
+  APP_CONFIG_UPDATED_EVENT,
+  eventEmitter,
+  LOGIN_STEP_CHANGED_EVENT,
+} from '../events';
 import { CONNECT_MODAL_ID, GetAppConfigResponse } from '../global';
 import { WagmiConnector } from '../provider/wagmi-connectors';
 
 const INITIAL_STATE = { show: false };
+
+type LoginState = {
+  step: LoginStep;
+  additionalInfoCallback?: (info: Record<string, unknown>) => void;
+  dismissCallback?: () => void;
+};
+
+export enum LoginStep {
+  CONNECT_WALLET,
+  SIGN_NONCE,
+  ADDITIONAL_INFO,
+  LOADING,
+}
 
 export class ModalCore {
   private show = false;
@@ -12,8 +30,13 @@ export class ModalCore {
   private wagmiConnector: WagmiConnector;
   private _appConfig: GetAppConfigResponse | null = null;
 
+  private loginState: LoginState = {
+    step: LoginStep.LOADING,
+  };
+
   constructor(w: WagmiConnector) {
     this.wagmiConnector = w;
+    setTimeout(() => this.renderModal(), 0);
   }
 
   get appConfig() {
@@ -21,9 +44,65 @@ export class ModalCore {
   }
   set appConfig(v: GetAppConfigResponse | null) {
     this._appConfig = v;
-    if (!this.isRendered) {
-      setTimeout(() => this.renderModal(), 0);
+    eventEmitter.emit(APP_CONFIG_UPDATED_EVENT, {
+      appConfig: this._appConfig,
+    });
+  }
+
+  public setLoadingState = () => {
+    this.loginState = {
+      ...this.loginState,
+      step: LoginStep.LOADING,
+    };
+    eventEmitter.emit(LOGIN_STEP_CHANGED_EVENT, {
+      loginStep: LoginStep.LOADING,
+    });
+  };
+
+  public setConnectWalletStep = () => {
+    this.loginState = {
+      ...this.loginState,
+      step: LoginStep.CONNECT_WALLET,
+    };
+    eventEmitter.emit(LOGIN_STEP_CHANGED_EVENT, {
+      loginStep: LoginStep.CONNECT_WALLET,
+    });
+  };
+
+  public setSignNonceStep = () => {
+    this.loginState = {
+      ...this.loginState,
+      step: LoginStep.SIGN_NONCE,
+    };
+    eventEmitter.emit(LOGIN_STEP_CHANGED_EVENT, {
+      loginStep: LoginStep.SIGN_NONCE,
+    });
+  };
+
+  public setAdditionalInfoStep = (
+    requirements: string[],
+    callbackFn: (info: Record<string, string>) => void
+  ) => {
+    this.loginState = {
+      ...this.loginState,
+      step: LoginStep.ADDITIONAL_INFO,
+      additionalInfoCallback: callbackFn,
+    };
+    eventEmitter.emit(LOGIN_STEP_CHANGED_EVENT, {
+      loginStep: LoginStep.ADDITIONAL_INFO,
+      requirements,
+    });
+  };
+
+  public async showModal(dismissFn: () => void): Promise<void> {
+    if (this.show) {
+      throw new Error('Modal is already showing');
     }
+    this.loginState = {
+      ...this.loginState,
+      dismissCallback: dismissFn,
+    };
+    await this._toggleModal();
   }
 
   public async toggleModal(): Promise<void> {
@@ -40,23 +119,26 @@ export class ModalCore {
   }
 
   private renderModal() {
-    let modalDiv = document.getElementById(CONNECT_MODAL_ID);
-    if (!modalDiv) {
-      modalDiv = document.createElement('div');
-      modalDiv.id = CONNECT_MODAL_ID;
-      document.body.appendChild(modalDiv);
-    }
+    if (typeof window !== 'undefined') {
+      let modalDiv = document.getElementById(CONNECT_MODAL_ID);
+      if (!modalDiv) {
+        modalDiv = document.createElement('div');
+        modalDiv.id = CONNECT_MODAL_ID;
+        document.body.appendChild(modalDiv);
+      }
 
-    this.isRendered = true;
-    ReactDOM.render(
-      <LoginModal
-        resetState={this.resetState}
-        onClose={this.onClose}
-        appConfig={this._appConfig}
-        wagmiConnector={this.wagmiConnector}
-      />,
-      document.getElementById(CONNECT_MODAL_ID)
-    );
+      this.isRendered = true;
+      ReactDOM.render(
+        <LoginModal
+          initialLoginStep={this.loginState.step}
+          resetState={this.resetState}
+          onClose={this.onClose}
+          appConfig={this._appConfig}
+          wagmiConnector={this.wagmiConnector}
+        />,
+        document.getElementById(CONNECT_MODAL_ID)
+      );
+    }
   }
 
   private _toggleModal = async () => {
@@ -84,6 +166,9 @@ export class ModalCore {
 
   private onClose = async () => {
     if (this.show) {
+      if (this.loginState.dismissCallback) {
+        this.loginState.dismissCallback();
+      }
       await this._toggleModal();
     }
   };

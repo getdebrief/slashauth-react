@@ -2,6 +2,7 @@ import { Account, LoginNoRedirectNoPopupOptions } from './global';
 import { SlashAuthStep, SlashAuthStepNone } from './auth-context';
 
 export type SlashAuthState = {
+  loginFlowID: number | null;
   step: SlashAuthStep;
   nonceToSign: string | null;
   error?: Error;
@@ -13,9 +14,13 @@ export type SlashAuthState = {
   loginRequested: boolean;
   loginOptions: LoginNoRedirectNoPopupOptions | null;
   loginType: 'LoginNoRedirectNoPopup' | null;
+  requirements: string[] | null;
+  additionalInfo: { email?: string; nickname?: string } | null;
+  initialized: boolean;
 };
 
 export const initialAuthState: SlashAuthState = {
+  loginFlowID: null,
   loginRequested: false,
   loginOptions: null,
   loginType: null,
@@ -25,6 +30,9 @@ export const initialAuthState: SlashAuthState = {
   isLoading: false,
   connectedWallet: null,
   isLoggingIn: false,
+  requirements: null,
+  additionalInfo: null,
+  initialized: false,
 };
 
 export const initialMetamaskContext = {

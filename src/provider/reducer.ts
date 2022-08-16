@@ -1,18 +1,30 @@
 import { Account, LoginNoRedirectNoPopupOptions } from '../global';
 import {
+  SlashAuthStepCancel,
   SlashAuthStepFetchingNonce,
   SlashAuthStepInitialized,
   SlashAuthStepLoggedIn,
   SlashAuthStepLoggingIn,
+  SlashAuthStepLoggingInAwaitingAccount,
+  SlashAuthStepLoggingInInformationRequired,
+  SlashAuthStepLoggingInInformationSubmitted,
+  SlashAuthStepLoggingInMoreInformationComplete,
+  SlashauthStepLoginFlowStarted,
   SlashAuthStepNonceReceived,
   SlashAuthStepNone,
 } from '../auth-context';
-import { SlashAuthState } from '../auth-state';
+import { initialAuthState, SlashAuthState } from '../auth-state';
+import {
+  eventEmitter,
+  LOGIN_COMPLETE_EVENT,
+  LOGIN_FAILURE_EVENT,
+} from '../events';
 
 type Action =
   | { type: 'CHECKING_SESSION' }
   | { type: 'LOGIN_FLOW_STARTED' }
   | { type: 'INITIALIZED'; account?: Account; isAuthenticated: boolean }
+  | { type: 'AWAITING_ACCOUNT' }
   | {
       type:
         | 'NONCE_REQUEST_STARTED'
@@ -28,9 +40,20 @@ type Action =
       type: 'LOGIN_REQUESTED';
       loginOptions: LoginNoRedirectNoPopupOptions | null;
       loginType: 'LoginNoRedirectNoPopup' | null;
+      loginIDFlow: number | null;
     }
   | { type: 'LOGOUT' }
-  | { type: 'ERROR'; error: Error };
+  | { type: 'ERROR'; error: Error }
+  | { type: 'CANCEL' }
+  | { type: 'RESET' }
+  | { type: 'MORE_INFORMATION_REQUIRED'; requirements: string[] }
+  | {
+      type: 'MORE_INFORMATION_SUBMITTED';
+      info: { email?: string; nickname?: string };
+    }
+  | {
+      type: 'MORE_INFORMATION_SUBMITTED_COMPLETE';
+    };
 
 /**
  * Handles how that state changes in the `/auth` hook.
@@ -39,6 +62,7 @@ export const reducer = (
   state: SlashAuthState,
   action: Action
 ): SlashAuthState => {
+  state.initialized = true;
   switch (action.type) {
     case 'CHECKING_SESSION':
       return {
@@ -46,7 +70,27 @@ export const reducer = (
         isLoading: true,
       };
     case 'LOGIN_FLOW_STARTED':
+      return {
+        ...state,
+        step: SlashauthStepLoginFlowStarted,
+        isLoading: true,
+        isLoggingIn: true,
+        requirements: null,
+        additionalInfo: null,
+      };
     case 'LOGIN_WITH_SIGNED_NONCE_STARTED':
+      return {
+        ...state,
+        step: SlashAuthStepLoggingIn,
+      };
+    case 'AWAITING_ACCOUNT':
+      if (state.step === SlashAuthStepLoggingInAwaitingAccount) {
+        return state;
+      }
+      return {
+        ...state,
+        step: SlashAuthStepLoggingInAwaitingAccount,
+      };
     case 'NONCE_REQUEST_STARTED':
       return {
         ...state,
@@ -75,6 +119,7 @@ export const reducer = (
         loginRequested: true,
         loginType: action.loginType,
         loginOptions: action.loginOptions,
+        loginFlowID: action.loginIDFlow,
       };
     case 'INITIALIZED':
       return {
@@ -88,6 +133,7 @@ export const reducer = (
         isLoggingIn: false,
       };
     case 'LOGIN_WITH_SIGNED_NONCE_COMPLETE':
+      eventEmitter.emit(LOGIN_COMPLETE_EVENT);
       return {
         ...state,
         isAuthenticated: true,
@@ -97,6 +143,7 @@ export const reducer = (
         nonceToSign: null,
         step: SlashAuthStepLoggedIn,
         isLoggingIn: false,
+        requirements: null,
       };
     case 'NONCE_RECEIVED':
       return {
@@ -111,20 +158,58 @@ export const reducer = (
         ...state,
         isAuthenticated: false,
         account: undefined,
-        step: SlashAuthStepInitialized,
+        step: SlashAuthStepNone,
         isLoggingIn: false,
         isLoading: false,
         nonceToSign: null,
+        requirements: null,
+        additionalInfo: null,
       };
+    case 'RESET':
+      return {
+        ...initialAuthState,
+        step: SlashAuthStepNone,
+        initialized: true,
+      };
+    case 'CANCEL':
     case 'ERROR':
+      eventEmitter.emit(LOGIN_FAILURE_EVENT, {
+        userCancel: action.type === 'CANCEL',
+      });
+      // eslint-disable-next-line no-case-declarations
+      let err: Error | null = null;
+      if (action.type === 'ERROR') {
+        err = action.error;
+      }
       return {
         ...state,
         loginRequested: false,
+        account: null,
         isLoading: false,
-        error: action.error,
+        error: err,
         nonceToSign: null,
-        step: SlashAuthStepNone,
+        step: SlashAuthStepCancel,
         isLoggingIn: false,
+        loginFlowID: null,
+        requirements: null,
+        additionalInfo: null,
+      };
+    case 'MORE_INFORMATION_REQUIRED':
+      return {
+        ...state,
+        step: SlashAuthStepLoggingInInformationRequired,
+        requirements: action.requirements,
+      };
+    case 'MORE_INFORMATION_SUBMITTED':
+      return {
+        ...state,
+        additionalInfo: action.info,
+        step: SlashAuthStepLoggingInInformationSubmitted,
+      };
+    case 'MORE_INFORMATION_SUBMITTED_COMPLETE':
+      return {
+        ...state,
+        step: SlashAuthStepLoggingInMoreInformationComplete,
       };
   }
 };
