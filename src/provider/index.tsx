@@ -175,11 +175,11 @@ const Provider = (opts: SlashAuthProviderOptions): JSX.Element => {
     appConfig,
     connectModal,
     walletAddress,
+    provider,
+    signer,
     wagmiConnector,
     setAppConfig,
   } = useModalCore(opts.providers);
-
-  const { account, signer, provider } = useWalletAuth();
 
   const getAppConfig = async () => {
     if (appConfig !== null) {
@@ -240,7 +240,7 @@ const Provider = (opts: SlashAuthProviderOptions): JSX.Element => {
       });
 
       const acc = await client.getAccount();
-      if (!acc || !account) {
+      if (!acc || !walletAddress) {
         wagmiConnector.clearState();
         connectModal.setConnectWalletStep();
       } else {
@@ -262,11 +262,11 @@ const Provider = (opts: SlashAuthProviderOptions): JSX.Element => {
         });
       });
     },
-    [account, client, connectModal, wagmiConnector]
+    [walletAddress, client, connectModal, wagmiConnector]
   );
 
   const getNonceToSign = useCallback(async () => {
-    if (!account) {
+    if (!walletAddress) {
       dispatch({
         type: 'ERROR',
         error: new Error('No account connected'),
@@ -277,7 +277,7 @@ const Provider = (opts: SlashAuthProviderOptions): JSX.Element => {
     try {
       const nonceResp = await client.getNonceToSign({
         ...opts,
-        address: account,
+        address: walletAddress,
       });
       dispatch({
         type: 'NONCE_RECEIVED',
@@ -297,7 +297,7 @@ const Provider = (opts: SlashAuthProviderOptions): JSX.Element => {
       });
       return null;
     }
-  }, [account, client, opts]);
+  }, [walletAddress, client, opts]);
 
   const continueLoginWithSignedNonce = useCallback(async () => {
     if (!state.nonceToSign) {
@@ -311,7 +311,7 @@ const Provider = (opts: SlashAuthProviderOptions): JSX.Element => {
       connectModal.setLoadingState();
       await client.loginNoRedirectNoPopup({
         ...(state.loginOptions || {}),
-        address: account,
+        address: walletAddress,
         signature,
       });
 
@@ -338,7 +338,7 @@ const Provider = (opts: SlashAuthProviderOptions): JSX.Element => {
       }
     }
   }, [
-    account,
+    walletAddress,
     client,
     connectModal,
     signer,
@@ -374,7 +374,7 @@ const Provider = (opts: SlashAuthProviderOptions): JSX.Element => {
     // TODO: Validate additional info
     try {
       await client.exchangeToken({
-        address: account,
+        address: walletAddress,
         requirements: state.additionalInfo,
       });
       dispatch({ type: 'MORE_INFORMATION_SUBMITTED_COMPLETE' });
@@ -385,7 +385,7 @@ const Provider = (opts: SlashAuthProviderOptions): JSX.Element => {
         error,
       });
     }
-  }, [account, client, state.additionalInfo]);
+  }, [walletAddress, client, state.additionalInfo]);
 
   const loginWithSignedNonce = useCallback(
     async (loginIDFlow: number) => {
@@ -433,7 +433,7 @@ const Provider = (opts: SlashAuthProviderOptions): JSX.Element => {
 
   const loginNoRedirectNoPopup = useCallback(
     async (options?: Record<string, unknown>) => {
-      if (account && state.step === SlashAuthStepNonceReceived) {
+      if (walletAddress && state.step === SlashAuthStepNonceReceived) {
         // The nonce has been received. We will continue
         // the flow.
         connectModal.setLoadingState();
@@ -469,7 +469,7 @@ const Provider = (opts: SlashAuthProviderOptions): JSX.Element => {
       });
     },
     [
-      account,
+      walletAddress,
       connectAccount,
       connectModal,
       continueLoginWithSignedNonce,
@@ -479,9 +479,9 @@ const Provider = (opts: SlashAuthProviderOptions): JSX.Element => {
   );
 
   useEffect(() => {
-    if (state.step === SlashAuthStepLoggingInAwaitingAccount && account) {
+    if (state.step === SlashAuthStepLoggingInAwaitingAccount && walletAddress) {
       dispatch({ type: 'LOGIN_FLOW_STARTED' });
-    } else if (state.step === SlashauthStepLoginFlowStarted && account) {
+    } else if (state.step === SlashauthStepLoginFlowStarted && walletAddress) {
       loginWithSignedNonce(state.loginFlowID);
     } else if (state.step === SlashAuthStepNonceReceived) {
       // We stop the login flow when the user is mobile.
@@ -499,7 +499,7 @@ const Provider = (opts: SlashAuthProviderOptions): JSX.Element => {
       dispatch({ type: 'RESET' });
     }
   }, [
-    account,
+    walletAddress,
     continueLoginWithSignedNonce,
     handleInformationSubmitted,
     informationRequiredLogin,
@@ -531,14 +531,6 @@ const Provider = (opts: SlashAuthProviderOptions): JSX.Element => {
       logout();
     }
   }, [logout, state.account?.sub, walletAddress]);
-
-  useEffect(() => {
-    client?.getAccount().then((acc) => {
-      if (acc && account && acc.sub.toLowerCase() !== account.toLowerCase()) {
-        logout();
-      }
-    });
-  }, [account, client, logout]);
 
   const hasRole = useCallback(
     async (roleName: string): Promise<boolean> => {
@@ -638,14 +630,14 @@ const Provider = (opts: SlashAuthProviderOptions): JSX.Element => {
   useEffect(() => {
     if (
       detectMobile() &&
-      account &&
+      walletAddress &&
       !state.nonceToSign &&
       (state.step === SlashAuthStepInitialized ||
         state.step === SlashAuthStepLoggingIn)
     ) {
       getNonceToSign();
     }
-  }, [account, getNonceToSign, state.nonceToSign, state.step]);
+  }, [walletAddress, getNonceToSign, state.nonceToSign, state.step]);
 
   const contextValue = useMemo(() => {
     activeContextValue = {

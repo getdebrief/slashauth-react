@@ -200,33 +200,6 @@ export class WagmiConnector {
       provider,
       webSocketProvider,
     }) as WagmiClient;
-
-    const unsubscribe = this.client.subscribe(
-      ({ data, status }) => ({
-        address: data?.account,
-        status,
-      }),
-      (state, prevState) => {
-        if (
-          state.address !== prevState.address &&
-          state.status === 'connected'
-        ) {
-          this.onConnectorConnect();
-        } else if (state.status !== prevState.status) {
-          if (state.status === 'connected') {
-            this.onConnectorConnect();
-            this.connectListeners.forEach((l) => l(this.connectedConnector));
-          } else if (prevState.status === 'connected') {
-            this.disconnectListeners.forEach((l) => l());
-            this.onConnectorDisconnect();
-          }
-        }
-      },
-      {
-        equalityFn: (a, b) => a.address === b.address && a.status === b.status,
-        fireImmediately: true,
-      }
-    );
   }
 
   private attachClientListeners() {
@@ -241,11 +214,12 @@ export class WagmiConnector {
           state.status === 'connected'
         ) {
           this.onConnectorConnect();
+          this.connectListeners.forEach((l) => l(this.connectedConnector));
         } else if (state.status !== prevState.status) {
           if (state.status === 'connected') {
             this.onConnectorConnect();
             this.connectListeners.forEach((l) => l(this.connectedConnector));
-          } else if (prevState.status === 'connected') {
+          } else if (state.status === 'disconnected') {
             this.disconnectListeners.forEach((l) => l());
             this.onConnectorDisconnect();
           }

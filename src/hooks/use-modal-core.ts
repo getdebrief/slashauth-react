@@ -1,4 +1,4 @@
-import { Connector } from '@wagmi/core';
+import { Connector, Provider, Signer } from '@wagmi/core';
 import { useCallback, useState } from 'react';
 import {
   ACCOUNT_CHANGE_EVENT,
@@ -12,13 +12,47 @@ import { ModalCore } from '../modal/core';
 import { ProviderOptions } from '../provider';
 import { WagmiConnector } from '../provider/wagmi-connectors';
 
+type InternalState = {
+  provider: Provider | null;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  signer: Signer | null;
+  walletAddress: string | null;
+  lastUpdate: number;
+};
+
 export const useModalCore = (options: ProviderOptions) => {
   const [connectModal, setConnectModal] = useState<ModalCore | null>(null);
   const [wagmiConnector, setWagmiConnector] = useState<WagmiConnector | null>(
     null
   );
   const [appConfig, setAppConfig] = useState<GetAppConfigResponse | null>(null);
-  const [walletAddress, setWalletAddress] = useState<string>(null);
+  const [internalState, setInternalState] = useState<InternalState>({
+    provider: null,
+    signer: null,
+    walletAddress: null,
+    lastUpdate: 0,
+  });
+
+  const updateInternalState = useCallback(
+    async (connector: Connector, updateTime: number) => {
+      const account = await connector.getAccount();
+      const signer = await connector.getSigner();
+      const provider = await connector.getProvider();
+      setInternalState((prev) => {
+        if (prev.lastUpdate < updateTime) {
+          return {
+            walletAddress: account,
+            signer,
+            provider,
+            lastUpdate: updateTime,
+          };
+        } else {
+          return prev;
+        }
+      });
+    },
+    []
+  );
 
   if (!wagmiConnector) {
     const extractedOptions = {
@@ -43,7 +77,11 @@ export const useModalCore = (options: ProviderOptions) => {
     });
 
     connector.onAccountChange((account: string | null) => {
-      setWalletAddress(account);
+      setInternalState((prev) => ({
+        ...prev,
+        walletAddress: account,
+        lastUpdate: Date.now(),
+      }));
       eventEmitter.emit(ACCOUNT_CHANGE_EVENT, {
         account,
       });
@@ -55,13 +93,16 @@ export const useModalCore = (options: ProviderOptions) => {
       })
     );
     connector.onDisconnect(() => {
-      setWalletAddress(null);
+      setInternalState({
+        provider: null,
+        signer: null,
+        walletAddress: null,
+        lastUpdate: Date.now(),
+      });
       eventEmitter.emit(DISCONNECT_EVENT);
     });
     connector.onConnect((connector: Connector) => {
-      connector.getAccount().then((address) => {
-        setWalletAddress(address);
-      });
+      updateInternalState(connector, Date.now());
 
       eventEmitter.emit(CONNECT_EVENT, {
         connector,
@@ -69,7 +110,6 @@ export const useModalCore = (options: ProviderOptions) => {
     });
 
     setWagmiConnector(connector);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }
 
   if (wagmiConnector && !connectModal) {
@@ -86,9 +126,9 @@ export const useModalCore = (options: ProviderOptions) => {
   }, [wagmiConnector]);
 
   return {
+    ...internalState,
     appConfig,
     connectModal,
-    walletAddress,
     wagmiConnector,
     handleDeactivate,
     setAppConfig,
