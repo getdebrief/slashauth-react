@@ -29,7 +29,6 @@ import {
 } from '../global';
 import { loginError } from '../utils';
 import { reducer } from './reducer';
-import { useWalletAuth } from './wallet-auth';
 import { CoinbaseWalletSDKOptions } from '@coinbase/wallet-sdk/dist/CoinbaseWalletSDK';
 import { IWalletConnectProviderOptions } from '@walletconnect/types';
 import { ObjectMap } from '../utils/object';
@@ -526,7 +525,7 @@ const Provider = (opts: SlashAuthProviderOptions): JSX.Element => {
     if (
       state.account?.sub &&
       walletAddress &&
-      state.account.sub !== walletAddress
+      state.account.sub.toLowerCase() !== walletAddress.toLowerCase()
     ) {
       logout();
     }
@@ -572,7 +571,7 @@ const Provider = (opts: SlashAuthProviderOptions): JSX.Element => {
       }
       return token;
     },
-    [client]
+    [client, walletAddress]
   );
 
   const checkSession = useCallback(

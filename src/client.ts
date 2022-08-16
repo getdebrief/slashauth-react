@@ -52,7 +52,6 @@ import {
   GetNonceToSignOptions,
   RefreshTokenOptions,
   GetTokenSilentlyResult,
-  GetAppConfigOptions,
   GetAppConfigResponse,
   ExchangeTokenOptions,
   LoginWithSignedNonceResponse,
