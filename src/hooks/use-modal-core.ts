@@ -2,6 +2,7 @@ import { Connector, Provider, Signer } from '@wagmi/core';
 import { useCallback, useState } from 'react';
 import {
   ACCOUNT_CHANGE_EVENT,
+  ACCOUNT_CONNECTED_EVENT,
   CHAIN_CHANGE_EVENT,
   CONNECT_EVENT,
   DISCONNECT_EVENT,
@@ -40,6 +41,9 @@ export const useModalCore = (options: ProviderOptions) => {
       const provider = await connector.getProvider();
       setInternalState((prev) => {
         if (prev.lastUpdate < updateTime) {
+          if (account && !prev.walletAddress) {
+            eventEmitter.emit(ACCOUNT_CONNECTED_EVENT, account);
+          }
           return {
             walletAddress: account,
             signer,
