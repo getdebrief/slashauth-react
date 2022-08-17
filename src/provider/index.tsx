@@ -244,6 +244,9 @@ const Provider = (opts: SlashAuthProviderOptions): JSX.Element => {
         connectModal.setConnectWalletStep();
       } else {
         // Return early if the account is already connected!
+        if (!keepModalOpen) {
+          setTimeout(() => connectModal.hideModal(), 0);
+        }
         return Promise.resolve(acc.sub);
       }
 
