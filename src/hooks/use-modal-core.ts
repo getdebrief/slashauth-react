@@ -81,11 +81,20 @@ export const useModalCore = (options: ProviderOptions) => {
     });
 
     connector.onAccountChange((account: string | null) => {
-      setInternalState((prev) => ({
-        ...prev,
-        walletAddress: account,
-        lastUpdate: Date.now(),
-      }));
+      setInternalState((prev) => {
+        if (prev.walletAddress !== account) {
+          if (!prev.walletAddress && account) {
+            eventEmitter.emit(ACCOUNT_CONNECTED_EVENT, account);
+          }
+          eventEmitter.emit(ACCOUNT_CHANGE_EVENT, account);
+          return {
+            ...prev,
+            walletAddress: account,
+            lastUpdate: Date.now(),
+          };
+        }
+        return prev;
+      });
       eventEmitter.emit(ACCOUNT_CHANGE_EVENT, {
         account,
       });
