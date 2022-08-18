@@ -154,7 +154,7 @@ const toSlashAuthClientOptions = (
   const { clientID, redirectUri, domain, ...validOpts } = opts;
   return {
     ...validOpts,
-    domain: domain || 'https://api.slashauth.xyz',
+    domain: domain || 'https://api.slashauth.com',
     clientID: clientID,
     slashAuthClient: {
       name: 'slashAuth-react',
