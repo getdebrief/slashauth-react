@@ -43,7 +43,7 @@ export interface ExchangeTokenOptions extends BaseLoginOptions {
 
 export interface SlashAuthClientOptions extends BaseLoginOptions {
   /*
-    The domain for logging in. Will likely be companyname.slashauth.xyz
+    The domain for logging in. Will likely be companyname.slashauth.com
   */
   domain: string;
 
