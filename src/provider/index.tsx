@@ -38,9 +38,14 @@ import {
   ACCOUNT_CONNECTED_EVENT,
   ADDITIONAL_INFO_SUBMIT_EVENT,
   eventEmitter,
+  IFRAME_LOGIN_WITH_SIGNED_NONCE_RESPONSE,
+  IFRAME_NONCE_RECEIVED,
   LOGIN_COMPLETE_EVENT,
   LOGIN_FAILURE_EVENT,
 } from '../events';
+import { useIframe } from '../hooks/use-login-iframe';
+import getDeviceID from '../device';
+import { createCodeVerifier } from '../utils/challenge';
 
 export type AppState = {
   returnTo?: string;
@@ -171,6 +176,14 @@ const Provider = (opts: SlashAuthProviderOptions): JSX.Element => {
   const [state, dispatch] = useReducer(reducer, initialAuthState);
 
   const {
+    initialized: iframeInitialized,
+    mountIframe,
+    unmountIframe,
+    sendGetNonceMessage,
+    sendLoginWithSignedNonceMessage,
+  } = useIframe();
+
+  const {
     appConfig,
     connectModal,
     walletAddress,
@@ -252,6 +265,10 @@ const Provider = (opts: SlashAuthProviderOptions): JSX.Element => {
 
       return new Promise<string>((resolve, reject) => {
         eventEmitter.once(ACCOUNT_CONNECTED_EVENT, ({ account }) => {
+          console.log('in the response and ', {
+            account,
+            keepModalOpen,
+          });
           if (!keepModalOpen) {
             setTimeout(() => connectModal.hideModal(), 0);
           }
@@ -309,27 +326,58 @@ const Provider = (opts: SlashAuthProviderOptions): JSX.Element => {
     connectModal.setSignNonceStep();
     dispatch({ type: 'LOGIN_WITH_SIGNED_NONCE_STARTED' });
     try {
+      // const signature = await signer.signMessage(state.nonceToSign);
+      // connectModal.setLoadingState();
+      // await client.loginNoRedirectNoPopup({
+      //   ...(state.loginOptions || {}),
+      //   address: walletAddress,
+      //   signature,
+      // });
+
+      // const clientAccount = await client.getAccount();
+      // if (
+      //   clientAccount &&
+      //   clientAccount['type'] === TokenTypeInformationRequiredToken
+      // ) {
+      //   // We need to get more information from the user.
+      //   dispatch({
+      //     type: 'MORE_INFORMATION_REQUIRED',
+      //     requirements: clientAccount['requirements'],
+      //   });
+      // } else {
+      //   dispatch({ type: 'LOGIN_WITH_SIGNED_NONCE_COMPLETE' });
+      // }
       const signature = await signer.signMessage(state.nonceToSign);
       connectModal.setLoadingState();
-      await client.loginNoRedirectNoPopup({
-        ...(state.loginOptions || {}),
-        address: walletAddress,
-        signature,
-      });
-
-      const clientAccount = await client.getAccount();
-      if (
-        clientAccount &&
-        clientAccount['type'] === TokenTypeInformationRequiredToken
-      ) {
-        // We need to get more information from the user.
-        dispatch({
-          type: 'MORE_INFORMATION_REQUIRED',
-          requirements: clientAccount['requirements'],
-        });
-      } else {
-        dispatch({ type: 'LOGIN_WITH_SIGNED_NONCE_COMPLETE' });
-      }
+      eventEmitter.once(
+        IFRAME_LOGIN_WITH_SIGNED_NONCE_RESPONSE,
+        ({
+          address,
+          error,
+          success,
+        }: {
+          address?: string;
+          success: boolean;
+          error?: Error;
+        }) => {
+          console.log('response: ', {
+            address,
+            error,
+            success,
+          });
+          // TODO: Verify that address === walletAddress
+          if (success) {
+            // This successfully fetched the nonce!
+            dispatch({ type: 'LOGIN_WITH_SIGNED_NONCE_COMPLETE' });
+          } else {
+            dispatch({
+              type: 'ERROR',
+              error: error || new Error('Login Failed'),
+            });
+          }
+        }
+      );
+      sendLoginWithSignedNonceMessage(walletAddress, getDeviceID(), signature);
     } catch (error) {
       if (error && error['code'] === 4001) {
         // This is a metamask error where the user cancelled signing
@@ -340,12 +388,11 @@ const Provider = (opts: SlashAuthProviderOptions): JSX.Element => {
       }
     }
   }, [
-    walletAddress,
-    client,
     connectModal,
+    sendLoginWithSignedNonceMessage,
     signer,
-    state.loginOptions,
     state.nonceToSign,
+    walletAddress,
   ]);
 
   const informationRequiredLogin = useCallback(async () => {
@@ -396,26 +443,60 @@ const Provider = (opts: SlashAuthProviderOptions): JSX.Element => {
       }
       connectModal.setLoadingState();
       try {
-        let fetchedNonce = state.nonceToSign;
-        if (!state.nonceToSign || state.nonceToSign.length === 0) {
-          fetchedNonce = await getNonceToSign();
-          if (!fetchedNonce) {
-            dispatch({
-              type: 'ERROR',
-              error: new Error('No nonce retrieved'),
-            });
-            return;
-          }
-          if (detectMobile()) {
-            connectModal.hideModal();
-            return;
-          }
-        } else {
-          dispatch({
-            type: 'NONCE_RECEIVED',
-            nonceToSign: fetchedNonce,
-          });
-        }
+        // let fetchedNonce = state.nonceToSign;
+        // if (!state.nonceToSign || state.nonceToSign.length === 0) {
+        //   fetchedNonce = await getNonceToSign();
+        //   if (!fetchedNonce) {
+        //     dispatch({
+        //       type: 'ERROR',
+        //       error: new Error('No nonce retrieved'),
+        //     });
+        //     return;
+        //   }
+        //   if (detectMobile()) {
+        //     connectModal.hideModal();
+        //     return;
+        //   }
+        // } else {
+        //   dispatch({
+        //     type: 'NONCE_RECEIVED',
+        //     nonceToSign: fetchedNonce,
+        //   });
+        // }
+        await new Promise((resolve, reject) => {
+          eventEmitter.once(
+            IFRAME_NONCE_RECEIVED,
+            ({
+              address,
+              nonce,
+              error,
+              success,
+            }: {
+              address?: string;
+              nonce?: string;
+              success: boolean;
+              error?: Error;
+            }) => {
+              // TODO: Verify that address === walletAddress
+              if (success) {
+                // This successfully fetched the nonce!
+                dispatch({
+                  type: 'NONCE_RECEIVED',
+                  nonceToSign: nonce,
+                });
+                if (detectMobile()) {
+                  connectModal.hideModal();
+                }
+              } else {
+                dispatch({
+                  type: 'ERROR',
+                  error: error || new Error('No Nonce retrieved'),
+                });
+              }
+            }
+          );
+          sendGetNonceMessage(walletAddress, getDeviceID());
+        });
       } catch (error) {
         let errorMessage = 'Unknown error';
         if (error instanceof Error) {
@@ -430,7 +511,7 @@ const Provider = (opts: SlashAuthProviderOptions): JSX.Element => {
         return;
       }
     },
-    [connectModal, getNonceToSign, state]
+    [connectModal, sendGetNonceMessage, state.loginFlowID, walletAddress]
   );
 
   const loginNoRedirectNoPopup = useCallback(
@@ -484,7 +565,17 @@ const Provider = (opts: SlashAuthProviderOptions): JSX.Element => {
     if (state.step === SlashAuthStepLoggingInAwaitingAccount && walletAddress) {
       dispatch({ type: 'LOGIN_FLOW_STARTED' });
     } else if (state.step === SlashauthStepLoginFlowStarted && walletAddress) {
-      loginWithSignedNonce(state.loginFlowID);
+      // Mount iframe
+      createCodeVerifier().then((verifier) => {
+        dispatch({
+          type: 'CODE_VERIFIER_CREATED',
+          codeVerifier: verifier,
+        });
+        mountIframe(
+          `http://localhost:8080/oidc/auth?client_id=${opts.clientID}&redirect_uri=http://localhost:3000&response_type=code&code_challenge=${verifier.challenge}&code_challenge_method=${verifier.method}&state=123&hiddenIframe=true&response_mode=web_message`
+        );
+        setTimeout(() => loginWithSignedNonce(state.loginFlowID), 2000);
+      });
     } else if (state.step === SlashAuthStepNonceReceived) {
       // We stop the login flow when the user is mobile.
       if (!detectMobile()) {
@@ -509,6 +600,9 @@ const Provider = (opts: SlashAuthProviderOptions): JSX.Element => {
     state.loginFlowID,
     state.step,
     wagmiConnector,
+    mountIframe,
+    opts.clientID,
+    sendGetNonceMessage,
   ]);
 
   const logout = useCallback(
@@ -574,7 +668,7 @@ const Provider = (opts: SlashAuthProviderOptions): JSX.Element => {
       }
       return token;
     },
-    [client, walletAddress]
+    [client]
   );
 
   const checkSession = useCallback(

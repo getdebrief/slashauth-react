@@ -8,25 +8,21 @@ import {
   DISCONNECT_EVENT,
   eventEmitter,
 } from '../events';
-import { GetAppConfigResponse } from '../global';
-import { ModalCore } from '../modal/core';
 import { ProviderOptions } from '../provider';
 import { WagmiConnector } from '../provider/wagmi-connectors';
 
 type InternalState = {
   provider: Provider | null;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   signer: Signer | null;
   walletAddress: string | null;
   lastUpdate: number;
 };
 
-export const useModalCore = (options: ProviderOptions) => {
-  const [connectModal, setConnectModal] = useState<ModalCore | null>(null);
+export const useWalletConnector = (options: ProviderOptions) => {
   const [wagmiConnector, setWagmiConnector] = useState<WagmiConnector | null>(
     null
   );
-  const [appConfig, setAppConfig] = useState<GetAppConfigResponse | null>(null);
+
   const [internalState, setInternalState] = useState<InternalState>({
     provider: null,
     signer: null,
@@ -42,7 +38,6 @@ export const useModalCore = (options: ProviderOptions) => {
       setInternalState((prev) => {
         if (prev.lastUpdate < updateTime) {
           if (account && !prev.walletAddress) {
-            console.log(account, prev);
             eventEmitter.emit(ACCOUNT_CONNECTED_EVENT, account);
           }
           return {
@@ -96,9 +91,6 @@ export const useModalCore = (options: ProviderOptions) => {
         }
         return prev;
       });
-      eventEmitter.emit(ACCOUNT_CHANGE_EVENT, {
-        account,
-      });
     });
     connector.onChainChange((chainId: number | string, unsupported: boolean) =>
       eventEmitter.emit(CHAIN_CHANGE_EVENT, {
@@ -126,25 +118,13 @@ export const useModalCore = (options: ProviderOptions) => {
     setWagmiConnector(connector);
   }
 
-  if (wagmiConnector && !connectModal) {
-    const modalCore = new ModalCore(wagmiConnector);
-    setConnectModal(modalCore);
-  }
-
-  if (connectModal && !connectModal.appConfig && appConfig) {
-    connectModal.appConfig = appConfig;
-  }
-
   const handleDeactivate = useCallback(() => {
     wagmiConnector?.disconnect();
   }, [wagmiConnector]);
 
   return {
     ...internalState,
-    appConfig,
-    connectModal,
     wagmiConnector,
     handleDeactivate,
-    setAppConfig,
   };
 };

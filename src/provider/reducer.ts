@@ -19,6 +19,7 @@ import {
   LOGIN_COMPLETE_EVENT,
   LOGIN_FAILURE_EVENT,
 } from '../events';
+import { CodeVerifier } from '../utils/challenge';
 
 type Action =
   | { type: 'CHECKING_SESSION' }
@@ -53,6 +54,10 @@ type Action =
     }
   | {
       type: 'MORE_INFORMATION_SUBMITTED_COMPLETE';
+    }
+  | {
+      type: 'CODE_VERIFIER_CREATED';
+      codeVerifier: CodeVerifier;
     };
 
 /**
@@ -77,6 +82,7 @@ export const reducer = (
         isLoggingIn: true,
         requirements: null,
         additionalInfo: null,
+        codeVerifier: null,
       };
     case 'LOGIN_WITH_SIGNED_NONCE_STARTED':
       return {
@@ -120,6 +126,7 @@ export const reducer = (
         loginType: action.loginType,
         loginOptions: action.loginOptions,
         loginFlowID: action.loginIDFlow,
+        codeVerifier: null,
       };
     case 'INITIALIZED':
       return {
@@ -131,6 +138,7 @@ export const reducer = (
         nonceToSign: null,
         step: SlashAuthStepInitialized,
         isLoggingIn: false,
+        codeVerifier: null,
       };
     case 'LOGIN_WITH_SIGNED_NONCE_COMPLETE':
       eventEmitter.emit(LOGIN_COMPLETE_EVENT);
@@ -144,6 +152,7 @@ export const reducer = (
         step: SlashAuthStepLoggedIn,
         isLoggingIn: false,
         requirements: null,
+        codeVerifier: null,
       };
     case 'NONCE_RECEIVED':
       return {
@@ -164,6 +173,7 @@ export const reducer = (
         nonceToSign: null,
         requirements: null,
         additionalInfo: null,
+        codeVerifier: null,
       };
     case 'RESET':
       return {
@@ -193,6 +203,7 @@ export const reducer = (
         loginFlowID: null,
         requirements: null,
         additionalInfo: null,
+        codeVerifier: null,
       };
     case 'MORE_INFORMATION_REQUIRED':
       return {
@@ -210,6 +221,11 @@ export const reducer = (
       return {
         ...state,
         step: SlashAuthStepLoggingInMoreInformationComplete,
+      };
+    case 'CODE_VERIFIER_CREATED':
+      return {
+        ...state,
+        codeVerifier: action.codeVerifier,
       };
   }
 };
