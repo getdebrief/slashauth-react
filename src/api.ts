@@ -15,6 +15,8 @@ import {
   LoginWithSignedNonceResponse,
   RefreshTokenOptions,
   RefreshTokenResponse,
+  TokenEndpointOptions,
+  TokenEndpointResponse,
 } from './global';
 import { getJSON, switchFetch } from './http';
 import { createQueryParams } from './utils';
@@ -219,3 +221,41 @@ export const getRoleMetadataAPICall = async ({
     }
   );
 };
+
+export async function oauthToken(
+  {
+    baseUrl,
+    timeout,
+    audience,
+    scope,
+    slashAuthClient,
+    useFormData,
+    ...options
+  }: TokenEndpointOptions,
+  worker?: Worker
+) {
+  const body = useFormData
+    ? createQueryParams(options)
+    : JSON.stringify(options);
+
+  return await getJSON<TokenEndpointResponse>(
+    `${baseUrl}/oauth/token`,
+    timeout,
+    audience || 'default',
+    scope,
+    {
+      method: 'POST',
+      body,
+      headers: {
+        'Content-Type': useFormData
+          ? 'application/x-www-form-urlencoded'
+          : 'application/json',
+        'X-SlashAuth-Client': Buffer.from(
+          JSON.stringify(slashAuthClient || DEFAULT_SLASHAUTH_CLIENT)
+        ).toString('base64'),
+      },
+    },
+    worker,
+    useFormData
+  );
+}

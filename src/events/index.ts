@@ -21,5 +21,8 @@ export const ADDITIONAL_INFO_SUBMIT_EVENT: SlashauthEvent =
 export const APP_CONFIG_UPDATED_EVENT: SlashauthEvent = 'APP_CONFIG_UPDATED';
 
 export const IFRAME_NONCE_RECEIVED: SlashauthEvent = 'IFRAME_NONCE_RECEIVED';
+export const IFRAME_AUTH_CODE_RECEIVED: SlashauthEvent = 'IFRAME_CODE_RECEIVED';
 export const IFRAME_LOGIN_WITH_SIGNED_NONCE_RESPONSE: SlashauthEvent =
   'IFRAME_LOGIN_WITH_SIGNED_NONCE_RESPONSE';
+
+export const SIGN_NONCE_EVENT: SlashauthEvent = 'SIGN_NONCE';

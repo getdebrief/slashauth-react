@@ -3,17 +3,18 @@ import {
   DEFAULT_AUTHORIZE_TIMEOUT_IN_SECONDS,
 } from '../constants';
 import { GenericError, TimeoutError } from '../errors';
-import { TokenEndpointResponse } from '../global';
+import { AuthenticationResult } from '../global';
 
 export { singlePromise, retryPromise } from './promise';
 export { hasAuthParams, loginError, tokenError } from './auth';
 
-export const runIframe = (
+export const runIframeWithType = async (
   authorizeUrl: string,
   eventOrigin: string,
-  timeoutInSeconds: number = DEFAULT_AUTHORIZE_TIMEOUT_IN_SECONDS
+  timeoutInSeconds: number,
+  expectedType: string
 ) => {
-  return new Promise<TokenEndpointResponse>((res, rej) => {
+  return new Promise<AuthenticationResult>((res, rej) => {
     const iframe = window.document.createElement('iframe');
 
     iframe.setAttribute('width', '0');
@@ -37,7 +38,7 @@ export const runIframe = (
 
     iframeEventHandler = function (e: MessageEvent) {
       if (e.origin !== eventOrigin) return;
-      if (!e.data || e.data.type !== 'authorization_response') return;
+      if (!e.data || e.data.type !== expectedType) return;
 
       const eventSource = e.source;
 
@@ -62,6 +63,19 @@ export const runIframe = (
     window.document.body.appendChild(iframe);
     iframe.setAttribute('src', authorizeUrl);
   });
+};
+
+export const runIframe = async (
+  authorizeUrl: string,
+  eventOrigin: string,
+  timeoutInSeconds: number = DEFAULT_AUTHORIZE_TIMEOUT_IN_SECONDS
+) => {
+  return runIframeWithType(
+    authorizeUrl,
+    eventOrigin,
+    timeoutInSeconds,
+    'authorization_response'
+  );
 };
 
 // export const runPopup = (config: PopupConfigOptions) => {
@@ -132,10 +146,10 @@ export const getCryptoSubtle = () => {
 // };
 
 export const encode = (value: string) => {
-  Buffer.from(value, 'utf-8').toString('base64');
+  return Buffer.from(value, 'utf-8').toString('base64');
 };
 export const decode = (value: string) => {
-  Buffer.from(value, 'base64').toString('utf-8');
+  return Buffer.from(value, 'base64').toString('utf-8');
 };
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any

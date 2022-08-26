@@ -1,5 +1,4 @@
 import vanillaStore from 'zustand/vanilla';
-import create from 'zustand';
 import { subscribeWithSelector } from 'zustand/middleware';
 import {
   SlashAuthStep,
@@ -11,7 +10,9 @@ import {
   SlashAuthStepLoggingInInformationRequired,
   SlashAuthStepLoggingInInformationSubmitted,
   SlashAuthStepLoggingInMoreInformationComplete,
-  SlashauthStepLoginFlowStarted,
+  SlashAuthStepLoginFlowStarted,
+  SlashAuthStepNonceReceived,
+  SlashAuthStepNonceSigned,
   SlashAuthStepNone,
 } from '../auth-context';
 import { Account, LoginNoRedirectNoPopupOptions } from '../global';
@@ -21,6 +22,10 @@ type WalletState = {
   address: string | null;
   nonceToSign: string | null;
   signature: string | null;
+};
+
+const stub = (): never => {
+  throw new Error('Not initialized');
 };
 
 export type LoginState = {
@@ -36,6 +41,7 @@ export type LoginState = {
   requirements: string[] | null;
   additionalInfo: { email?: string; nickname?: string } | null;
   initialized: boolean;
+  modalShowing: boolean;
 };
 
 const initialLoginState: LoginState = {
@@ -54,10 +60,74 @@ const initialLoginState: LoginState = {
   requirements: null,
   additionalInfo: null,
   initialized: false,
+  modalShowing: false,
 };
 
 type Store = {
   login: LoginState;
+
+  reset: () => void;
+  loading: (isLoading: boolean) => void;
+  modalShowing: (showing: boolean) => void;
+  initialized: ({
+    isAuthenticated,
+    account,
+    address,
+  }: {
+    isAuthenticated: boolean;
+    account: Account | null;
+    address: string | null;
+  }) => void;
+  setLoginStep: (loginStep: SlashAuthStep) => void;
+  loginComplete: ({
+    account,
+  }: {
+    isAuthenticated: boolean;
+    account: Account | null;
+    address: string | null;
+  }) => void;
+  error: ({ error }: { error?: Error }) => void;
+  setNonce: ({ nonce }: { nonce: string | null }) => void;
+  signedNonce: ({ signature }: { signature: string }) => void;
+  logout: () => void;
+
+  // startLoginFlow: () => void;
+  // awaitingAccount: () => void;
+  // startNonceRequest: () => void;
+  // loginRequestFulfilled: () => void;
+  // accountConnected: ({ address }: { address: string }) => void;
+  // loginRequested: ({
+  //   loginType,
+  //   loginOptions,
+  //   loginFlowID,
+  // }: {
+  //   loginType: 'WALLET';
+  //   loginOptions: LoginNoRedirectNoPopupOptions;
+  //   loginFlowID: string;
+  // }) => void;
+
+  // loginComplete: ({
+  //   account,
+  // }: {
+  //   isAuthenticated: boolean;
+  //   account: Account | null;
+  //   address: string | null;
+  // }) => void;
+  // setNonce: ({ nonce }: { nonce: string | null }) => void;
+  // logout: () => void;
+  // cancel: () => void;
+  // error: ({ error }: { error?: Error }) => void;
+  // moreInformationRequired: ({
+  //   requirements,
+  // }: {
+  //   requirements: string[];
+  // }) => void;
+  // moreInformationSubmitted: ({
+  //   info,
+  // }: {
+  //   info: { email?: string; nickname?: string };
+  // }) => void;
+  // moreInformationComplete: () => void;
 };
 
 const loginStore = vanillaStore(
@@ -71,14 +141,55 @@ const loginStore = vanillaStore(
         })
       ),
     // Actions
-    setLoading: (isLoading: boolean) =>
+    modalShowing: (showing: boolean) =>
+      set(produce((state: Store) => (state.login.modalShowing = showing))),
+    loading: (isLoading: boolean) =>
       set(produce((state: Store) => (state.login.isLoading = isLoading))),
+    initialized: ({
+      isAuthenticated,
+      account,
+      address,
+    }: {
+      isAuthenticated: boolean;
+      account: Account | null;
+      address: string | null;
+    }) =>
+      set(
+        produce((state: Store) => {
+          state.login = {
+            ...state.login,
+            initialized: true,
+            isAuthenticated,
+            account,
+            isLoading: false,
+            error: undefined,
+            walletLogin: {
+              address,
+              nonceToSign: null,
+              signature: null,
+            },
+            step: SlashAuthStepInitialized,
+          };
+        })
+      ),
+    setLoginStep: (loginStep: SlashAuthStep) =>
+      set(produce((state: Store) => (state.login.step = loginStep))),
+
+    signedNonce: ({ signature }: { signature: string }) => {
+      set(
+        produce((state: Store) => {
+          state.login.walletLogin.signature = signature;
+          state.login.step = SlashAuthStepNonceSigned;
+        })
+      );
+    },
+
     startLoginFlow: () =>
       set(
         produce((state: Store) => {
           state.login = {
             ...state.login,
-            step: SlashauthStepLoginFlowStarted,
+            step: SlashAuthStepLoginFlowStarted,
             requirements: null,
             additionalInfo: null,
           };
@@ -125,32 +236,7 @@ const loginStore = vanillaStore(
           state.login.loginFlowID = loginFlowID;
         })
       ),
-    initialized: ({
-      isAuthenticated,
-      account,
-      address,
-    }: {
-      isAuthenticated: boolean;
-      account: Account | null;
-      address: string | null;
-    }) =>
-      set(
-        produce((state: Store) => {
-          state.login = {
-            ...state.login,
-            isAuthenticated,
-            account,
-            isLoading: false,
-            error: undefined,
-            walletLogin: {
-              address,
-              nonceToSign: null,
-              signature: null,
-            },
-            step: SlashAuthStepInitialized,
-          };
-        })
-      ),
+
     loginComplete: ({
       account,
     }: {
@@ -174,6 +260,7 @@ const loginStore = vanillaStore(
     setNonce: ({ nonce }: { nonce: string | null }) =>
       set(
         produce((state: Store) => {
+          state.login.step = SlashAuthStepNonceReceived;
           state.login.walletLogin.nonceToSign = nonce;
         })
       ),
@@ -196,6 +283,22 @@ const loginStore = vanillaStore(
           };
         })
       ),
+    cancel: () => {
+      set(
+        produce((state: Store) => {
+          state.login = {
+            ...state.login,
+            account: null,
+            isLoading: false,
+            step: SlashAuthStepCancel,
+            loginFlowID: null,
+            requirements: null,
+            additionalInfo: null,
+          };
+          state.login.walletLogin.nonceToSign = null;
+        })
+      );
+    },
     error: ({ error }: { error?: Error }) =>
       set(
         produce((state: Store) => {
@@ -239,6 +342,4 @@ const loginStore = vanillaStore(
   }))
 );
 
-const useLoginStore = create(loginStore);
-
-export { loginStore, useLoginStore };
+export { loginStore };

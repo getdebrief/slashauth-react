@@ -5,6 +5,10 @@ import {
   validateCrypto,
   singlePromise,
   retryPromise,
+  encode,
+  bufferToBase64UrlEncoded,
+  sha256,
+  runIframe,
 } from './utils';
 
 import { getUniqueScopes } from './scope';
@@ -54,7 +58,7 @@ import {
   GetTokenSilentlyResult,
   GetAppConfigResponse,
   ExchangeTokenOptions,
-  LoginWithSignedNonceResponse,
+  TokenEndpointResponse,
 } from './global';
 
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
@@ -65,7 +69,6 @@ import { CacheKeyManifest } from './cache/key-manifest';
 import getDeviceID from './device';
 import {
   getNonceToSign,
-  loginWithSignedNonce,
   refreshToken,
   logout as apiLogout,
   hasRoleAPICall,
@@ -73,8 +76,10 @@ import {
   hasOrgRoleAPICall,
   getAppConfig,
   exchangeToken,
+  oauthToken,
 } from './api';
 import { ObjectMap } from './utils/object';
+import { createRandomString } from './utils/string';
 
 // type GetTokenSilentlyResult = TokenEndpointResponse & {
 //   decodedToken: ReturnType<typeof verifyIdToken>;
@@ -304,7 +309,7 @@ export default class SlashAuthClient {
   }
 
   private _authorizeUrl(authorizeOptions: AuthorizeOptions) {
-    return this._url(`/authorize?${createQueryParams(authorizeOptions)}`);
+    return this._url(`/oidc/auth?${createQueryParams(authorizeOptions)}`);
   }
 
   private async _verifyIdToken(
@@ -742,78 +747,77 @@ export default class SlashAuthClient {
    *
    * @returns
    */
-  public async loginNoRedirectNoPopup(options: LoginNoRedirectNoPopupOptions) {
-    const { ...authorizeOptions } = options;
-    // const stateIn = encode(createRandomString());
-    // const nonceIn = encode(createRandomString());
-    // const code_verifier = createRandomString();
-    // const code_challengeBuffer = await sha256(code_verifier);
-    // const code_challenge = bufferToBase64UrlEncoded(code_challengeBuffer);
+  public async walletLoginInPage(options: LoginNoRedirectNoPopupOptions) {
+    const stateIn = encode(createRandomString(64));
+    const nonceIn = encode(createRandomString(64));
+    const code_verifier = createRandomString(64);
+    const code_challengeBuffer = await sha256(code_verifier);
+    const code_challenge = bufferToBase64UrlEncoded(code_challengeBuffer);
 
-    // const params = this._getParams(
-    //   authorizeOptions,
-    //   stateIn,
-    //   nonceIn,
-    //   code_challenge,
-    //   this.options.redirect_uri || window.location.origin
-    // );
+    const params = {
+      client_id: options.clientID,
+      redirect_uri: 'http://localhost:3000',
+      response_type: 'code',
+      code_challenge: code_challenge,
+      code_challenge_method: 'S256',
+      state: stateIn,
+      nonce: nonceIn,
+      hiddenIframe: 'true',
+      response_mode: 'web_message',
+      scope: 'openid profile offline_access',
+      prompt: 'consent',
+      wallet_address: options.Address,
+      force: 'true',
+    };
 
-    // const url = this._authorizeUrl({
-    //   ...params,
-    //   response_mode: 'web_message',
-    // });
+    const url = this._authorizeUrl(params);
 
-    // TODO(ned): Make request to backend
-    const queryParameters = {
-      address: options.address,
-      signature: options.signature,
-      device_id: getDeviceID(),
+    const authResult = await runIframe(url, this.domainUrl);
+
+    if (authResult.state !== stateIn) {
+      throw new Error('Invalid state');
+    }
+
+    const tokenResult = await oauthToken({
+      audience: 'default',
+      scope: 'offline_access profile',
+      baseUrl: this.domainUrl,
+      clientID: this.options.clientID,
+      code_verifier,
+      code: authResult.code,
+      grant_type: 'authorization_code',
+      redirect_uri: params.redirect_uri,
+      useFormData: true,
+      timeout: this.httpTimeoutMs,
+    });
+
+    const decodedToken = await this._verifyIdToken(
+      tokenResult.id_token,
+      nonceIn
+    );
+
+    const cacheEntry = {
+      ...tokenResult,
+      decodedToken,
+      scope: params.scope,
+      audience: 'default',
       client_id: this.options.clientID,
     };
 
-    //const authorizeTimeout = options.timeoutInSeconds;
-    // const authResult = await runIframe(
-    //   requestURL,
-    //   this.domainUrl,
-    //   authorizeTimeout
-    // );
+    await this.cacheManager.set(cacheEntry);
 
-    const authResult = await loginWithSignedNonce({
-      baseUrl: getDomain(this.domainUrl),
-      ...queryParameters,
+    this.cookieStorage.save(this.isAuthenticatedCookieName, true, {
+      daysUntilExpire: this.sessionCheckExpiryDays,
+      cookieDomain: this.options.cookieDomain,
     });
 
-    await this.processToken(authResult);
-
-    // if (stateIn !== iframeResult.state) {
-    //   throw new Error('Invalid state');
-    // }
-
-    // if (stateIn !== codeResult.state) {
-    //   throw new Error('Invalid state');
-    // }
-
-    // const authResult = await oauthToken(
-    //   {
-    //     audience: params.audience,
-    //     scope: params.scope,
-    //     baseUrl: this.domainUrl,
-    //     client_id: this.options.client_id,
-    //     code_verifier,
-    //     code: codeResult.code,
-    //     grant_type: 'authorization_code',
-    //     redirect_uri: params.redirect_uri,
-    //     useFormData: this.options.useFormData,
-    //     timeout: this.httpTimeoutMs,
-    //   } as OAuthTokenOptions,
-    //   this.worker
-    // );
+    // this._processOrgIdHint(decodedToken.claims.org_id);
 
     // const organizationId = options.organization || this.options.organization;
   }
 
-  private async processToken(authResult: LoginWithSignedNonceResponse) {
-    const decodedToken = await this._verifyIdToken(authResult.access_token);
+  private async processToken(authResult: TokenEndpointResponse) {
+    const decodedToken = await this._verifyIdToken(authResult.id_token);
 
     const cacheEntry = {
       ...authResult,

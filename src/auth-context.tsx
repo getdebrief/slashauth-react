@@ -18,10 +18,20 @@ export type SlashAuthStep = string;
 export const SlashAuthStepNone: SlashAuthStep = 'NONE';
 export const SlashAuthStepCancel: SlashAuthStep = 'CANCEL';
 export const SlashAuthStepInitialized: SlashAuthStep = 'INITIALIZED';
-export const SlashauthStepLoginFlowStarted: SlashAuthStep =
+export const SlashAuthStepActivated: SlashAuthStep = 'ACTIVATED';
+export const SlashAuthStepLoginFlowStarted: SlashAuthStep =
   'LOGIN_FLOW_STARTED';
-export const SlashAuthStepFetchingNonce: SlashAuthStep = 'FETCHING_NONCE';
+export const SlashAuthStepConnectingWallet: SlashAuthStep = 'CONNECTING_WALLET';
+export const SlashAuthStepWalletConnected: SlashAuthStep = 'WALLET_CONNECTED';
 export const SlashAuthStepNonceReceived: SlashAuthStep = 'NONCE_RECEIVED';
+export const SlashAuthStepSignNonce: SlashAuthStep = 'SIGN_NONCE';
+export const SlashAuthStepNonceSigned: SlashAuthStep = 'NONCE_SIGNED';
+
+export const SlashAuthStepFetchingNonce: SlashAuthStep = 'FETCHING_NONCE';
+
+export const SlashAuthStepIframeLogin: SlashAuthStep = 'IFRAME_LOGIN';
+export const SlashAuthStepIframeLoginStarted: SlashAuthStep =
+  'IFRAME_LOGIN_STARTED';
 export const SlashAuthStepLoggingInAwaitingAccount: SlashAuthStep =
   'AWAITING_ACCOUNT';
 export const SlashAuthStepLoggingInInformationRequired: SlashAuthStep =

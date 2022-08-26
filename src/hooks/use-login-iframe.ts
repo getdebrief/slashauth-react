@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import {
   eventEmitter,
+  IFRAME_AUTH_CODE_RECEIVED,
   IFRAME_LOGIN_WITH_SIGNED_NONCE_RESPONSE,
   IFRAME_NONCE_RECEIVED,
 } from '../events';
@@ -56,8 +57,16 @@ export const useIframe = () => {
         break;
       case 'UNKNOWN':
         break;
+      case 'authorization_response':
+        // We have received the authorization code. Let's exchange it!
+        // fetch('http://localhost:8080/oidc/token', {
+        //   body: JSON.stringify(data.response),
+        // });
+        console.log('emitting event', data);
+        eventEmitter.emit(IFRAME_AUTH_CODE_RECEIVED, data.response);
+        break;
       default:
-        console.log('unknown message');
+        console.log('unknown message: ', data);
     }
   };
 
@@ -106,10 +115,10 @@ export const useIframe = () => {
     listenerSetup.current = true;
   }
 
-  const mountIframe = useCallback((url: string) => {
-    console.log('mount iframe');
+  const mountIframe = useCallback((url: string): boolean => {
+    console.log('mount iframe with URL: ', url);
     if (hasLoaded.current) {
-      return;
+      return false;
     }
     hasLoaded.current = true;
     const id = `slashauth-login_${createRandomString(8)}`;
@@ -133,6 +142,7 @@ export const useIframe = () => {
 
       document.body.appendChild(elem);
     }
+    return true;
   }, []);
 
   const unmountIframe = useCallback(() => {
@@ -149,6 +159,8 @@ export const useIframe = () => {
         document.body.removeChild(iframeElem);
       }
     }
+    hasLoaded.current = false;
+    iframeID.current = null;
     setIframeInitialized(false);
   }, []);
 

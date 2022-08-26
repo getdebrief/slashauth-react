@@ -211,7 +211,7 @@ export interface TokenEndpointOptions {
   grant_type: string;
   timeout?: number;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  slashAuthClient: any;
+  slashAuthClient?: any;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   [key: string]: any;
 }
@@ -248,6 +248,7 @@ export interface AuthorizeOptions extends BaseLoginOptions {
   scope: string;
   code_challenge: string;
   code_challenge_method: string;
+  wallet_address?: string;
 }
 
 export interface GetAccountOptions {
