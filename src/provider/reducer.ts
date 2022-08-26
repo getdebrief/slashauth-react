@@ -9,7 +9,7 @@ import {
   SlashAuthStepLoggingInInformationRequired,
   SlashAuthStepLoggingInInformationSubmitted,
   SlashAuthStepLoggingInMoreInformationComplete,
-  SlashauthStepLoginFlowStarted,
+  SlashAuthStepLoginFlowStarted,
   SlashAuthStepNonceReceived,
   SlashAuthStepNone,
 } from '../auth-context';
@@ -77,7 +77,7 @@ export const reducer = (
     case 'LOGIN_FLOW_STARTED':
       return {
         ...state,
-        step: SlashauthStepLoginFlowStarted,
+        step: SlashAuthStepLoginFlowStarted,
         isLoading: true,
         isLoggingIn: true,
         requirements: null,
