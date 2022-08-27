@@ -9,6 +9,7 @@ import {
   bufferToBase64UrlEncoded,
   sha256,
   runIframe,
+  runWalletLoginIframe,
 } from './utils';
 
 import { getUniqueScopes } from './scope';
@@ -259,7 +260,7 @@ export default class SlashAuthClient {
     this.domainUrl = getDomain(this.options.domain);
     this.tokenIssuer = getTokenIssuer(this.options.issuer, this.domainUrl);
 
-    this.defaultScope = ''; //getUniqueScopes('openid');
+    this.defaultScope = getUniqueScopes('openid profile offline_access');
 
     this.scope = ''; // getUniqueScopes(this.scope, 'offline_access');
 
@@ -369,7 +370,7 @@ export default class SlashAuthClient {
   ): Promise<TAccount | undefined> {
     // const audience = options.audience || this.options.audience || 'default';
     const audience = options.audience || 'default';
-    const scope = ''; //getUniqueScopes(this.defaultScope, this.scope, options.scope);
+    const scope = getUniqueScopes(this.defaultScope, this.scope, options.scope);
 
     const cache = await this.cacheManager.get(
       new CacheKey({
@@ -755,7 +756,7 @@ export default class SlashAuthClient {
     const code_challenge = bufferToBase64UrlEncoded(code_challengeBuffer);
 
     const params = {
-      client_id: options.clientID,
+      client_id: this.options.clientID,
       redirect_uri: 'http://localhost:3000',
       response_type: 'code',
       code_challenge: code_challenge,
@@ -766,13 +767,23 @@ export default class SlashAuthClient {
       response_mode: 'web_message',
       scope: 'openid profile offline_access',
       prompt: 'consent',
-      wallet_address: options.Address,
-      force: 'true',
+      wallet_address: options.address,
     };
 
     const url = this._authorizeUrl(params);
 
-    const authResult = await runIframe(url, this.domainUrl);
+    const authResult = await runWalletLoginIframe(
+      url,
+      this.domainUrl,
+      'login_initialized',
+      'login_with_signed_nonce',
+      'authorization_response',
+      {
+        address: options.address,
+        signature: options.signature,
+        deviceID: getDeviceID(),
+      }
+    );
 
     if (authResult.state !== stateIn) {
       throw new Error('Invalid state');
@@ -780,9 +791,9 @@ export default class SlashAuthClient {
 
     const tokenResult = await oauthToken({
       audience: 'default',
-      scope: 'offline_access profile',
+      scope: 'offline_access profile openid',
       baseUrl: this.domainUrl,
-      clientID: this.options.clientID,
+      client_id: this.options.clientID,
       code_verifier,
       code: authResult.code,
       grant_type: 'authorization_code',
@@ -790,12 +801,10 @@ export default class SlashAuthClient {
       useFormData: true,
       timeout: this.httpTimeoutMs,
     });
-
     const decodedToken = await this._verifyIdToken(
       tokenResult.id_token,
       nonceIn
     );
-
     const cacheEntry = {
       ...tokenResult,
       decodedToken,
@@ -932,7 +941,7 @@ export default class SlashAuthClient {
   ): Promise<GetTokenSilentlyResult> {
     const cache = await this.cacheManager.get(
       new CacheKey({
-        scope: '', //options.scope,
+        scope: this.defaultScope,
         audience: options.audience || 'default',
         client_id: this.options.clientID,
       })
@@ -948,14 +957,22 @@ export default class SlashAuthClient {
       throw new NotLoggedInError('Not logged in');
     }
 
-    const queryParameters = {
+    const params = {
       refresh_token: cache.refresh_token,
-      device_id: getDeviceID(),
+      client_id: this.options.clientID,
+      redirect_uri: 'http://localhost:3000',
     };
 
-    const tokenResult = await refreshToken({
-      baseUrl: getDomain(this.domainUrl),
-      ...queryParameters,
+    const tokenResult = await oauthToken({
+      audience: 'default',
+      grant_type: 'refresh_token',
+      scpoe: this.defaultScope,
+      baseUrl: this.domainUrl,
+      client_id: this.options.clientID,
+      redirect_uri: params.redirect_uri,
+      timeout: this.httpTimeoutMs,
+      slashAuthClient: DEFAULT_SLASHAUTH_CLIENT,
+      useFormData: true,
     });
 
     const decodedToken = await this._verifyIdToken(tokenResult.access_token);

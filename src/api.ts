@@ -239,7 +239,7 @@ export async function oauthToken(
     : JSON.stringify(options);
 
   return await getJSON<TokenEndpointResponse>(
-    `${baseUrl}/oauth/token`,
+    `${baseUrl}/oidc/token`,
     timeout,
     audience || 'default',
     scope,

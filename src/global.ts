@@ -207,7 +207,7 @@ export interface RefreshTokenResponse {
 
 export interface TokenEndpointOptions {
   baseUrl: string;
-  clientID: string;
+  client_id: string;
   grant_type: string;
   timeout?: number;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
