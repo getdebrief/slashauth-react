@@ -633,7 +633,7 @@ const Provider = (opts: SlashAuthProviderOptions): JSX.Element => {
     async (opts?: GetTokenSilentlyOptions): Promise<any> => {
       let token: string | null = null;
       try {
-        token = await client.getTokenSilently({ ...opts, ignoreCache: true });
+        token = await client.getTokenSilently(opts);
       } catch (error) {
         console.error('error: ', error);
         return null;
