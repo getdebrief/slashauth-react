@@ -999,7 +999,7 @@ export default class SlashAuthClient {
   }) {
     const entry = await this.cacheManager.get(
       new CacheKey({
-        scope: '', //scope,
+        scope: scope,
         audience,
         client_id,
       }),
