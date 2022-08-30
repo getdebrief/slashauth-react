@@ -70,7 +70,6 @@ import { CacheKeyManifest } from './cache/key-manifest';
 import getDeviceID from './device';
 import {
   getNonceToSign,
-  refreshToken,
   logout as apiLogout,
   hasRoleAPICall,
   getRoleMetadataAPICall,
@@ -260,7 +259,7 @@ export default class SlashAuthClient {
     this.domainUrl = getDomain(this.options.domain);
     this.tokenIssuer = getTokenIssuer(this.options.issuer, this.domainUrl);
 
-    this.defaultScope = getUniqueScopes('openid profile offline_access');
+    this.defaultScope = getUniqueScopes('openid offline_access wallet');
 
     this.scope = ''; // getUniqueScopes(this.scope, 'offline_access');
 
@@ -379,6 +378,8 @@ export default class SlashAuthClient {
         scope,
       })
     );
+
+    console.log('cache: ', cache);
 
     return cache && cache.decodedToken && (cache.decodedToken.user as TAccount);
   }
@@ -758,14 +759,14 @@ export default class SlashAuthClient {
     const params = {
       client_id: this.options.clientID,
       redirect_uri: 'http://localhost:3000',
-      response_type: 'code',
+      response_type: 'code id_token',
       code_challenge: code_challenge,
       code_challenge_method: 'S256',
       state: stateIn,
       nonce: nonceIn,
       hiddenIframe: 'true',
       response_mode: 'web_message',
-      scope: 'openid profile offline_access',
+      scope: this.defaultScope,
       prompt: 'consent',
       wallet_address: options.address,
     };
@@ -791,7 +792,7 @@ export default class SlashAuthClient {
 
     const tokenResult = await oauthToken({
       audience: 'default',
-      scope: 'offline_access profile openid',
+      scope: this.defaultScope,
       baseUrl: this.domainUrl,
       client_id: this.options.clientID,
       code_verifier,
@@ -980,7 +981,7 @@ export default class SlashAuthClient {
     return {
       ...tokenResult,
       decodedToken,
-      scope: '', //options.scope,
+      scope: this.defaultScope,
       audience: options.audience || 'default',
       client_id: this.options.clientID,
     };

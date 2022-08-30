@@ -603,7 +603,7 @@ const Provider = (opts: SlashAuthProviderOptions): JSX.Element => {
       walletAddress &&
       state.account.sub.toLowerCase() !== walletAddress.toLowerCase()
     ) {
-      logout();
+      //logout();
     }
   }, [logout, state.account?.sub, walletAddress]);
 
@@ -642,7 +642,7 @@ const Provider = (opts: SlashAuthProviderOptions): JSX.Element => {
         dispatch({
           type: 'INITIALIZED',
           account: account,
-          isAuthenticated: account && account['type'] === 'access_token',
+          isAuthenticated: !!account,
         });
       }
       return token;
@@ -667,7 +667,7 @@ const Provider = (opts: SlashAuthProviderOptions): JSX.Element => {
         dispatch({
           type: 'INITIALIZED',
           account,
-          isAuthenticated: account && account['type'] === 'access_token',
+          isAuthenticated: !!account,
         });
       }
       return isAuthenticated;
@@ -687,7 +687,7 @@ const Provider = (opts: SlashAuthProviderOptions): JSX.Element => {
         dispatch({
           type: 'INITIALIZED',
           account,
-          isAuthenticated: account && account['type'] === 'access_token',
+          isAuthenticated: !!account,
         });
         if (transparent) {
           return wagmiConnector.autoConnect();
