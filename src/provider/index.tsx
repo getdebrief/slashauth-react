@@ -152,6 +152,9 @@ const toSlashAuthClientOptions = (
   opts: SlashAuthProviderOptions
 ): SlashAuthClientOptions => {
   const { clientID, redirectUri, domain, ...validOpts } = opts;
+  if (!clientID || clientID === '') {
+    throw new Error('clientID is required');
+  }
   return {
     ...validOpts,
     domain: domain || 'https://slashauth.com',
