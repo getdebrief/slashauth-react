@@ -80,6 +80,7 @@ import {
 } from './api';
 import { ObjectMap } from './utils/object';
 import { createRandomString } from './utils/string';
+import { encodeCaseSensitiveClientID } from './utils/id';
 
 // type GetTokenSilentlyResult = TokenEndpointResponse & {
 //   decodedToken: ReturnType<typeof verifyIdToken>;
@@ -193,6 +194,28 @@ export default class SlashAuthClient {
   private worker: Worker;
 
   constructor(private options: SlashAuthClientOptions) {
+    if (!this.options.issuer) {
+      this.options.issuer = this.options.domain;
+      if (!this.options.issuer.endsWith('/')) {
+        this.options.issuer += '/';
+      }
+    }
+    if (/^https?:\/\//.test(this.options.domain)) {
+      const parsedURL = new URL(options.domain);
+      parsedURL.host = `${encodeCaseSensitiveClientID(options.clientID)}.${
+        parsedURL.host
+      }`;
+      this.options.domain = parsedURL.toString();
+    } else {
+      this.options.domain = `https://${encodeCaseSensitiveClientID(
+        options.clientID
+      )}.${this.options.domain}`;
+    }
+
+    if (this.options.domain.endsWith('/')) {
+      this.options.domain = this.options.domain.slice(0, -1);
+    }
+
     typeof window !== 'undefined' && validateCrypto();
 
     if (options.cache && options.cacheLocation) {

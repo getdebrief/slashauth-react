@@ -24,8 +24,9 @@ export const runWalletLoginIframe = async (
   return new Promise<AuthenticationResult>((res, rej) => {
     const iframe = window.document.createElement('iframe');
 
-    iframe.setAttribute('width', '200');
-    iframe.setAttribute('height', '200');
+    iframe.setAttribute('width', '0');
+    iframe.setAttribute('height', '0');
+    iframe.setAttribute('display', 'none');
 
     const removeIframe = () => {
       if (window.document.body.contains(iframe)) {
