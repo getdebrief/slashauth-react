@@ -779,7 +779,7 @@ export default class SlashAuthClient {
 
     const params = {
       client_id: this.options.clientID,
-      redirect_uri: 'http://localhost:3000',
+      redirect_uri: window.location.href,
       response_type: 'code id_token',
       code_challenge: code_challenge,
       code_challenge_method: 'S256',
@@ -982,7 +982,7 @@ export default class SlashAuthClient {
     const params = {
       refresh_token: cache.refresh_token,
       client_id: this.options.clientID,
-      redirect_uri: 'http://localhost:3000',
+      redirect_uri: window.location.href,
     };
 
     const tokenResult = await oauthToken({
