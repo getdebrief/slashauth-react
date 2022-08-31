@@ -172,14 +172,6 @@ const Provider = (opts: SlashAuthProviderOptions): JSX.Element => {
 
   const loggingIn = useRef(false);
 
-  // const {
-  //   initialized: iframeInitialized,
-  //   mountIframe,
-  //   unmountIframe,
-  //   sendGetNonceMessage,
-  //   sendLoginWithSignedNonceMessage,
-  // } = useIframe();
-
   const {
     appConfig,
     connectModal,
