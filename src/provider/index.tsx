@@ -463,11 +463,6 @@ const Provider = (opts: SlashAuthProviderOptions): JSX.Element => {
 
   const loginNoRedirectNoPopup = useCallback(
     async (options?: Record<string, unknown>) => {
-      console.log('in login no redirect', {
-        walletAddress,
-        step: state.step,
-        signer,
-      });
       if (
         walletAddress &&
         state.step === SlashAuthStepNonceReceived &&
