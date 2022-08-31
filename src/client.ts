@@ -402,8 +402,6 @@ export default class SlashAuthClient {
       })
     );
 
-    console.log('cache: ', cache);
-
     return cache && cache.decodedToken && (cache.decodedToken.user as TAccount);
   }
 

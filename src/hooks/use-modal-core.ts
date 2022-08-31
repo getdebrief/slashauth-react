@@ -42,7 +42,6 @@ export const useModalCore = (options: ProviderOptions) => {
       setInternalState((prev) => {
         if (prev.lastUpdate < updateTime) {
           if (account && !prev.walletAddress) {
-            console.log(account, prev);
             eventEmitter.emit(ACCOUNT_CONNECTED_EVENT, account);
           }
           return {

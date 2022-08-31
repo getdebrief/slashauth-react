@@ -38,14 +38,9 @@ import {
   ACCOUNT_CONNECTED_EVENT,
   ADDITIONAL_INFO_SUBMIT_EVENT,
   eventEmitter,
-  IFRAME_LOGIN_WITH_SIGNED_NONCE_RESPONSE,
-  IFRAME_NONCE_RECEIVED,
   LOGIN_COMPLETE_EVENT,
   LOGIN_FAILURE_EVENT,
 } from '../events';
-import { useIframe } from '../hooks/use-login-iframe';
-import getDeviceID from '../device';
-import { createCodeVerifier } from '../utils/challenge';
 
 export type AppState = {
   returnTo?: string;
@@ -267,10 +262,6 @@ const Provider = (opts: SlashAuthProviderOptions): JSX.Element => {
 
       return new Promise<string>((resolve, reject) => {
         eventEmitter.once(ACCOUNT_CONNECTED_EVENT, ({ account }) => {
-          console.log('in the response and ', {
-            account,
-            keepModalOpen,
-          });
           if (!keepModalOpen) {
             setTimeout(() => connectModal.hideModal(), 0);
           }
@@ -366,7 +357,6 @@ const Provider = (opts: SlashAuthProviderOptions): JSX.Element => {
         // This is a metamask error where the user cancelled signing
         dispatch({ type: 'CANCEL' });
       } else {
-        console.error(error);
         dispatch({ type: 'ERROR', error });
       }
     } finally {
@@ -407,7 +397,6 @@ const Provider = (opts: SlashAuthProviderOptions): JSX.Element => {
       });
       dispatch({ type: 'MORE_INFORMATION_SUBMITTED_COMPLETE' });
     } catch (error) {
-      console.error(error);
       dispatch({
         type: 'ERROR',
         error,
@@ -495,7 +484,11 @@ const Provider = (opts: SlashAuthProviderOptions): JSX.Element => {
 
   const loginNoRedirectNoPopup = useCallback(
     async (options?: Record<string, unknown>) => {
-      if (walletAddress && state.step === SlashAuthStepNonceReceived) {
+      if (
+        walletAddress &&
+        state.step === SlashAuthStepNonceReceived &&
+        signer
+      ) {
         // The nonce has been received. We will continue
         // the flow.
         connectModal.setLoadingState();
@@ -532,10 +525,11 @@ const Provider = (opts: SlashAuthProviderOptions): JSX.Element => {
     },
     [
       walletAddress,
-      connectAccount,
+      state.step,
+      signer,
       connectModal,
       continueLoginWithSignedNonce,
-      state,
+      connectAccount,
       wagmiConnector,
     ]
   );
@@ -599,13 +593,15 @@ const Provider = (opts: SlashAuthProviderOptions): JSX.Element => {
    */
   useEffect(() => {
     if (
-      state.account?.sub &&
+      state.account?.wallet &&
       walletAddress &&
-      state.account.sub.toLowerCase() !== walletAddress.toLowerCase()
+      state.account.wallet?.default &&
+      state.account.wallet?.default.toLowerCase().replace(/^eth:/, '') !==
+        walletAddress.toLowerCase()
     ) {
-      //logout();
+      logout();
     }
-  }, [logout, state.account?.sub, walletAddress]);
+  }, [logout, state.account?.wallet, walletAddress]);
 
   const hasRole = useCallback(
     async (roleName: string): Promise<boolean> => {
@@ -635,7 +631,6 @@ const Provider = (opts: SlashAuthProviderOptions): JSX.Element => {
       try {
         token = await client.getTokenSilently(opts);
       } catch (error) {
-        console.error('error: ', error);
         return null;
       } finally {
         const account = await client.getAccount();
@@ -660,7 +655,6 @@ const Provider = (opts: SlashAuthProviderOptions): JSX.Element => {
         });
         isAuthenticated = await client.checkSession(opts);
       } catch (error) {
-        console.error('error: ', error);
         isAuthenticated = false;
       } finally {
         const account = await client.getAccount();
@@ -682,21 +676,16 @@ const Provider = (opts: SlashAuthProviderOptions): JSX.Element => {
 
   const connect = useCallback(
     async (transparent?: boolean) => {
-      try {
-        const account = await client.getAccount();
-        dispatch({
-          type: 'INITIALIZED',
-          account,
-          isAuthenticated: !!account,
-        });
-        if (transparent) {
-          return wagmiConnector.autoConnect();
-        } else {
-          await connectAccount(false);
-        }
-      } catch (err) {
-        console.error(err);
-        throw err;
+      const account = await client.getAccount();
+      dispatch({
+        type: 'INITIALIZED',
+        account,
+        isAuthenticated: !!account,
+      });
+      if (transparent) {
+        return wagmiConnector.autoConnect();
+      } else {
+        await connectAccount(false);
       }
     },
     [client, connectAccount, wagmiConnector]

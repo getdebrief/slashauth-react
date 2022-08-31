@@ -39,7 +39,6 @@ export const useIframe = () => {
 
     switch (data.type) {
       case 'GET_NONCE_RESPONSE':
-        console.log('get nonce response');
         eventEmitter.emit(IFRAME_NONCE_RECEIVED, {
           address: data.address,
           nonce: data.nonce,
@@ -48,7 +47,6 @@ export const useIframe = () => {
         });
         break;
       case 'LOGIN_WITH_SIGNED_NONCE_RESPONSE':
-        console.log('login with signed nonce response');
         eventEmitter.emit(IFRAME_LOGIN_WITH_SIGNED_NONCE_RESPONSE, {
           success: data.success,
           address: data.address,
@@ -58,11 +56,6 @@ export const useIframe = () => {
       case 'UNKNOWN':
         break;
       case 'authorization_response':
-        // We have received the authorization code. Let's exchange it!
-        // fetch('http://localhost:8080/oidc/token', {
-        //   body: JSON.stringify(data.response),
-        // });
-        console.log('emitting event', data);
         eventEmitter.emit(IFRAME_AUTH_CODE_RECEIVED, data.response);
         break;
       default:
@@ -110,13 +103,11 @@ export const useIframe = () => {
   );
 
   if (hasLoaded.current && !listenerSetup.current) {
-    console.log('listening');
     window.addEventListener('message', handleMessage);
     listenerSetup.current = true;
   }
 
   const mountIframe = useCallback((url: string): boolean => {
-    console.log('mount iframe with URL: ', url);
     if (hasLoaded.current) {
       return false;
     }

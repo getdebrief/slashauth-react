@@ -14,6 +14,10 @@ export class Account {
   client_id: string;
   type: string;
   wallet_type: string;
+  wallet?: {
+    default?: string;
+    allWallets?: string[];
+  };
 }
 
 // eslint-disable-next-line @typescript-eslint/no-empty-interface
