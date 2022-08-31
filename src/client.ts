@@ -8,7 +8,6 @@ import {
   encode,
   bufferToBase64UrlEncoded,
   sha256,
-  runIframe,
   runWalletLoginIframe,
 } from './utils';
 
@@ -997,7 +996,7 @@ export default class SlashAuthClient {
       useFormData: true,
     });
 
-    const decodedToken = await this._verifyIdToken(tokenResult.access_token);
+    const decodedToken = await this._verifyIdToken(tokenResult.id_token);
 
     return {
       ...tokenResult,

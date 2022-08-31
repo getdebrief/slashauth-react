@@ -323,27 +323,6 @@ const Provider = (opts: SlashAuthProviderOptions): JSX.Element => {
     connectModal.setSignNonceStep();
     dispatch({ type: 'LOGIN_WITH_SIGNED_NONCE_STARTED' });
     try {
-      // const signature = await signer.signMessage(state.nonceToSign);
-      // connectModal.setLoadingState();
-      // await client.loginNoRedirectNoPopup({
-      //   ...(state.loginOptions || {}),
-      //   address: walletAddress,
-      //   signature,
-      // });
-
-      // const clientAccount = await client.getAccount();
-      // if (
-      //   clientAccount &&
-      //   clientAccount['type'] === TokenTypeInformationRequiredToken
-      // ) {
-      //   // We need to get more information from the user.
-      //   dispatch({
-      //     type: 'MORE_INFORMATION_REQUIRED',
-      //     requirements: clientAccount['requirements'],
-      //   });
-      // } else {
-      //   dispatch({ type: 'LOGIN_WITH_SIGNED_NONCE_COMPLETE' });
-      // }
       const signature = await signer.signMessage(state.nonceToSign);
       connectModal.setLoadingState();
 
@@ -484,6 +463,11 @@ const Provider = (opts: SlashAuthProviderOptions): JSX.Element => {
 
   const loginNoRedirectNoPopup = useCallback(
     async (options?: Record<string, unknown>) => {
+      console.log('in login no redirect', {
+        walletAddress,
+        step: state.step,
+        signer,
+      });
       if (
         walletAddress &&
         state.step === SlashAuthStepNonceReceived &&
@@ -552,7 +536,7 @@ const Provider = (opts: SlashAuthProviderOptions): JSX.Element => {
       getNonceToSign();
     } else if (state.step === SlashAuthStepNonceReceived) {
       // We stop the login flow when the user is mobile.
-      if (!detectMobile()) {
+      if (!detectMobile() && walletAddress) {
         continueLoginWithSignedNonce();
       }
     } else if (state.step === SlashAuthStepLoggingInInformationRequired) {
