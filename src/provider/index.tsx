@@ -217,14 +217,6 @@ const Provider = (opts: SlashAuthProviderOptions): JSX.Element => {
 
   const connectAccount = useCallback(
     async (keepModalOpen?: boolean) => {
-      // connectModal.setLoadingState();
-      // connectModal.showModal(() => {
-      //   dispatch({
-      //     type: 'CANCEL',
-      //   });
-      // });
-      // connectModal.setConnectWalletStep();
-
       const loginIDFlow = Date.now();
       // Make sure the cache is clear for the user
       await client.logout({

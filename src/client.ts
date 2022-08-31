@@ -985,12 +985,11 @@ export default class SlashAuthClient {
     };
 
     const tokenResult = await oauthToken({
+      ...params,
       audience: 'default',
       grant_type: 'refresh_token',
       scpoe: this.defaultScope,
       baseUrl: this.domainUrl,
-      client_id: this.options.clientID,
-      redirect_uri: params.redirect_uri,
       timeout: this.httpTimeoutMs,
       slashAuthClient: DEFAULT_SLASHAUTH_CLIENT,
       useFormData: true,
