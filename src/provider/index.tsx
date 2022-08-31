@@ -405,40 +405,6 @@ const Provider = (opts: SlashAuthProviderOptions): JSX.Element => {
             nonceToSign: fetchedNonce,
           });
         }
-        // await new Promise((resolve, reject) => {
-        //   eventEmitter.once(
-        //     IFRAME_NONCE_RECEIVED,
-        //     ({
-        //       address,
-        //       nonce,
-        //       error,
-        //       success,
-        //     }: {
-        //       address?: string;
-        //       nonce?: string;
-        //       success: boolean;
-        //       error?: Error;
-        //     }) => {
-        //       // TODO: Verify that address === walletAddress
-        //       if (success) {
-        //         // This successfully fetched the nonce!
-        //         dispatch({
-        //           type: 'NONCE_RECEIVED',
-        //           nonceToSign: nonce,
-        //         });
-        //         if (detectMobile()) {
-        //           connectModal.hideModal();
-        //         }
-        //       } else {
-        //         dispatch({
-        //           type: 'ERROR',
-        //           error: error || new Error('No Nonce retrieved'),
-        //         });
-        //       }
-        //     }
-        //   );
-        //   sendGetNonceMessage(walletAddress, getDeviceID());
-        // });
       } catch (error) {
         let errorMessage = 'Unknown error';
         if (error instanceof Error) {
@@ -512,17 +478,6 @@ const Provider = (opts: SlashAuthProviderOptions): JSX.Element => {
     if (state.step === SlashAuthStepLoggingInAwaitingAccount && walletAddress) {
       dispatch({ type: 'LOGIN_FLOW_STARTED' });
     } else if (state.step === SlashAuthStepLoginFlowStarted && walletAddress) {
-      // Mount iframe
-      // createCodeVerifier().then((verifier) => {
-      //   dispatch({
-      //     type: 'CODE_VERIFIER_CREATED',
-      //     codeVerifier: verifier,
-      //   });
-      //   mountIframe(
-      //     `http://localhost:8080/oidc/auth?client_id=${opts.clientID}&redirect_uri=http://localhost:3000&response_type=code&code_challenge=${verifier.challenge}&code_challenge_method=${verifier.method}&state=123&hiddenIframe=true&response_mode=web_message`
-      //   );
-      //   setTimeout(() => loginWithSignedNonce(state.loginFlowID), 2000);
-      // });
       getNonceToSign();
     } else if (state.step === SlashAuthStepNonceReceived) {
       // We stop the login flow when the user is mobile.

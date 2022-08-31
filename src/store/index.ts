@@ -90,44 +90,6 @@ type Store = {
   setNonce: ({ nonce }: { nonce: string | null }) => void;
   signedNonce: ({ signature }: { signature: string }) => void;
   logout: () => void;
-
-  // startLoginFlow: () => void;
-  // awaitingAccount: () => void;
-  // startNonceRequest: () => void;
-  // loginRequestFulfilled: () => void;
-  // accountConnected: ({ address }: { address: string }) => void;
-  // loginRequested: ({
-  //   loginType,
-  //   loginOptions,
-  //   loginFlowID,
-  // }: {
-  //   loginType: 'WALLET';
-  //   loginOptions: LoginNoRedirectNoPopupOptions;
-  //   loginFlowID: string;
-  // }) => void;
-
-  // loginComplete: ({
-  //   account,
-  // }: {
-  //   isAuthenticated: boolean;
-  //   account: Account | null;
-  //   address: string | null;
-  // }) => void;
-  // setNonce: ({ nonce }: { nonce: string | null }) => void;
-  // logout: () => void;
-  // cancel: () => void;
-  // error: ({ error }: { error?: Error }) => void;
-  // moreInformationRequired: ({
-  //   requirements,
-  // }: {
-  //   requirements: string[];
-  // }) => void;
-  // moreInformationSubmitted: ({
-  //   info,
-  // }: {
-  //   info: { email?: string; nickname?: string };
-  // }) => void;
-  // moreInformationComplete: () => void;
 };
 
 const loginStore = vanillaStore(
