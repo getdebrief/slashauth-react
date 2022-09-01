@@ -65,7 +65,6 @@ export const runLoginIframe = async (
 
       const eventSource = e.source;
 
-      console.log('sending event: ', payload);
       if (e.data.type === messageTypes.initialization) {
         // We want to send a message back to log the user in.
         eventSource.postMessage(
