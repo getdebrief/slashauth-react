@@ -793,18 +793,11 @@ export default class SlashAuthClient {
 
     const url = this._authorizeUrl(params);
 
-    const authResult = await runWalletLoginIframe(
-      url,
-      this.domainUrl,
-      'login_initialized',
-      'login_with_signed_nonce',
-      'authorization_response',
-      {
-        address: options.address,
-        signature: options.signature,
-        deviceID: getDeviceID(),
-      }
-    );
+    const authResult = await runWalletLoginIframe(url, this.domainUrl, {
+      address: options.address,
+      signature: options.signature,
+      device_id: getDeviceID(),
+    });
 
     if (authResult.state !== stateIn) {
       throw new Error('Invalid state');

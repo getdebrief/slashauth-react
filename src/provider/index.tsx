@@ -41,6 +41,7 @@ import {
   LOGIN_COMPLETE_EVENT,
   LOGIN_FAILURE_EVENT,
 } from '../events';
+import { GenericError } from '../errors';
 
 export type AppState = {
   returnTo?: string;
@@ -322,6 +323,19 @@ const Provider = (opts: SlashAuthProviderOptions): JSX.Element => {
       if (error && error['code'] === 4001) {
         // This is a metamask error where the user cancelled signing
         dispatch({ type: 'CANCEL' });
+      } else if (error && error instanceof GenericError) {
+        // We got an error from the server
+        switch (error.error) {
+          // TODO: We want to handle this and show something visual
+          case 'mismatched_signature':
+            dispatch({
+              type: 'ERROR',
+              error: new Error('Signature did not match'),
+            });
+            break;
+          default:
+            dispatch({ type: 'ERROR', error });
+        }
       } else {
         dispatch({ type: 'ERROR', error });
       }

@@ -8,17 +8,24 @@ import { AuthenticationResult } from '../global';
 export { singlePromise, retryPromise } from './promise';
 export { hasAuthParams, loginError, tokenError } from './auth';
 
-export const runWalletLoginIframe = async (
+type MessageTypes = {
+  initialization: string;
+  messageTypeToSend: string;
+  responseTypes: string[];
+};
+
+type WalletLoginPayload = {
+  address: string;
+  signature: string;
+  device_id: string;
+};
+
+export const runLoginIframe = async (
   authorizeUrl: string,
   eventOrigin: string,
-  initializeType: string,
-  messageTypeToSend: string,
-  responseType: string,
-  payload: {
-    address: string;
-    signature: string;
-    deviceID: string;
-  },
+  method: 'wallet',
+  messageTypes: MessageTypes,
+  payload: WalletLoginPayload,
   timeoutInSeconds: number = DEFAULT_AUTHORIZE_TIMEOUT_IN_SECONDS
 ): Promise<AuthenticationResult> => {
   return new Promise<AuthenticationResult>((res, rej) => {
@@ -47,18 +54,27 @@ export const runWalletLoginIframe = async (
       if (e.origin !== eventOrigin) {
         return;
       }
-      if (!e.data || ![initializeType, responseType].includes(e.data.type)) {
+      if (
+        !e.data ||
+        ![messageTypes.initialization, ...messageTypes.responseTypes].includes(
+          e.data.type
+        )
+      ) {
         return;
       }
 
       const eventSource = e.source;
 
-      if (e.data.type === initializeType) {
+      console.log('sending event: ', payload);
+      if (e.data.type === messageTypes.initialization) {
         // We want to send a message back to log the user in.
         eventSource.postMessage(
           {
-            type: messageTypeToSend,
-            payload,
+            type: messageTypes.messageTypeToSend,
+            payload: {
+              ...payload,
+              method,
+            },
           },
           {
             targetOrigin: e.origin,
@@ -72,9 +88,21 @@ export const runWalletLoginIframe = async (
         (eventSource as any).close();
       }
 
-      e.data.response.error
-        ? rej(GenericError.fromPayload(e.data.response))
-        : res(e.data.response);
+      if (
+        e.data.response.errorMsg ||
+        e.data.response.errorCode ||
+        e.data.response.success === false
+      ) {
+        console.log('e.data: ', e.data);
+        rej(
+          GenericError.fromPayload({
+            error: e.data.response.errorCode,
+            error_description: e.data.response.errorMsg,
+          })
+        );
+      } else {
+        res(e.data.response);
+      }
 
       clearTimeout(timeoutSetTimeoutId);
       window.removeEventListener('message', iframeEventHandler, false);
@@ -88,6 +116,26 @@ export const runWalletLoginIframe = async (
     window.document.body.appendChild(iframe);
     iframe.setAttribute('src', authorizeUrl);
   });
+};
+
+export const runWalletLoginIframe = async (
+  authorizeUrl: string,
+  eventOrigin: string,
+  payload: WalletLoginPayload,
+  timeoutInSeconds: number = DEFAULT_AUTHORIZE_TIMEOUT_IN_SECONDS
+) => {
+  return runLoginIframe(
+    authorizeUrl,
+    eventOrigin,
+    'wallet',
+    {
+      initialization: 'login_initialized',
+      messageTypeToSend: 'login',
+      responseTypes: ['login_response', 'authorization_response'],
+    },
+    payload,
+    timeoutInSeconds
+  );
 };
 
 export const runIframeWithType = async (

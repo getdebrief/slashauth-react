@@ -86,6 +86,7 @@ export class LoginController {
                   );
                 })
                 .catch((err) => {
+                  console.error(err);
                   state.actions.error({
                     error: loginError(err),
                   });
