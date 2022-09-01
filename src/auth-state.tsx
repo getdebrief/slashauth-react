@@ -1,5 +1,6 @@
 import { Account, LoginNoRedirectNoPopupOptions } from './global';
 import { SlashAuthStep, SlashAuthStepNone } from './auth-context';
+import { CodeVerifier } from './utils/challenge';
 
 export type SlashAuthState = {
   loginFlowID: number | null;
@@ -17,6 +18,7 @@ export type SlashAuthState = {
   requirements: string[] | null;
   additionalInfo: { email?: string; nickname?: string } | null;
   initialized: boolean;
+  codeVerifier: CodeVerifier | null;
 };
 
 export const initialAuthState: SlashAuthState = {
@@ -33,6 +35,7 @@ export const initialAuthState: SlashAuthState = {
   requirements: null,
   additionalInfo: null,
   initialized: false,
+  codeVerifier: null,
 };
 
 export const initialMetamaskContext = {

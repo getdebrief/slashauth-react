@@ -3,6 +3,7 @@ import React, {
   useEffect,
   useMemo,
   useReducer,
+  useRef,
   useState,
 } from 'react';
 import SlashAuthContext, {
@@ -14,7 +15,7 @@ import SlashAuthContext, {
   SlashAuthStepLoggingInInformationRequired,
   SlashAuthStepLoggingInInformationSubmitted,
   SlashAuthStepLoggingInMoreInformationComplete,
-  SlashauthStepLoginFlowStarted,
+  SlashAuthStepLoginFlowStarted,
   SlashAuthStepNonceReceived,
 } from '../auth-context';
 import { initialAuthState } from '../auth-state';
@@ -25,7 +26,6 @@ import {
   GetTokenSilentlyOptions,
   LogoutOptions,
   SlashAuthClientOptions,
-  TokenTypeInformationRequiredToken,
 } from '../global';
 import { loginError } from '../utils';
 import { reducer } from './reducer';
@@ -41,6 +41,7 @@ import {
   LOGIN_COMPLETE_EVENT,
   LOGIN_FAILURE_EVENT,
 } from '../events';
+import { GenericError } from '../errors';
 
 export type AppState = {
   returnTo?: string;
@@ -152,9 +153,12 @@ const toSlashAuthClientOptions = (
   opts: SlashAuthProviderOptions
 ): SlashAuthClientOptions => {
   const { clientID, redirectUri, domain, ...validOpts } = opts;
+  if (!clientID || clientID === '') {
+    throw new Error('clientID is required');
+  }
   return {
     ...validOpts,
-    domain: domain || 'https://api.slashauth.com',
+    domain: domain || 'https://slashauth.com',
     clientID: clientID,
     slashAuthClient: {
       name: 'slashAuth-react',
@@ -169,6 +173,8 @@ const Provider = (opts: SlashAuthProviderOptions): JSX.Element => {
     () => new SlashAuthClient(toSlashAuthClientOptions(clientOpts))
   );
   const [state, dispatch] = useReducer(reducer, initialAuthState);
+
+  const loggingIn = useRef(false);
 
   const {
     appConfig,
@@ -212,14 +218,6 @@ const Provider = (opts: SlashAuthProviderOptions): JSX.Element => {
 
   const connectAccount = useCallback(
     async (keepModalOpen?: boolean) => {
-      // connectModal.setLoadingState();
-      // connectModal.showModal(() => {
-      //   dispatch({
-      //     type: 'CANCEL',
-      //   });
-      // });
-      // connectModal.setConnectWalletStep();
-
       const loginIDFlow = Date.now();
       // Make sure the cache is clear for the user
       await client.logout({
@@ -306,47 +304,45 @@ const Provider = (opts: SlashAuthProviderOptions): JSX.Element => {
       dispatch({ type: 'ERROR', error: new Error('No nonce to sign') });
       return;
     }
+    if (loggingIn.current) {
+      return;
+    }
+    loggingIn.current = true;
     connectModal.setSignNonceStep();
     dispatch({ type: 'LOGIN_WITH_SIGNED_NONCE_STARTED' });
     try {
       const signature = await signer.signMessage(state.nonceToSign);
       connectModal.setLoadingState();
-      await client.loginNoRedirectNoPopup({
-        ...(state.loginOptions || {}),
-        address: walletAddress,
-        signature,
-      });
 
-      const clientAccount = await client.getAccount();
-      if (
-        clientAccount &&
-        clientAccount['type'] === TokenTypeInformationRequiredToken
-      ) {
-        // We need to get more information from the user.
-        dispatch({
-          type: 'MORE_INFORMATION_REQUIRED',
-          requirements: clientAccount['requirements'],
-        });
-      } else {
-        dispatch({ type: 'LOGIN_WITH_SIGNED_NONCE_COMPLETE' });
-      }
+      await client.walletLoginInPage({
+        signature,
+        address: walletAddress,
+      });
+      dispatch({ type: 'LOGIN_WITH_SIGNED_NONCE_COMPLETE' });
     } catch (error) {
       if (error && error['code'] === 4001) {
         // This is a metamask error where the user cancelled signing
         dispatch({ type: 'CANCEL' });
+      } else if (error && error instanceof GenericError) {
+        // We got an error from the server
+        switch (error.error) {
+          // TODO: We want to handle this and show something visual
+          case 'mismatched_signature':
+            dispatch({
+              type: 'ERROR',
+              error: new Error('Signature did not match'),
+            });
+            break;
+          default:
+            dispatch({ type: 'ERROR', error });
+        }
       } else {
-        console.error(error);
         dispatch({ type: 'ERROR', error });
       }
+    } finally {
+      loggingIn.current = false;
     }
-  }, [
-    walletAddress,
-    client,
-    connectModal,
-    signer,
-    state.loginOptions,
-    state.nonceToSign,
-  ]);
+  }, [client, connectModal, signer, state.nonceToSign, walletAddress]);
 
   const informationRequiredLogin = useCallback(async () => {
     if (!state.requirements) {
@@ -381,7 +377,6 @@ const Provider = (opts: SlashAuthProviderOptions): JSX.Element => {
       });
       dispatch({ type: 'MORE_INFORMATION_SUBMITTED_COMPLETE' });
     } catch (error) {
-      console.error(error);
       dispatch({
         type: 'ERROR',
         error,
@@ -430,12 +425,16 @@ const Provider = (opts: SlashAuthProviderOptions): JSX.Element => {
         return;
       }
     },
-    [connectModal, getNonceToSign, state]
+    [connectModal, getNonceToSign, state.loginFlowID, state.nonceToSign]
   );
 
   const loginNoRedirectNoPopup = useCallback(
     async (options?: Record<string, unknown>) => {
-      if (walletAddress && state.step === SlashAuthStepNonceReceived) {
+      if (
+        walletAddress &&
+        state.step === SlashAuthStepNonceReceived &&
+        signer
+      ) {
         // The nonce has been received. We will continue
         // the flow.
         connectModal.setLoadingState();
@@ -472,10 +471,11 @@ const Provider = (opts: SlashAuthProviderOptions): JSX.Element => {
     },
     [
       walletAddress,
-      connectAccount,
+      state.step,
+      signer,
       connectModal,
       continueLoginWithSignedNonce,
-      state,
+      connectAccount,
       wagmiConnector,
     ]
   );
@@ -483,11 +483,11 @@ const Provider = (opts: SlashAuthProviderOptions): JSX.Element => {
   useEffect(() => {
     if (state.step === SlashAuthStepLoggingInAwaitingAccount && walletAddress) {
       dispatch({ type: 'LOGIN_FLOW_STARTED' });
-    } else if (state.step === SlashauthStepLoginFlowStarted && walletAddress) {
-      loginWithSignedNonce(state.loginFlowID);
+    } else if (state.step === SlashAuthStepLoginFlowStarted && walletAddress) {
+      getNonceToSign();
     } else if (state.step === SlashAuthStepNonceReceived) {
       // We stop the login flow when the user is mobile.
-      if (!detectMobile()) {
+      if (!detectMobile() && walletAddress) {
         continueLoginWithSignedNonce();
       }
     } else if (state.step === SlashAuthStepLoggingInInformationRequired) {
@@ -509,6 +509,8 @@ const Provider = (opts: SlashAuthProviderOptions): JSX.Element => {
     state.loginFlowID,
     state.step,
     wagmiConnector,
+    opts.clientID,
+    getNonceToSign,
   ]);
 
   const logout = useCallback(
@@ -526,13 +528,15 @@ const Provider = (opts: SlashAuthProviderOptions): JSX.Element => {
    */
   useEffect(() => {
     if (
-      state.account?.sub &&
+      state.account?.wallet &&
       walletAddress &&
-      state.account.sub.toLowerCase() !== walletAddress.toLowerCase()
+      state.account.wallet?.default &&
+      state.account.wallet?.default.toLowerCase().replace(/^eth:/, '') !==
+        walletAddress.toLowerCase()
     ) {
       logout();
     }
-  }, [logout, state.account?.sub, walletAddress]);
+  }, [logout, state.account?.wallet, walletAddress]);
 
   const hasRole = useCallback(
     async (roleName: string): Promise<boolean> => {
@@ -562,19 +566,18 @@ const Provider = (opts: SlashAuthProviderOptions): JSX.Element => {
       try {
         token = await client.getTokenSilently(opts);
       } catch (error) {
-        console.error('error: ', error);
         return null;
       } finally {
         const account = await client.getAccount();
         dispatch({
           type: 'INITIALIZED',
           account: account,
-          isAuthenticated: account && account['type'] === 'access_token',
+          isAuthenticated: !!account,
         });
       }
       return token;
     },
-    [client, walletAddress]
+    [client]
   );
 
   const checkSession = useCallback(
@@ -587,14 +590,13 @@ const Provider = (opts: SlashAuthProviderOptions): JSX.Element => {
         });
         isAuthenticated = await client.checkSession(opts);
       } catch (error) {
-        console.error('error: ', error);
         isAuthenticated = false;
       } finally {
         const account = await client.getAccount();
         dispatch({
           type: 'INITIALIZED',
           account,
-          isAuthenticated: account && account['type'] === 'access_token',
+          isAuthenticated: !!account,
         });
       }
       return isAuthenticated;
@@ -609,21 +611,16 @@ const Provider = (opts: SlashAuthProviderOptions): JSX.Element => {
 
   const connect = useCallback(
     async (transparent?: boolean) => {
-      try {
-        const account = await client.getAccount();
-        dispatch({
-          type: 'INITIALIZED',
-          account,
-          isAuthenticated: account && account['type'] === 'access_token',
-        });
-        if (transparent) {
-          return wagmiConnector.autoConnect();
-        } else {
-          await connectAccount(false);
-        }
-      } catch (err) {
-        console.error(err);
-        throw err;
+      const account = await client.getAccount();
+      dispatch({
+        type: 'INITIALIZED',
+        account,
+        isAuthenticated: !!account,
+      });
+      if (transparent) {
+        return wagmiConnector.autoConnect();
+      } else {
+        await connectAccount(false);
       }
     },
     [client, connectAccount, wagmiConnector]

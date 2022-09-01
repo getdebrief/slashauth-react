@@ -1,6 +1,6 @@
 {
   "name": "@slashauth/slashauth-react",
-  "version": "0.7.4",
+  "version": "0.8.0",
   "homepage": "https://www.slashauth.xyz",
   "repository": {
     "type": "git",
@@ -94,6 +94,7 @@
     "ethers": "^5.6.9",
     "eventemitter3": "^4.0.7",
     "https-browserify": "^1.0.0",
+    "immer": "^9.0.15",
     "is-mobile": "^3.1.1",
     "os-browserify": "^0.3.0",
     "promise-polyfill": "8.2.3",
@@ -102,7 +103,8 @@
     "react-spinners": "^0.13.4",
     "stream-browserify": "^3.0.0",
     "stream-http": "^3.2.0",
-    "url": "^0.11.0"
+    "url": "^0.11.0",
+    "zustand": "^4.1.1"
   },
   "browser": {
     "crypto": "crypto-browserify",

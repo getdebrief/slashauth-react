@@ -5,6 +5,10 @@ import {
   validateCrypto,
   singlePromise,
   retryPromise,
+  encode,
+  bufferToBase64UrlEncoded,
+  sha256,
+  runWalletLoginIframe,
 } from './utils';
 
 import { getUniqueScopes } from './scope';
@@ -54,7 +58,7 @@ import {
   GetTokenSilentlyResult,
   GetAppConfigResponse,
   ExchangeTokenOptions,
-  LoginWithSignedNonceResponse,
+  TokenEndpointResponse,
 } from './global';
 
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
@@ -65,16 +69,17 @@ import { CacheKeyManifest } from './cache/key-manifest';
 import getDeviceID from './device';
 import {
   getNonceToSign,
-  loginWithSignedNonce,
-  refreshToken,
   logout as apiLogout,
   hasRoleAPICall,
   getRoleMetadataAPICall,
   hasOrgRoleAPICall,
   getAppConfig,
   exchangeToken,
+  oauthToken,
 } from './api';
 import { ObjectMap } from './utils/object';
+import { createRandomString } from './utils/string';
+import { encodeCaseSensitiveClientID } from './utils/id';
 
 // type GetTokenSilentlyResult = TokenEndpointResponse & {
 //   decodedToken: ReturnType<typeof verifyIdToken>;
@@ -188,6 +193,28 @@ export default class SlashAuthClient {
   private worker: Worker;
 
   constructor(private options: SlashAuthClientOptions) {
+    if (!this.options.issuer) {
+      this.options.issuer = this.options.domain;
+      if (!this.options.issuer.endsWith('/')) {
+        this.options.issuer += '/';
+      }
+    }
+    if (/^https?:\/\//.test(this.options.domain)) {
+      const parsedURL = new URL(options.domain);
+      parsedURL.host = `${encodeCaseSensitiveClientID(options.clientID)}.${
+        parsedURL.host
+      }`;
+      this.options.domain = parsedURL.toString();
+    } else {
+      this.options.domain = `https://${encodeCaseSensitiveClientID(
+        options.clientID
+      )}.${this.options.domain}`;
+    }
+
+    if (this.options.domain.endsWith('/')) {
+      this.options.domain = this.options.domain.slice(0, -1);
+    }
+
     typeof window !== 'undefined' && validateCrypto();
 
     if (options.cache && options.cacheLocation) {
@@ -254,7 +281,7 @@ export default class SlashAuthClient {
     this.domainUrl = getDomain(this.options.domain);
     this.tokenIssuer = getTokenIssuer(this.options.issuer, this.domainUrl);
 
-    this.defaultScope = ''; //getUniqueScopes('openid');
+    this.defaultScope = getUniqueScopes('openid offline_access wallet');
 
     this.scope = ''; // getUniqueScopes(this.scope, 'offline_access');
 
@@ -304,7 +331,7 @@ export default class SlashAuthClient {
   }
 
   private _authorizeUrl(authorizeOptions: AuthorizeOptions) {
-    return this._url(`/authorize?${createQueryParams(authorizeOptions)}`);
+    return this._url(`/oidc/auth?${createQueryParams(authorizeOptions)}`);
   }
 
   private async _verifyIdToken(
@@ -364,7 +391,7 @@ export default class SlashAuthClient {
   ): Promise<TAccount | undefined> {
     // const audience = options.audience || this.options.audience || 'default';
     const audience = options.audience || 'default';
-    const scope = ''; //getUniqueScopes(this.defaultScope, this.scope, options.scope);
+    const scope = getUniqueScopes(this.defaultScope, this.scope, options.scope);
 
     const cache = await this.cacheManager.get(
       new CacheKey({
@@ -742,78 +769,78 @@ export default class SlashAuthClient {
    *
    * @returns
    */
-  public async loginNoRedirectNoPopup(options: LoginNoRedirectNoPopupOptions) {
-    const { ...authorizeOptions } = options;
-    // const stateIn = encode(createRandomString());
-    // const nonceIn = encode(createRandomString());
-    // const code_verifier = createRandomString();
-    // const code_challengeBuffer = await sha256(code_verifier);
-    // const code_challenge = bufferToBase64UrlEncoded(code_challengeBuffer);
+  public async walletLoginInPage(options: LoginNoRedirectNoPopupOptions) {
+    const stateIn = encode(createRandomString(64));
+    const nonceIn = encode(createRandomString(64));
+    const code_verifier = createRandomString(64);
+    const code_challengeBuffer = await sha256(code_verifier);
+    const code_challenge = bufferToBase64UrlEncoded(code_challengeBuffer);
 
-    // const params = this._getParams(
-    //   authorizeOptions,
-    //   stateIn,
-    //   nonceIn,
-    //   code_challenge,
-    //   this.options.redirect_uri || window.location.origin
-    // );
+    const params = {
+      client_id: this.options.clientID,
+      redirect_uri: window.location.href,
+      response_type: 'code id_token',
+      code_challenge: code_challenge,
+      code_challenge_method: 'S256',
+      state: stateIn,
+      nonce: nonceIn,
+      hiddenIframe: 'true',
+      response_mode: 'web_message',
+      scope: this.defaultScope,
+      prompt: 'consent',
+      wallet_address: options.address,
+    };
 
-    // const url = this._authorizeUrl({
-    //   ...params,
-    //   response_mode: 'web_message',
-    // });
+    const url = this._authorizeUrl(params);
 
-    // TODO(ned): Make request to backend
-    const queryParameters = {
+    const authResult = await runWalletLoginIframe(url, this.domainUrl, {
       address: options.address,
       signature: options.signature,
       device_id: getDeviceID(),
+    });
+
+    if (authResult.state !== stateIn) {
+      throw new Error('Invalid state');
+    }
+
+    const tokenResult = await oauthToken({
+      audience: 'default',
+      scope: this.defaultScope,
+      baseUrl: this.domainUrl,
+      client_id: this.options.clientID,
+      code_verifier,
+      code: authResult.code,
+      grant_type: 'authorization_code',
+      redirect_uri: params.redirect_uri,
+      useFormData: true,
+      timeout: this.httpTimeoutMs,
+    });
+    const decodedToken = await this._verifyIdToken(
+      tokenResult.id_token,
+      nonceIn
+    );
+    const cacheEntry = {
+      ...tokenResult,
+      decodedToken,
+      scope: params.scope,
+      audience: 'default',
       client_id: this.options.clientID,
     };
 
-    //const authorizeTimeout = options.timeoutInSeconds;
-    // const authResult = await runIframe(
-    //   requestURL,
-    //   this.domainUrl,
-    //   authorizeTimeout
-    // );
+    await this.cacheManager.set(cacheEntry);
 
-    const authResult = await loginWithSignedNonce({
-      baseUrl: getDomain(this.domainUrl),
-      ...queryParameters,
+    this.cookieStorage.save(this.isAuthenticatedCookieName, true, {
+      daysUntilExpire: this.sessionCheckExpiryDays,
+      cookieDomain: this.options.cookieDomain,
     });
 
-    await this.processToken(authResult);
-
-    // if (stateIn !== iframeResult.state) {
-    //   throw new Error('Invalid state');
-    // }
-
-    // if (stateIn !== codeResult.state) {
-    //   throw new Error('Invalid state');
-    // }
-
-    // const authResult = await oauthToken(
-    //   {
-    //     audience: params.audience,
-    //     scope: params.scope,
-    //     baseUrl: this.domainUrl,
-    //     client_id: this.options.client_id,
-    //     code_verifier,
-    //     code: codeResult.code,
-    //     grant_type: 'authorization_code',
-    //     redirect_uri: params.redirect_uri,
-    //     useFormData: this.options.useFormData,
-    //     timeout: this.httpTimeoutMs,
-    //   } as OAuthTokenOptions,
-    //   this.worker
-    // );
+    // this._processOrgIdHint(decodedToken.claims.org_id);
 
     // const organizationId = options.organization || this.options.organization;
   }
 
-  private async processToken(authResult: LoginWithSignedNonceResponse) {
-    const decodedToken = await this._verifyIdToken(authResult.access_token);
+  private async processToken(authResult: TokenEndpointResponse) {
+    const decodedToken = await this._verifyIdToken(authResult.id_token);
 
     const cacheEntry = {
       ...authResult,
@@ -928,7 +955,7 @@ export default class SlashAuthClient {
   ): Promise<GetTokenSilentlyResult> {
     const cache = await this.cacheManager.get(
       new CacheKey({
-        scope: '', //options.scope,
+        scope: this.defaultScope,
         audience: options.audience || 'default',
         client_id: this.options.clientID,
       })
@@ -944,22 +971,29 @@ export default class SlashAuthClient {
       throw new NotLoggedInError('Not logged in');
     }
 
-    const queryParameters = {
+    const params = {
       refresh_token: cache.refresh_token,
-      device_id: getDeviceID(),
+      client_id: this.options.clientID,
+      redirect_uri: window.location.href,
     };
 
-    const tokenResult = await refreshToken({
-      baseUrl: getDomain(this.domainUrl),
-      ...queryParameters,
+    const tokenResult = await oauthToken({
+      ...params,
+      audience: 'default',
+      grant_type: 'refresh_token',
+      scpoe: this.defaultScope,
+      baseUrl: this.domainUrl,
+      timeout: this.httpTimeoutMs,
+      slashAuthClient: DEFAULT_SLASHAUTH_CLIENT,
+      useFormData: true,
     });
 
-    const decodedToken = await this._verifyIdToken(tokenResult.access_token);
+    const decodedToken = await this._verifyIdToken(tokenResult.id_token);
 
     return {
       ...tokenResult,
       decodedToken,
-      scope: '', //options.scope,
+      scope: this.defaultScope,
       audience: options.audience || 'default',
       client_id: this.options.clientID,
     };
@@ -978,7 +1012,7 @@ export default class SlashAuthClient {
   }) {
     const entry = await this.cacheManager.get(
       new CacheKey({
-        scope: '', //scope,
+        scope: scope,
         audience,
         client_id,
       }),

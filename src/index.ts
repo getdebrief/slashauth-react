@@ -27,6 +27,9 @@ export * from './global';
 export default async function createSlashAuthClient(
   options: SlashAuthClientOptions
 ) {
+  if (!options.clientID || options.clientID === '') {
+    throw new Error('clientID is required');
+  }
   const slashAuth = new SlashAuthClient(options);
   await slashAuth.checkSession();
   return slashAuth;

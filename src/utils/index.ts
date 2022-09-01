@@ -3,17 +3,148 @@ import {
   DEFAULT_AUTHORIZE_TIMEOUT_IN_SECONDS,
 } from '../constants';
 import { GenericError, TimeoutError } from '../errors';
-import { TokenEndpointResponse } from '../global';
+import { AuthenticationResult } from '../global';
 
 export { singlePromise, retryPromise } from './promise';
 export { hasAuthParams, loginError, tokenError } from './auth';
 
-export const runIframe = (
+type MessageTypes = {
+  initialization: string;
+  messageTypeToSend: string;
+  responseTypes: string[];
+};
+
+type WalletLoginPayload = {
+  address: string;
+  signature: string;
+  device_id: string;
+};
+
+export const runLoginIframe = async (
   authorizeUrl: string,
   eventOrigin: string,
+  method: 'wallet',
+  messageTypes: MessageTypes,
+  payload: WalletLoginPayload,
+  timeoutInSeconds: number = DEFAULT_AUTHORIZE_TIMEOUT_IN_SECONDS
+): Promise<AuthenticationResult> => {
+  return new Promise<AuthenticationResult>((res, rej) => {
+    const iframe = window.document.createElement('iframe');
+
+    iframe.setAttribute('width', '0');
+    iframe.setAttribute('height', '0');
+    iframe.setAttribute('display', 'none');
+
+    const removeIframe = () => {
+      if (window.document.body.contains(iframe)) {
+        window.document.body.removeChild(iframe);
+        window.removeEventListener('message', iframeEventHandler, false);
+      }
+    };
+
+    // eslint-disable-next-line prefer-const
+    let iframeEventHandler: (e: MessageEvent) => void;
+
+    const timeoutSetTimeoutId = setTimeout(() => {
+      rej(new TimeoutError());
+      removeIframe();
+    }, timeoutInSeconds * 1000);
+
+    iframeEventHandler = function (e: MessageEvent) {
+      if (e.origin !== eventOrigin) {
+        return;
+      }
+      if (
+        !e.data ||
+        ![messageTypes.initialization, ...messageTypes.responseTypes].includes(
+          e.data.type
+        )
+      ) {
+        return;
+      }
+
+      const eventSource = e.source;
+
+      console.log('sending event: ', payload);
+      if (e.data.type === messageTypes.initialization) {
+        // We want to send a message back to log the user in.
+        eventSource.postMessage(
+          {
+            type: messageTypes.messageTypeToSend,
+            payload: {
+              ...payload,
+              method,
+            },
+          },
+          {
+            targetOrigin: e.origin,
+          }
+        );
+        return;
+      }
+
+      if (eventSource) {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        (eventSource as any).close();
+      }
+
+      if (
+        e.data.response.errorMsg ||
+        e.data.response.errorCode ||
+        e.data.response.success === false
+      ) {
+        console.log('e.data: ', e.data);
+        rej(
+          GenericError.fromPayload({
+            error: e.data.response.errorCode,
+            error_description: e.data.response.errorMsg,
+          })
+        );
+      } else {
+        res(e.data.response);
+      }
+
+      clearTimeout(timeoutSetTimeoutId);
+      window.removeEventListener('message', iframeEventHandler, false);
+
+      // Delay the removal of the iframe to prevent hanging loading status
+      // in Chrome
+      setTimeout(removeIframe, CLEANUP_IFRAME_TIMEOUT_IN_SECONDS * 1000);
+    };
+
+    window.addEventListener('message', iframeEventHandler, false);
+    window.document.body.appendChild(iframe);
+    iframe.setAttribute('src', authorizeUrl);
+  });
+};
+
+export const runWalletLoginIframe = async (
+  authorizeUrl: string,
+  eventOrigin: string,
+  payload: WalletLoginPayload,
   timeoutInSeconds: number = DEFAULT_AUTHORIZE_TIMEOUT_IN_SECONDS
 ) => {
-  return new Promise<TokenEndpointResponse>((res, rej) => {
+  return runLoginIframe(
+    authorizeUrl,
+    eventOrigin,
+    'wallet',
+    {
+      initialization: 'login_initialized',
+      messageTypeToSend: 'login',
+      responseTypes: ['login_response', 'authorization_response'],
+    },
+    payload,
+    timeoutInSeconds
+  );
+};
+
+export const runIframeWithType = async (
+  authorizeUrl: string,
+  eventOrigin: string,
+  timeoutInSeconds: number,
+  expectedType: string
+): Promise<AuthenticationResult> => {
+  return new Promise<AuthenticationResult>((res, rej) => {
     const iframe = window.document.createElement('iframe');
 
     iframe.setAttribute('width', '0');
@@ -37,7 +168,7 @@ export const runIframe = (
 
     iframeEventHandler = function (e: MessageEvent) {
       if (e.origin !== eventOrigin) return;
-      if (!e.data || e.data.type !== 'authorization_response') return;
+      if (!e.data || e.data.type !== expectedType) return;
 
       const eventSource = e.source;
 
@@ -62,6 +193,19 @@ export const runIframe = (
     window.document.body.appendChild(iframe);
     iframe.setAttribute('src', authorizeUrl);
   });
+};
+
+export const runIframe = async (
+  authorizeUrl: string,
+  eventOrigin: string,
+  timeoutInSeconds: number = DEFAULT_AUTHORIZE_TIMEOUT_IN_SECONDS
+): Promise<AuthenticationResult> => {
+  return runIframeWithType(
+    authorizeUrl,
+    eventOrigin,
+    timeoutInSeconds,
+    'authorization_response'
+  );
 };
 
 // export const runPopup = (config: PopupConfigOptions) => {
@@ -132,10 +276,10 @@ export const getCryptoSubtle = () => {
 // };
 
 export const encode = (value: string) => {
-  Buffer.from(value, 'utf-8').toString('base64');
+  return Buffer.from(value, 'utf-8').toString('base64');
 };
 export const decode = (value: string) => {
-  Buffer.from(value, 'base64').toString('utf-8');
+  return Buffer.from(value, 'base64').toString('utf-8');
 };
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
