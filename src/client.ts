@@ -9,6 +9,7 @@ import {
   bufferToBase64UrlEncoded,
   sha256,
   runWalletLoginIframe,
+  runIframe,
 } from './utils';
 
 import { getUniqueScopes } from './scope';
@@ -898,7 +899,9 @@ export default class SlashAuthClient {
 
     const { ...logoutOptions } = options;
     logoutOptions.access_token = accessToken;
-    const url = this._url(`/logout?${createQueryParams(logoutOptions)}`);
+    const url = this._url(
+      `/oidc/session/end?${createQueryParams(logoutOptions)}`
+    );
 
     return url;
   }
@@ -933,7 +936,7 @@ export default class SlashAuthClient {
       if (accessToken) {
         const url = this.buildLogoutUrl(logoutOptions, accessToken);
 
-        await apiLogout(url);
+        await runIframe(url, this.domainUrl);
       } else {
         return Promise.resolve();
       }
