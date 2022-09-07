@@ -9,6 +9,7 @@ import {
   bufferToBase64UrlEncoded,
   sha256,
   runWalletLoginIframe,
+  runIframeWithType,
 } from './utils';
 
 import { getUniqueScopes } from './scope';
@@ -294,7 +295,9 @@ export default class SlashAuthClient {
         JSON.stringify(this.options.slashAuthClient || DEFAULT_SLASHAUTH_CLIENT)
       )
     );
-    return `${this.domainUrl}${path}&slashauthClient=${slashAuthClient}`;
+    const url = new URL(`${this.domainUrl}${path}`);
+    url.searchParams['slashAuthClient'] = slashAuthClient;
+    return url.toString();
   }
 
   private _getParams(
@@ -882,10 +885,7 @@ export default class SlashAuthClient {
    * Builds a URL to the logout endpoint using the parameters provided as arguments.
    * @param options
    */
-  public buildLogoutUrl(
-    options: LogoutUrlOptions = {},
-    accessToken: string
-  ): string {
+  public buildLogoutUrl(options: LogoutUrlOptions = {}): string {
     if (options.client_id !== null) {
       options.client_id = options.client_id || this.options.clientID;
     } else {
@@ -897,8 +897,12 @@ export default class SlashAuthClient {
     }
 
     const { ...logoutOptions } = options;
-    logoutOptions.access_token = accessToken;
-    const url = this._url(`/logout?${createQueryParams(logoutOptions)}`);
+    const url = this._url(
+      `/oidc/session/end?${createQueryParams({
+        ...logoutOptions,
+        logout: true,
+      })}`
+    );
 
     return url;
   }
@@ -923,20 +927,16 @@ export default class SlashAuthClient {
   public async logout(options: LogoutOptions = {}): Promise<void> {
     const { localOnly, ...logoutOptions } = options;
 
-    const postCacheClear = async (accessToken: string | null) => {
+    const postCacheClear = async (refreshToken: string | null) => {
       this.cookieStorage.remove(this.orgHintCookieName);
       this.cookieStorage.remove(this.isAuthenticatedCookieName);
 
       if (localOnly) {
         return Promise.resolve();
       }
-      if (accessToken) {
-        const url = this.buildLogoutUrl(logoutOptions, accessToken);
+      const url = this.buildLogoutUrl(logoutOptions);
 
-        await apiLogout(url);
-      } else {
-        return Promise.resolve();
-      }
+      await runIframeWithType(url, this.domainUrl, 5, 'logout_response');
     };
 
     if (this.options.cache) {

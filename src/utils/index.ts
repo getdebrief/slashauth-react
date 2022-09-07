@@ -92,7 +92,6 @@ export const runLoginIframe = async (
         e.data.response.errorCode ||
         e.data.response.success === false
       ) {
-        console.log('e.data: ', e.data);
         rej(
           GenericError.fromPayload({
             error: e.data.response.errorCode,
