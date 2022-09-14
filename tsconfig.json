@@ -24,6 +24,7 @@
   },
   "compileOnSave": true,
   "include": [
+    "srcv2",
     "src"
   ],
   "exclude": ["node_modules", "dist"],

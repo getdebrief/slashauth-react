@@ -15,12 +15,12 @@
   ],
   "scripts": {
     "prepublishOnly": "npm run build",
-    "build": "node esbuild.js && tsc --emitDeclarationOnly --outDir dist",
+    "build": "node esbuild.js && tsc --emitDeclarationOnly --outDir distv2",
     "test": "jest",
     "test:cover": "jest --coverage",
     "prepare": "node -e \"try { require('husky').install() } catch (e) {if (e.code !== 'MODULE_NOT_FOUND') throw e}\"",
     "lint": "npx eslint --ext .ts --ext .tsx --max-warnings 0 .",
-    "lint-fix": "npx eslint --ext .ts --ext .tsx --max-warnings 0 --fix ./src"
+    "lint-fix": "npx eslint --ext .ts --ext .tsx --max-warnings 0 --fix ./srcv2"
   },
   "author": "",
   "license": "MIT",
