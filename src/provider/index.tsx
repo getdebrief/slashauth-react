@@ -695,10 +695,11 @@ const Provider = (opts: SlashAuthProviderOptions): JSX.Element => {
  *
  */
 const SlashAuthProvider = (opts: SlashAuthProviderOptions): JSX.Element => {
-  if (!opts.providers) {
-    opts.providers = {};
+  const options = { ...opts };
+  if (!options.providers) {
+    options.providers = {};
   }
-  return <Provider {...opts} />;
+  return <Provider {...options} />;
 };
 
 export default SlashAuthProvider;
