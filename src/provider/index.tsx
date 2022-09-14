@@ -695,6 +695,9 @@ const Provider = (opts: SlashAuthProviderOptions): JSX.Element => {
  *
  */
 const SlashAuthProvider = (opts: SlashAuthProviderOptions): JSX.Element => {
+  if (!opts.providers) {
+    opts.providers = {};
+  }
   return <Provider {...opts} />;
 };
 
