@@ -9,7 +9,7 @@ export enum Network {
   Ethereum,
 }
 
-export class Account {
+export interface Account {
   sub: string;
   client_id: string;
   type: string;
