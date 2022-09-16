@@ -4,6 +4,7 @@ import {
   LogoutOptions,
   SlashAuthClientOptions,
 } from '../shared/global';
+import { SlashAuthModalStyle } from '../shared/types';
 import { SignInOptions } from '../types/slashauth';
 import SlashAuthClient from './client';
 
@@ -11,16 +12,7 @@ interface AppModalConfig {
   clientID?: string;
   name?: string;
   description?: string;
-  modalStyle: {
-    backgroundColor?: string;
-    borderRadius?: string;
-    alignItems?: string;
-    fontFamily?: string;
-    fontColor?: string;
-    buttonBackgroundColor?: string;
-    hoverButtonBackgroundColor?: string;
-    iconURL?: string;
-  };
+  modalStyle: SlashAuthModalStyle;
 }
 
 interface LoggedInState {
