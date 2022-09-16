@@ -7,7 +7,6 @@ import { IModalContainerStyles, ModalStyles } from '../../types/modal';
 type Props = {
   modalStyles: ModalStyles;
   children: React.ReactNode;
-  onClickOutside: () => void;
 };
 
 export const DEFAULT_MODAL_CONTAINER_STYLES: IModalContainerStyles = {
@@ -27,7 +26,7 @@ export const DEFAULT_MODAL_CONTAINER_STYLES: IModalContainerStyles = {
 };
 
 export const ModalContent = React.forwardRef<HTMLDivElement, Props>(
-  ({ modalStyles, children, onClickOutside }: Props, ref) => {
+  ({ modalStyles, children }: Props, ref) => {
     const wrapperStyles = React.useMemo(() => {
       const resp: React.CSSProperties = {
         ...(modalStyles.defaultModalBodyStyles ||

@@ -1,9 +1,11 @@
 import React from 'react';
 
-import { useSafeLayoutEffect } from '../../../shared/hooks';
-import { usePopover, useScrollLock } from '../hooks';
-import { Portal } from '../portal';
+import { useSafeLayoutEffect } from '../../../../shared/hooks';
+import { useAppearance } from '../../context/appearance';
+import { usePopover, useScrollLock } from '../../hooks';
+import { Portal } from '../../portal';
 import { ModalBackdrop } from './backdrop';
+import { ModalContent } from './modal-content';
 
 type ModalProps = React.PropsWithChildren<{
   handleOpen?: () => void;
@@ -17,6 +19,8 @@ export const Modal = (props: ModalProps) => {
     autoUpdate: false,
   });
   const { disableScroll, enableScroll } = useScrollLock(document.body);
+
+  const appearance = useAppearance();
 
   React.useEffect(() => {
     if (!isOpen) {
@@ -38,7 +42,11 @@ export const Modal = (props: ModalProps) => {
 
   return (
     <Portal>
-      <ModalBackdrop aria-hidden onClickOutside={handleClose}></ModalBackdrop>
+      <ModalBackdrop aria-hidden onClick={handleClose}>
+        <ModalContent ref={floating} modalStyles={appearance.modalStyle}>
+          asdf
+        </ModalContent>
+      </ModalBackdrop>
     </Portal>
   );
 };
