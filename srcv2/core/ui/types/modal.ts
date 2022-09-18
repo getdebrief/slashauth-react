@@ -1,3 +1,7 @@
+export enum ModalType {
+  SignIn = 'sign-in',
+}
+
 export type ModalStyles = {
   defaultModalBodyStyles?: React.CSSProperties;
   backgroundColor?: string;

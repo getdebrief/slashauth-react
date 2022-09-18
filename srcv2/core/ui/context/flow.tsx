@@ -11,7 +11,7 @@ type FlowMetadata = {
     | 'emailLink'
     | 'emailLinkVerify'
     | 'emailLinkStatus'
-    | 'havingTrouble'
+    | 'error'
     | 'popover'
     | 'complete';
 };

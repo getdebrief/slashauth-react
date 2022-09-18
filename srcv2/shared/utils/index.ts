@@ -8,6 +8,8 @@ import { AuthenticationResult } from '../global';
 export { singlePromise, retryPromise } from './promise';
 export { hasAuthParams, loginError, tokenError } from './auth';
 export { createContextAndHook } from './create-context-and-hook';
+export * from './url';
+export * from './query';
 
 type MessageTypes = {
   initialization: string;

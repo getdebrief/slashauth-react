@@ -33,3 +33,9 @@ export const RECOVERABLE_ERRORS = [
   // interactively.
   'access_denied',
 ];
+
+export const PRESERVED_QUERYSTRING_PARAMS = [
+  'after_sign_in_url',
+  'after_sign_up_url',
+  'redirect_url',
+];

@@ -1,11 +1,26 @@
 import React from 'react';
 
 import { useDeepEqualMemo } from '../../../shared/hooks';
-import { SlashAuthModalStyle, SlashAuthStyle } from '../../../shared/types';
+import {
+  ComputedSlashAuthModalStyle,
+  SlashAuthStyle,
+} from '../../../shared/types';
 import { createContextAndHook } from '../../../shared/utils';
+import { DARK_SLASHAUTH_ICON } from '../components/app-logo';
+
+const DEFAULT_MODAL_STYLES: ComputedSlashAuthModalStyle = {
+  backgroundColor: '#ffffff',
+  buttonBackgroundColor: '#ffffff',
+  hoverButtonBackgroundColor: '#f5f5f5',
+  borderRadius: '8px',
+  fontFamily: 'sans-serif',
+  fontColor: '#000000',
+  alignItems: 'center',
+  iconURL: DARK_SLASHAUTH_ICON,
+};
 
 type AppearanceContextValue = {
-  modalStyle: SlashAuthModalStyle;
+  modalStyle: ComputedSlashAuthModalStyle;
 };
 
 const [AppearanceContext, useAppearance] =
@@ -17,7 +32,10 @@ const AppearanceProvider = (props: AppearanceProviderProps) => {
   const ctxValue = useDeepEqualMemo(() => {
     return {
       value: {
-        modalStyle: props.signInModalStyle,
+        modalStyle: {
+          ...DEFAULT_MODAL_STYLES,
+          ...props.signInModalStyle,
+        },
       },
     };
   }, [props.signInModalStyle]);
