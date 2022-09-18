@@ -66,7 +66,7 @@ import {
 // @ts-ignore
 // eslint-disable-next-line import/default
 // import TokenWorker from './worker/token.worker.ts';
-import { CacheKeyManifest } from './cache/key-manifest';
+import { CacheKeyManifest } from '../shared/cache/key-manifest';
 import getDeviceID from '../shared/device';
 import {
   getNonceToSign,
