@@ -1,5 +1,5 @@
 import React from 'react';
-import { addFontFamily, isFamilySupported } from '../../../../../src/fonts';
+import { addFontFamily, isFamilySupported } from '../../fonts';
 import { animations } from '../../styles/animation';
 import { transitionTiming } from '../../styles/transitions';
 import { IModalContainerStyles, ModalStyles } from '../../types/modal';

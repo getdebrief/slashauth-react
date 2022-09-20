@@ -5,7 +5,6 @@ import { createContextAndHook } from '../../../shared/utils';
 
 export type LoginMethod = {
   ready: boolean;
-  icon: string;
   name: string;
   id: string;
   type: string;

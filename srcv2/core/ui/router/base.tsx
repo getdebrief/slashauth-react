@@ -120,14 +120,14 @@ export const BaseRouter = ({
         currentPath: currentPath,
         queryString: currentQueryString,
         queryParams: currentQueryParams,
-        getMatchData: getMatchData.bind(this),
-        matches: matches.bind(this),
-        baseNavigate: baseNavigate.bind(this),
+        getMatchData: getMatchData,
+        matches: matches,
+        baseNavigate: baseNavigate,
         navigate: async () => {
           //
         },
-        resolve: resolve.bind(this),
-        refresh: refresh.bind(this),
+        resolve: resolve,
+        refresh: refresh,
         params: {},
       }}
     >

@@ -1,5 +1,5 @@
 export enum ModalType {
-  SignIn = 'sign-in',
+  SignIn = 'signIn',
 }
 
 export type ModalStyles = {

@@ -9,9 +9,13 @@ import { SlashAuth } from '../slashauth';
 import { Modal } from './components/modal';
 import { SignInModal } from './components/sign-in';
 import { AppearanceProvider } from './context/appearance';
+import { CoreSlashAuthContext } from './context/core-slashauth';
+import { EnvironmentProvider } from './context/environment';
 import { FlowMetadataProvider } from './context/flow';
+import { SlashAuthUIProvider } from './context/slashauth';
 import { Portal } from './portal';
 import { VirtualRouter } from './router/virtual';
+import { Environment } from './types/environment';
 import { ModalType } from './types/modal';
 import { AvailableComponentProps, SignInProps } from './types/ui-components';
 
@@ -65,6 +69,7 @@ interface ComponentManagerState {
 
 interface ComponentManagerComponentProps {
   slashAuth: SlashAuth;
+  environment: Environment;
   options: SlashAuthOptions;
 }
 
@@ -72,6 +77,7 @@ let domElementCount = 0;
 
 const mountComponentManager = (
   slashAuth: SlashAuth,
+  environment: Environment,
   options: SlashAuthOptions
 ): ComponentControls => {
   // TODO: Init of components should start
@@ -81,7 +87,11 @@ const mountComponentManager = (
   document.body.appendChild(slashAuthRoot);
 
   ReactDOM.render<ComponentManagerComponentProps>(
-    <ComponentManagerComponent slashAuth={slashAuth} options={options} />,
+    <ComponentManagerComponent
+      slashAuth={slashAuth}
+      options={options}
+      environment={environment}
+    />,
     slashAuthRoot
   );
 
@@ -140,6 +150,7 @@ const ComponentManagerComponent = (props: ComponentManagerComponentProps) => {
     };
 
     componentController.openModal = (name, props) => {
+      console.log('setting state with name: ', name);
       setManagerState((curr) => ({ ...curr, [name + 'Modal']: props }));
     };
   }, []);
@@ -167,26 +178,28 @@ const ComponentManagerComponent = (props: ComponentManagerComponentProps) => {
   );
 
   return (
-    <>
-      {[...nodes].map(([node, component]) => {
-        return (
-          <AppearanceProvider
-            key={component.key}
-            signInModalStyle={managerState.modalSettings?.signInModalStyle}
-          >
-            <Portal
-              componentName={component.name}
+    <SlashAuthUIProvider slashAuth={props.slashAuth}>
+      <EnvironmentProvider value={props.environment}>
+        {[...nodes].map(([node, component]) => {
+          return (
+            <AppearanceProvider
               key={component.key}
-              component={AvailableComponents[component.name]}
-              props={component.props || {}}
-              node={node}
-              preservedParams={PRESERVED_QUERYSTRING_PARAMS}
-            />
-          </AppearanceProvider>
-        );
-      })}
-      {signInModal && mountedSignInModal}
-    </>
+              signInModalStyle={managerState.modalSettings?.signInModalStyle}
+            >
+              <Portal
+                componentName={component.name}
+                key={component.key}
+                component={AvailableComponents[component.name]}
+                props={component.props || {}}
+                node={node}
+                preservedParams={PRESERVED_QUERYSTRING_PARAMS}
+              />
+            </AppearanceProvider>
+          );
+        })}
+        {signInModal && mountedSignInModal}
+      </EnvironmentProvider>
+    </SlashAuthUIProvider>
   );
 };
 

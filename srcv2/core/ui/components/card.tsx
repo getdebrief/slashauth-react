@@ -14,14 +14,30 @@ export const Card = React.forwardRef<HTMLDivElement, CardProps>(
           style={{
             margin: '0, 1.5rem',
             width: '100%',
-            maxWidth: 'calc(100vw - 20rem',
+            maxWidth: 'calc(100vw - 20rem)',
+            minWidth: '336px',
+            minHeight: '446px',
             // TODO: Check on smaller screen sizes.
           }}
           ref={ref}
         >
-          <AppLogo />
-          {props.children}
-          <PoweredByTag />
+          <div
+            style={{
+              width: '100%',
+              flexGrow: '1',
+            }}
+          >
+            <AppLogo />
+            {props.children}
+          </div>
+          <div
+            style={{
+              width: '100%',
+              flexShrink: '0',
+            }}
+          >
+            <PoweredByTag />
+          </div>
         </BaseCard>
       </>
     );

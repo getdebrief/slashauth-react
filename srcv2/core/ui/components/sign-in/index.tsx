@@ -1,14 +1,24 @@
+import { useEffect } from 'react';
+import { useEnvironment } from '../../context/environment';
+import {
+  LoginMethodsProvider,
+  useLoginMethods,
+} from '../../context/login-methods';
 import { Route } from '../../router/route';
 import { Switch } from '../../router/switch';
-import { VIRTUAL_ROUTER_BASE_PATH } from '../../router/virtual';
 import { SignInProps } from '../../types/ui-components';
 import { Flow } from '../flow/flow';
-import { ComponentContext, useSignInContext } from './context';
+import { ComponentContext } from './context';
 import { SignInWeb3 } from './sign-in-web3';
 import { SignInStart } from './start';
 
 function SignInRoutes(): JSX.Element {
-  const signInContext = useSignInContext();
+  const environment = useEnvironment();
+  const { setLoginMethods } = useLoginMethods();
+
+  useEffect(() => {
+    setLoginMethods(environment.authSettings.availableWeb3LoginMethods);
+  }, [environment.authSettings, setLoginMethods]);
 
   return (
     <Flow.Root flow="sign-in">
@@ -26,7 +36,6 @@ function SignInRoutes(): JSX.Element {
 
 export const SignInModal = (props: SignInProps): JSX.Element => {
   const signInProps = {
-    signUpUrl: `/${VIRTUAL_ROUTER_BASE_PATH}/sign-up`,
     ...props,
   };
 
@@ -39,9 +48,9 @@ export const SignInModal = (props: SignInProps): JSX.Element => {
           routing: 'virtual',
         }}
       >
-        <div>
+        <LoginMethodsProvider>
           <SignInRoutes />
-        </div>
+        </LoginMethodsProvider>
       </ComponentContext.Provider>
     </Route>
   );

@@ -1,3 +1,4 @@
+import { ProviderOptions } from '../types/slashauth';
 import { ICache } from './cache';
 import { verify as verifyIdToken } from './jwt';
 import { ObjectMap } from './utils/object';
@@ -73,6 +74,8 @@ export interface SlashAuthClientOptions extends BaseLoginOptions {
    * The default audience to be used for requesting API access.
    */
   audience?: string;
+
+  providerOptions?: ProviderOptions;
 
   /**
    * Internal property to send information about the client to the authorization server.

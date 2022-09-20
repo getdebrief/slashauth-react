@@ -44,7 +44,7 @@ export const Modal = (props: ModalProps) => {
     <Portal>
       <ModalBackdrop aria-hidden onClick={handleClose}>
         <ModalContent ref={floating} modalStyles={appearance.modalStyle}>
-          asdf
+          {props.children}
         </ModalContent>
       </ModalBackdrop>
     </Portal>

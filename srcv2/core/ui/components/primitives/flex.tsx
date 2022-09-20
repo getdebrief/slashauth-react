@@ -2,7 +2,7 @@ import React from 'react';
 
 type Props = React.HTMLProps<HTMLDivElement>;
 
-export const Flex = React.memo(({ style, ...rest }: Props) => {
+export const Flex = ({ style, ...rest }: Props) => {
   return (
     <div
       style={{
@@ -15,8 +15,19 @@ export const Flex = React.memo(({ style, ...rest }: Props) => {
       {...rest}
     />
   );
-});
+};
 
-export const FlexCol = React.memo((props: Props) => {
-  return <Flex style={{ ...props.style, flexDirection: 'column' }} />;
-});
+export const FlexCol = ({ style, ...rest }: Props) => {
+  return (
+    <div
+      style={{
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'flex-start',
+        justifyContent: 'center',
+        ...style,
+      }}
+      {...rest}
+    />
+  );
+};

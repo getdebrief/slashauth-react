@@ -9,3 +9,9 @@ export const uiErrorDOMElementDoesNotExist = () => {
     '[SlashAuth] - The DOM element you provided does not exist. Please provide a DOM element.'
   );
 };
+
+export const contextDoesNotExist = (providerName: string) => {
+  throw new Error(
+    `[SlashAuth] - The context for ${providerName} does not exist.`
+  );
+};

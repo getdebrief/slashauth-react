@@ -7,11 +7,13 @@ type Props = {
   children: React.ReactNode;
 };
 
-const Root = React.memo(({ children }: Props): JSX.Element => {
+const Root = ({ children }: Props): JSX.Element => {
+  console.log('in the header root, children: ', children);
   return <FlexCol>{children}</FlexCol>;
-});
+};
 
-const Title = React.memo(({ children }: Props): JSX.Element => {
+const Title = ({ children }: Props): JSX.Element => {
+  console.log('in the title');
   return (
     <h1
       style={{
@@ -23,7 +25,7 @@ const Title = React.memo(({ children }: Props): JSX.Element => {
       {children}
     </h1>
   );
-});
+};
 
 const Subtitle = React.memo(({ children }: Props): JSX.Element => {
   return (

@@ -11,6 +11,8 @@ export const SignInWeb3Buttons = () => {
     ) as unknown as Web3LoginMethod[];
   }, [enabledLoginMethods.loginMethods]);
 
+  console.log(web3LoginMethods);
+
   return (
     <>
       {web3LoginMethods.map((loginMethod) => {

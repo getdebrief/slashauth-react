@@ -5,10 +5,12 @@ import {
   SlashAuthClientOptions,
 } from '../shared/global';
 import { SlashAuthModalStyle, SlashAuthOptions } from '../shared/types';
-import { SignInOptions } from '../types/slashauth';
+import { ProviderOptions, SignInOptions } from '../types/slashauth';
 import SlashAuthClient from './client';
 import { ComponentControls, mountComponentManager } from './ui/manager';
+import { Environment } from './ui/types/environment';
 import { ModalType } from './ui/types/modal';
+import { Web3Manager } from './web3/manager';
 
 interface AppModalConfig {
   clientID?: string;
@@ -29,8 +31,11 @@ export class SlashAuth {
   public static mountComponentManager?: typeof mountComponentManager;
 
   #componentController: ComponentControls;
+  #environment: Environment;
   #clientOptions: SlashAuthClientOptions;
   #client: SlashAuthClient;
+
+  #web3Manager: Web3Manager;
 
   #modalConfig: AppModalConfig | null = null;
   #isReady = false;
@@ -40,6 +45,11 @@ export class SlashAuth {
   constructor(options: SlashAuthClientOptions) {
     this.#clientOptions = options;
     this.#client = new SlashAuthClient(options);
+    this.#initializeWeb3Manager(options.providerOptions || {});
+  }
+
+  public get client() {
+    return this.#client;
   }
 
   public isReady = () => this.#isReady;
@@ -59,10 +69,30 @@ export class SlashAuth {
       }),
     ]);
 
+    // TODO: Fetch this from the appmodalconfig.
+    this.#environment = {
+      authSettings: {
+        availableWeb3LoginMethods: this.#web3Manager.connectors.map(
+          (connector) => ({
+            id: connector.id,
+            name: connector.name,
+            type: 'web3',
+            chain: 'eth',
+            ready: connector.ready,
+          })
+        ),
+        isMagicLinkEnabled: true,
+      },
+    };
+
     if (SlashAuth.mountComponentManager) {
-      this.#componentController = SlashAuth.mountComponentManager(this, {
-        style: this.#modalConfig,
-      } as SlashAuthOptions);
+      this.#componentController = SlashAuth.mountComponentManager(
+        this,
+        this.#environment,
+        {
+          style: this.#modalConfig,
+        } as SlashAuthOptions
+      );
     }
 
     this.#isReady = true;
@@ -104,4 +134,29 @@ export class SlashAuth {
       throw new Error('SlashAuth components are not ready yet.');
     }
   }
+
+  #initializeWeb3Manager = (options: ProviderOptions) => {
+    const extractedOptions = {
+      ...options,
+    };
+
+    if (!options.infura && options.walletconnect?.infuraId) {
+      extractedOptions.infura = {
+        apiKey: options.walletconnect.infuraId,
+      };
+    }
+
+    if (!options.appName && options.coinbasewallet?.appName) {
+      extractedOptions.appName = options.coinbasewallet.appName;
+    }
+
+    this.#web3Manager = new Web3Manager({
+      appName: extractedOptions.appName,
+      alchemy: extractedOptions?.alchemy,
+      infura: extractedOptions?.infura,
+      publicConf: extractedOptions?.publicConf,
+    });
+
+    // TODO: Hook up listeners
+  };
 }

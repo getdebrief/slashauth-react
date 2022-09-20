@@ -17,6 +17,8 @@ export const ErrorCard = (props: ErrorCardProps) => {
   const { onBackLinkClick } = props;
   const card = useCardState();
 
+  console.log('in error card');
+
   return (
     <Flow.Part part="error">
       <Card>
