@@ -8,9 +8,10 @@ import {
   LoginNoRedirectNoPopupOptions,
   LogoutOptions,
 } from '../../shared/global';
+import { SlashAuthStyle } from '../../shared/types';
 import { ObjectMap } from '../../shared/utils/object';
 import { uninitializedStub } from '../../shared/utils/stub';
-import { ProviderOptions } from '../../types/slashauth';
+import { ProviderOptions, SignInOptions } from '../../types/slashauth';
 import { SlashAuth } from '../slashauth';
 import { useCoreSlashAuth } from '../ui/context/core-slashauth';
 import { SlashAuthUIProvider } from '../ui/context/slashauth';
@@ -29,6 +30,11 @@ type AuthFunctions = {
   getIdTokenClaims: (options?: GetIdTokenClaimsOptions) => Promise<IdToken>;
 
   checkSession: (options?: GetTokenSilentlyOptions) => Promise<boolean>;
+};
+
+type UIFunctions = {
+  mountSignIn: (node: HTMLDivElement, options: SignInOptions) => void;
+  updateAppearanceOverride: (overrides?: SlashAuthStyle) => void;
 };
 
 type SlashAuthAPIFunctions = {
@@ -89,6 +95,7 @@ const legacyContextFields = {
 
 export type SlashAuthContextProviderState = AuthFunctions &
   SlashAuthAPIFunctions &
+  UIFunctions &
   Web3Fields &
   UserFields &
   StateContextFields &
@@ -201,6 +208,8 @@ export function SlashAuthProvider(
   );
 }
 
+type UnmountCallback = () => void;
+
 type _Props = {
   children: React.ReactNode;
 };
@@ -216,6 +225,8 @@ const emptyContext = {
   logout: uninitializedStub,
   getIdTokenClaims: uninitializedStub,
   checkSession: uninitializedStub,
+  mountSignIn: uninitializedStub,
+  updateAppearanceOverride: uninitializedStub,
   connectedWallet: null,
   ethereum: null,
   provider: null,
@@ -291,6 +302,27 @@ export function LegacyProvider({ children }: _Props) {
     return slashAuth.client.checkSession();
   }, [slashAuth.client]);
 
+  const mountSignIn = useCallback(
+    async (
+      node: HTMLDivElement,
+      options: SignInOptions = {}
+    ): Promise<UnmountCallback> => {
+      const unmountCallback = () => {
+        slashAuth.unmountSignIn(node);
+      };
+      slashAuth.mountSignIn(node, options);
+      return unmountCallback;
+    },
+    [slashAuth]
+  );
+
+  const updateAppearanceOverride = useCallback(
+    (overrides?: SlashAuthStyle) => {
+      slashAuth.updateAppearanceOverride(overrides);
+    },
+    [slashAuth]
+  );
+
   const [state, setState] = React.useState<SlashAuthContextProviderState>({
     ...emptyContext,
     connect,
@@ -302,6 +334,8 @@ export function LegacyProvider({ children }: _Props) {
     logout,
     getIdTokenClaims,
     checkSession,
+    mountSignIn,
+    updateAppearanceOverride,
   });
 
   useEffect(() => {

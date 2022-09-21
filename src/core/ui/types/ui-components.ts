@@ -27,6 +27,8 @@ export type RedirectOptions = {
 };
 
 export type SignInProps = {
+  viewOnly?: boolean;
+
   walletConnectOnly?: boolean;
   walletConnectTransparent?: boolean;
   /*

@@ -4,7 +4,8 @@ import {
   SlashAuthProvider,
   useSlashAuth,
 } from './core/context/legacy-slashauth';
+import { supportedFontFamilies } from './core/ui/fonts';
 
 SlashAuth.mountComponentManager = mountComponentManager;
 
-export { SlashAuth, SlashAuthProvider, useSlashAuth };
+export { SlashAuth, SlashAuthProvider, useSlashAuth, supportedFontFamilies };

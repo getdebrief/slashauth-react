@@ -1,6 +1,5 @@
-import React, { Component } from 'react';
+import React from 'react';
 import ReactDOM from 'react-dom';
-import ReactDOMClient from 'react-dom/client';
 import { PRESERVED_QUERYSTRING_PARAMS } from '../../shared/constants';
 import { useSafeLayoutEffect } from '../../shared/hooks';
 import { SlashAuthOptions, SlashAuthStyle } from '../../shared/types';
@@ -8,7 +7,7 @@ import { ensureDomElementExists } from '../../shared/utils/dom-element';
 import { uninitializedStub } from '../../shared/utils/stub';
 import { SlashAuth } from '../slashauth';
 import { Modal } from './components/modal';
-import { SignInModal } from './components/sign-in';
+import { SignIn, SignInModal } from './components/sign-in';
 import { AppearanceProvider } from './context/appearance';
 import { EnvironmentProvider } from './context/environment';
 import { FlowMetadataProvider } from './context/flow';
@@ -17,7 +16,11 @@ import { Portal } from './portal';
 import { VirtualRouter } from './router/virtual';
 import { Environment } from './types/environment';
 import { ModalType } from './types/modal';
-import { AvailableComponentProps, SignInProps } from './types/ui-components';
+import {
+  AvailableComponentCtx,
+  AvailableComponentProps,
+  SignInProps,
+} from './types/ui-components';
 
 export type ComponentListener = (payload: ComponentListenerPayload) => void;
 export type ComponentListenerPayload = {
@@ -43,6 +46,7 @@ export interface ComponentControls {
     options?: SlashAuthOptions | undefined;
     node?: HTMLDivElement;
     props?: unknown;
+    appearanceOverride?: SlashAuthStyle | undefined;
   }) => void;
   closeModal: (modalType: ModalType) => void;
 
@@ -58,7 +62,9 @@ const componentController: ComponentControls = {
   addListener: uninitializedStub,
 };
 
-const AvailableComponents = {};
+const AvailableComponents = {
+  SignIn,
+};
 
 type AvailableComponentNames = keyof typeof AvailableComponents;
 
@@ -71,7 +77,8 @@ interface HtmlNodeOptions {
 }
 
 interface ComponentManagerState {
-  modalSettings?: SlashAuthStyle | undefined;
+  appearance?: SlashAuthStyle;
+  appearanceOverride?: SlashAuthStyle | undefined;
   options?: SlashAuthOptions | undefined;
   signInModal: null | SignInProps;
   nodes: Map<HTMLDivElement, HtmlNodeOptions>;
@@ -97,25 +104,14 @@ const mountComponentManager = (
   slashAuthRoot.setAttribute('id', 's8-components');
   document.body.appendChild(slashAuthRoot);
 
-  if (ReactDOMClient && ReactDOMClient.createRoot) {
-    const root = ReactDOMClient.createRoot(slashAuthRoot);
-    root.render(
-      <ComponentManagerComponent
-        slashAuth={slashAuth}
-        options={options}
-        environment={environment}
-      />
-    );
-  } else {
-    ReactDOM.render<ComponentManagerComponentProps>(
-      <ComponentManagerComponent
-        slashAuth={slashAuth}
-        options={options}
-        environment={environment}
-      />,
-      slashAuthRoot
-    );
-  }
+  ReactDOM.render<ComponentManagerComponentProps>(
+    <ComponentManagerComponent
+      slashAuth={slashAuth}
+      options={options}
+      environment={environment}
+    />,
+    slashAuthRoot
+  );
 
   return componentController;
 };
@@ -123,7 +119,8 @@ const mountComponentManager = (
 const ComponentManagerComponent = (props: ComponentManagerComponentProps) => {
   const [managerState, setManagerState] = React.useState<ComponentManagerState>(
     {
-      modalSettings: props.options.componentSettings,
+      appearance: props.options.componentSettings,
+      appearanceOverride: undefined,
       options: props.options,
       signInModal: null,
       nodes: new Map(),
@@ -149,7 +146,7 @@ const ComponentManagerComponent = (props: ComponentManagerComponentProps) => {
       managerState.listeners.forEach((l) => {
         l({
           action: 'mount',
-          type: name,
+          type: ModalType.SignIn,
         });
       });
     };
@@ -177,6 +174,7 @@ const ComponentManagerComponent = (props: ComponentManagerComponentProps) => {
           return;
         }
       }
+      console.log('updating modal controller with rest props: ', restProps);
       setManagerState((curr) => ({ ...curr, ...restProps }));
     };
 
@@ -217,7 +215,10 @@ const ComponentManagerComponent = (props: ComponentManagerComponentProps) => {
 
   const mountedSignInModal = (
     <AppearanceProvider
-      signInModalStyle={managerState.modalSettings?.signInModalStyle}
+      signInModalStyle={
+        managerState.appearanceOverride?.signInModalStyle ||
+        managerState.appearance?.signInModalStyle
+      }
     >
       <FlowMetadataProvider flow={'sign-in'}>
         <Modal
@@ -244,9 +245,12 @@ const ComponentManagerComponent = (props: ComponentManagerComponentProps) => {
           return (
             <AppearanceProvider
               key={component.key}
-              signInModalStyle={managerState.modalSettings?.signInModalStyle}
+              signInModalStyle={
+                managerState.appearanceOverride?.signInModalStyle ||
+                managerState.appearance?.signInModalStyle
+              }
             >
-              <Portal
+              <Portal<AvailableComponentCtx>
                 componentName={component.name}
                 key={component.key}
                 component={AvailableComponents[component.name]}

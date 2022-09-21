@@ -1,4 +1,5 @@
 import { useEffect } from 'react';
+import { useAppearance } from '../../context/appearance';
 import { useCoreSlashAuth } from '../../context/core-slashauth';
 import { useEnvironment } from '../../context/environment';
 import {
@@ -11,6 +12,7 @@ import { Route } from '../../router/route';
 import { Switch } from '../../router/switch';
 import { SignInProps } from '../../types/ui-components';
 import { Flow } from '../flow/flow';
+import { ModalContent } from '../modal/modal-content';
 import { ComponentContext, useSignInContext } from './context';
 import { SignNonce } from './sign-nonce';
 import { SignInStart } from './start';
@@ -19,42 +21,70 @@ import { SignInSuccess } from './success';
 function SignInRoutes(): JSX.Element {
   const environment = useEnvironment();
   const user = useUser();
-  const { setLoginMethods } = useLoginMethods();
-  const { walletConnectOnly } = useSignInContext();
+  const { viewOnly, walletConnectOnly } = useSignInContext();
+  const slashAuth = useCoreSlashAuth();
 
-  useEffect(() => {
-    setLoginMethods(environment.authSettings.availableWeb3LoginMethods);
-  }, [environment.authSettings, setLoginMethods]);
-
-  if (user.loggedIn) {
-    return <SignInSuccess />;
+  if (viewOnly) {
+    return (
+      <Web3LoginStateProvider manager={slashAuth.manager}>
+        <LoginMethodsProvider
+          loginMethods={environment.authSettings.availableWeb3LoginMethods}
+        >
+          <Flow.Root flow="sign-in">
+            <Route index>
+              <SignInStart />
+            </Route>
+          </Flow.Root>
+        </LoginMethodsProvider>
+      </Web3LoginStateProvider>
+    );
   }
 
   return (
-    <Flow.Root flow="sign-in">
-      <Switch>
-        {!walletConnectOnly && (
-          <Route path="sign-nonce">
-            <SignNonce />
-          </Route>
-        )}
-        <Route path="success">
-          <SignInSuccess />
-        </Route>
-        <Route index>
-          <SignInStart />
-        </Route>
-      </Switch>
-    </Flow.Root>
+    <Web3LoginStateProvider manager={slashAuth.manager}>
+      <LoginMethodsProvider
+        loginMethods={environment.authSettings.availableWeb3LoginMethods}
+      >
+        <Flow.Root flow="sign-in">
+          {user.loggedIn ? (
+            <SignInSuccess />
+          ) : (
+            <Switch>
+              {!walletConnectOnly && (
+                <Route path="sign-nonce">
+                  <SignNonce />
+                </Route>
+              )}
+              <Route path="success">
+                <SignInSuccess />
+              </Route>
+              <Route index>
+                <SignInStart />
+              </Route>
+            </Switch>
+          )}
+        </Flow.Root>
+      </LoginMethodsProvider>
+    </Web3LoginStateProvider>
   );
 }
+
+export const SignIn: React.ComponentType<SignInProps> = () => {
+  const appearance = useAppearance();
+
+  console.log(appearance);
+
+  return (
+    <ModalContent modalStyles={appearance.modalStyle}>
+      <SignInRoutes />
+    </ModalContent>
+  );
+};
 
 export const SignInModal = (props: SignInProps): JSX.Element => {
   const signInProps = {
     ...props,
   };
-
-  const slashAuth = useCoreSlashAuth();
 
   return (
     <Route path="sign-in">
@@ -65,11 +95,7 @@ export const SignInModal = (props: SignInProps): JSX.Element => {
           routing: 'virtual',
         }}
       >
-        <Web3LoginStateProvider manager={slashAuth.manager}>
-          <LoginMethodsProvider>
-            <SignInRoutes />
-          </LoginMethodsProvider>
-        </Web3LoginStateProvider>
+        <SignInRoutes />
       </ComponentContext.Provider>
     </Route>
   );

@@ -29,6 +29,7 @@ const [AppearanceContext, useAppearance] =
 type AppearanceProviderProps = React.PropsWithChildren<SlashAuthStyle>;
 
 const AppearanceProvider = (props: AppearanceProviderProps) => {
+  console.log('appearance provider props: ', props);
   const ctxValue = useDeepEqualMemo(() => {
     return {
       value: {

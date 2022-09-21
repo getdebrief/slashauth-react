@@ -8,6 +8,7 @@ import {
   SlashAuthListenerPayload,
   SlashAuthModalStyle,
   SlashAuthOptions,
+  SlashAuthStyle,
   SlashAuthWeb3ListenerPayload,
 } from '../shared/types';
 import {
@@ -23,7 +24,7 @@ import {
   UnsubscribeFn,
 } from './ui/manager';
 import { Environment } from './ui/types/environment';
-import { ModalType } from './ui/types/modal';
+import { ModalStyles, ModalType } from './ui/types/modal';
 import { User } from './user';
 import { Web3Manager, Web3ManagerEventType } from './web3/manager';
 
@@ -220,6 +221,28 @@ export class SlashAuth {
     await this.#client.logout(options);
     this.#user.setLoggedOut();
     this.#emitAll();
+  };
+
+  public updateAppearanceOverride = (config?: SlashAuthStyle) => {
+    this.assertComponentsReady(this.#componentController);
+    this.#componentController.updateProps({ appearanceOverride: config });
+  };
+
+  public mountSignIn = (node: HTMLDivElement, options: SignInOptions = {}) => {
+    this.assertComponentsReady(this.#componentController);
+    this.#componentController.mountComponent({
+      name: 'SignIn',
+      appearanceKey: 'signIn',
+      node,
+      props: options,
+    });
+  };
+
+  public unmountSignIn = (node: HTMLDivElement) => {
+    this.assertComponentsReady(this.#componentController);
+    this.#componentController.unmountComponent({
+      node,
+    });
   };
 
   public openSignIn = (options: SignInOptions) => {

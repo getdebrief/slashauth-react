@@ -3,7 +3,7 @@ import React from 'react';
 import { useSafeLayoutEffect } from '../../../../shared/hooks';
 import { useAppearance } from '../../context/appearance';
 import { usePopover, useScrollLock } from '../../hooks';
-import { Portal } from '../../portal';
+import { BasicPortal, Portal } from '../../portal';
 import { ModalBackdrop } from './backdrop';
 import { ModalContent } from './modal-content';
 
@@ -41,7 +41,7 @@ export const Modal = (props: ModalProps) => {
   }
 
   return (
-    <Portal>
+    <BasicPortal>
       <ModalBackdrop
         aria-hidden
         onClick={() => {
@@ -52,6 +52,6 @@ export const Modal = (props: ModalProps) => {
           {props.children}
         </ModalContent>
       </ModalBackdrop>
-    </Portal>
+    </BasicPortal>
   );
 };

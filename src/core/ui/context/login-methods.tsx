@@ -34,8 +34,12 @@ type LoginMethodCtxValue = {
 const [LoginMethodCtx, _useLoginMethods] =
   createContextAndHook<LoginMethodCtxValue>('LoginMethods');
 
-const LoginMethodsProvider = (props: React.PropsWithChildren<any>) => {
-  const [state, setState] = useSafeState<LoginMethod[]>([]);
+const LoginMethodsProvider = (
+  props: React.PropsWithChildren<{ loginMethods?: LoginMethod[] }>
+) => {
+  const [state, setState] = useSafeState<LoginMethod[]>(
+    props.loginMethods || []
+  );
 
   const value = React.useMemo(
     () => ({ value: { loginMethods: state, setLoginMethods: setState } }),

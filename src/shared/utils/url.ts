@@ -1,4 +1,3 @@
-import { loadScript } from './script';
 import { joinPaths } from './path';
 import { getQueryParams } from './query';
 

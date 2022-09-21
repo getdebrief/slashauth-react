@@ -1,6 +1,5 @@
 import React, { useMemo } from 'react';
 import { addFontFamily, isFamilySupported } from '../../fonts';
-import { transitionTiming } from '../../styles/transitions';
 import { IModalContainerStyles, ModalStyles } from '../../types/modal';
 
 type Props = {
@@ -26,7 +25,7 @@ export const DEFAULT_MODAL_CONTAINER_STYLES: IModalContainerStyles = {
 export const ModalContent = React.forwardRef<HTMLDivElement, Props>(
   ({ modalStyles, children }: Props, ref) => {
     const modalContentsStyle: React.CSSProperties = {
-      width: 'calc(336px - 2rem)',
+      width: '336px',
       height: '446px',
       flexGrow: 1,
       display: 'flex',

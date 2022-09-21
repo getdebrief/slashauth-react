@@ -6,7 +6,7 @@ import { ConnectorButton } from '../web3-login-button';
 import { useSignInContext } from './context';
 
 export const SignInWeb3Buttons = () => {
-  const { walletConnectOnly } = useSignInContext();
+  const { walletConnectOnly, viewOnly } = useSignInContext();
   const enabledLoginMethods = useLoginMethods();
   const web3LoginState = useWeb3LoginState();
 
@@ -26,6 +26,9 @@ export const SignInWeb3Buttons = () => {
             key={loginMethod.id}
             loginMethod={loginMethod}
             onClick={async () => {
+              if (viewOnly) {
+                return;
+              }
               await web3LoginState.web3Manager.connectToConnectorWithID(
                 loginMethod.id
               );
