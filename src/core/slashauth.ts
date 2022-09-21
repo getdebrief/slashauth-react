@@ -286,7 +286,6 @@ export class SlashAuth {
 
   #handleWeb3Event = async (event: Web3ManagerEventType) => {
     if (event === 'disconnect' || event === 'accountChange') {
-      console.log(this.manager.address);
       if (
         this.user.loggedIn &&
         this.user.loginMethod === LoginMethodType.Web3 &&

@@ -68,8 +68,6 @@ function SignInRoutes(): JSX.Element {
 export const SignIn: React.ComponentType<SignInProps> = () => {
   const appearance = useAppearance();
 
-  console.log(appearance);
-
   return (
     <ModalContent modalStyles={appearance.modalStyle}>
       <SignInRoutes />

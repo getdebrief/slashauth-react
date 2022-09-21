@@ -174,7 +174,6 @@ const ComponentManagerComponent = (props: ComponentManagerComponentProps) => {
           return;
         }
       }
-      console.log('updating modal controller with rest props: ', restProps);
       setManagerState((curr) => ({ ...curr, ...restProps }));
     };
 
