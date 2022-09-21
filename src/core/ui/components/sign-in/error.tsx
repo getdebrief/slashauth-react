@@ -30,7 +30,7 @@ export const SignInError = () => {
             fontWeight: 400,
             textAlign: 'left',
             marginTop: '0.75rem',
-            color: 'red',
+            color: '#9B9B9B',
           }}
         >
           If you continue to have issues, please contact us at{' '}

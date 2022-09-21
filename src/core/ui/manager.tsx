@@ -22,6 +22,15 @@ import {
   SignInProps,
 } from './types/ui-components';
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+let createRoot: any;
+if (parseInt(ReactDOM.version.split('.')[0]) > 17) {
+  // This is hacky but the only way to get around it.
+  import('react-dom/client').then(({ createRoot: domCreateRoot }) => {
+    createRoot = domCreateRoot;
+  });
+}
+
 export type ComponentListener = (payload: ComponentListenerPayload) => void;
 export type ComponentListenerPayload = {
   action: 'open' | 'close' | 'mount' | 'unmount';
@@ -104,14 +113,26 @@ const mountComponentManager = (
   slashAuthRoot.setAttribute('id', 's8-components');
   document.body.appendChild(slashAuthRoot);
 
-  ReactDOM.render<ComponentManagerComponentProps>(
-    <ComponentManagerComponent
-      slashAuth={slashAuth}
-      options={options}
-      environment={environment}
-    />,
-    slashAuthRoot
-  );
+  if (createRoot) {
+    // We have to use the new createRoot instead of render.
+    const root = createRoot(slashAuthRoot);
+    root.render(
+      <ComponentManagerComponent
+        slashAuth={slashAuth}
+        options={options}
+        environment={environment}
+      />
+    );
+  } else {
+    ReactDOM.render<ComponentManagerComponentProps>(
+      <ComponentManagerComponent
+        slashAuth={slashAuth}
+        options={options}
+        environment={environment}
+      />,
+      slashAuthRoot
+    );
+  }
 
   return componentController;
 };
