@@ -8,6 +8,7 @@ import {
   defaultChains,
   disconnect,
   InjectedConnector,
+  Provider,
 } from '@wagmi/core';
 import { alchemyProvider } from '@wagmi/core/providers/alchemy';
 import { infuraProvider } from '@wagmi/core/providers/infura';
@@ -15,6 +16,13 @@ import { publicProvider } from '@wagmi/core/providers/public';
 import { CoinbaseWalletConnector } from '@wagmi/core/connectors/coinbaseWallet';
 import { MetaMaskConnector } from '@wagmi/core/connectors/metaMask';
 import { WalletConnectConnector } from '@wagmi/core/connectors/walletConnect';
+import { Signer } from 'ethers';
+
+export type Web3ManagerEventType =
+  | 'accountChange'
+  | 'chainChange'
+  | 'connect'
+  | 'disconnect';
 
 type Config = {
   appName: string;
@@ -39,8 +47,18 @@ type ChainChangeListener = (
 type ConnectListener = (connector: Connector) => void;
 type DisconnectListener = () => void;
 
+type EventListener = (
+  eventType: Web3ManagerEventType,
+  mgr: Web3Manager
+) => void;
+
 export class Web3Manager {
-  connectors: Connector[];
+  #connected: boolean;
+  #provider: Provider | undefined;
+  #signer: Signer | undefined;
+  #address: string | undefined;
+
+  #connectors: Connector[];
 
   #client: WagmiClient;
   #config: Config;
@@ -49,9 +67,30 @@ export class Web3Manager {
   #chainChangeListeners: ChainChangeListener[] = [];
   #connectListeners: ConnectListener[] = [];
   #disconnectListeners: DisconnectListener[] = [];
+  #eventListeners: EventListener[] = [];
+
+  get connected(): boolean {
+    return this.#connected;
+  }
+
+  get provider(): Provider | undefined {
+    return this.#provider;
+  }
+
+  get signer(): Signer | undefined {
+    return this.#signer;
+  }
+
+  get address(): string | undefined {
+    return this.#address;
+  }
 
   get connectedConnector(): Connector | null {
     return this.#client.connector;
+  }
+
+  get connectors(): Connector[] {
+    return this.#connectors;
   }
 
   private unsubscribeFns: (() => void)[] = [];
@@ -65,6 +104,14 @@ export class Web3Manager {
 
   public async clearState() {
     return disconnect();
+  }
+
+  public onEvent(listener: EventListener) {
+    this.#eventListeners.push(listener);
+  }
+
+  public offEvent(listener: EventListener) {
+    this.#eventListeners = this.#eventListeners.filter((l) => l !== listener);
   }
 
   public onConnect(listener: ConnectListener) {
@@ -117,7 +164,22 @@ export class Web3Manager {
     return account || null;
   }
 
+  public async connectToConnectorWithID(id: string) {
+    const connector = this.#connectors.find((c) => c.id === id);
+    if (connector) {
+      await this.connectToConnector(connector);
+    }
+  }
+
   public async connectToConnector(connector: Connector) {
+    if (this.#client.status === 'connected') {
+      if (this.#client.connector?.id === connector.id) {
+        return Promise.resolve();
+      } else {
+        // We have to disconnect and then connect to the connector.
+        await this.disconnect();
+      }
+    }
     await connect({
       chainId: this.#client.lastUsedChainId,
       connector,
@@ -147,7 +209,7 @@ export class Web3Manager {
       { pollingInterval: 30_000 }
     );
 
-    this.connectors = [
+    this.#connectors = [
       new MetaMaskConnector({ chains }),
       new CoinbaseWalletConnector({
         chains,
@@ -172,32 +234,50 @@ export class Web3Manager {
 
     this.#client = createClient({
       autoConnect,
-      connectors: this.connectors,
+      connectors: this.#connectors,
       provider,
       webSocketProvider,
     }) as WagmiClient;
   }
 
-  #onConnectorConnect = () => {
-    this.connectedConnector.on('change', (state) => {
+  #onConnectorConnect = async () => {
+    this.connectedConnector.on('change', async (state) => {
       if (state.account) {
+        this.#address = await this.connectedConnector.getAccount();
+        this.#signer = await this.connectedConnector.getSigner();
+        this.#provider = await this.connectedConnector.getProvider();
+        this.#connected = true;
         this.#accountChangeListeners.forEach((l) => l(state.account));
+        this.#eventListeners.forEach((l) => l('accountChange', this));
       }
       if (state.chain) {
         this.#chainChangeListeners.forEach((l) =>
           l(state.chain.id, state.chain.unsupported)
         );
+        this.#eventListeners.forEach((l) => l('chainChange', this));
       }
     });
 
     this.connectedConnector.on('disconnect', () => {
+      this.#address = undefined;
+      this.#signer = undefined;
+      this.#provider = undefined;
+      this.#connected = false;
       this.#disconnectListeners.forEach((l) => l());
+      this.#eventListeners.forEach((l) => l('disconnect', this));
     });
 
     this.connectedConnector.on('message', (message) => {
       // Connect this for messages
     });
+
+    this.#address = await this.connectedConnector.getAccount();
+    this.#signer = await this.connectedConnector.getSigner();
+    this.#provider = await this.connectedConnector.getProvider();
+    this.#connected = true;
+
     this.#connectListeners.forEach((l) => l(this.connectedConnector));
+    this.#eventListeners.forEach((l) => l('connect', this));
   };
 
   #attachClientListeners() {
@@ -212,11 +292,9 @@ export class Web3Manager {
           state.status === 'connected'
         ) {
           this.#onConnectorConnect();
-          this.#connectListeners.forEach((l) => l(this.connectedConnector));
         } else if (state.status !== prevState.status) {
           if (state.status === 'connected') {
             this.#onConnectorConnect();
-            this.#connectListeners.forEach((l) => l(this.connectedConnector));
           } else if (state.status === 'disconnected') {
             this.#disconnectListeners.forEach((l) => l());
             this.onConnectorDisconnect();
@@ -240,7 +318,6 @@ export class Web3Manager {
           this.connectedConnector?.id !== state.connector?.id
         ) {
           this.#onConnectorConnect();
-          this.#connectListeners.forEach((l) => l(this.connectedConnector));
         }
       },
       {

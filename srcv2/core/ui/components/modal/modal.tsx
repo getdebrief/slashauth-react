@@ -42,7 +42,13 @@ export const Modal = (props: ModalProps) => {
 
   return (
     <Portal>
-      <ModalBackdrop aria-hidden onClick={handleClose}>
+      <ModalBackdrop
+        aria-hidden
+        onClick={() => {
+          handleClose();
+          console.log('handling close');
+        }}
+      >
         <ModalContent ref={floating} modalStyles={appearance.modalStyle}>
           {props.children}
         </ModalContent>

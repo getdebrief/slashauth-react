@@ -1,3 +1,7 @@
+import { Provider } from '@wagmi/core';
+import { Signer } from 'ethers';
+import { User } from '../../core/user';
+
 export interface SlashAuthOptions {
   componentSettings?: SlashAuthStyle;
 }
@@ -26,4 +30,21 @@ export interface ComputedSlashAuthModalStyle {
 
 export interface SlashAuthStyle {
   signInModalStyle: SlashAuthModalStyle;
+}
+
+export interface SlashAuthWeb3ListenerPayload {
+  connected: boolean;
+  provider: Provider | undefined;
+  signer: Signer | undefined;
+  address: string | undefined;
+}
+
+export interface SlashAuthCoreListenerPayload {
+  isReady: boolean;
+}
+
+export interface SlashAuthListenerPayload {
+  core: SlashAuthCoreListenerPayload;
+  user: User | null;
+  web3: SlashAuthWeb3ListenerPayload;
 }

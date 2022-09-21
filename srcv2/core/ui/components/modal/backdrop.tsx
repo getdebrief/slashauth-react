@@ -1,4 +1,3 @@
-import { animations } from '../../styles/animation';
 import { transitionTiming } from '../../styles/transitions';
 
 type Props = {
@@ -23,7 +22,6 @@ export const ModalBackdrop = ({ children, onClick }: Props) => {
         right: 0,
         bottom: 0,
         background: 'rgba(35, 35, 35, 0.5)',
-        animation: `${animations.fadeIn} 150ms ${transitionTiming.common}`,
       }}
       onClick={onClick}
     >

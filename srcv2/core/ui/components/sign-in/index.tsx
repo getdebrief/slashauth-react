@@ -1,30 +1,45 @@
 import { useEffect } from 'react';
+import { useCoreSlashAuth } from '../../context/core-slashauth';
 import { useEnvironment } from '../../context/environment';
 import {
   LoginMethodsProvider,
   useLoginMethods,
 } from '../../context/login-methods';
+import { useUser } from '../../context/user';
+import { Web3LoginStateProvider } from '../../context/web3-signin';
+import { useRouter } from '../../router/context';
 import { Route } from '../../router/route';
 import { Switch } from '../../router/switch';
 import { SignInProps } from '../../types/ui-components';
 import { Flow } from '../flow/flow';
 import { ComponentContext } from './context';
-import { SignInWeb3 } from './sign-in-web3';
+import { SignNonce } from './sign-nonce';
 import { SignInStart } from './start';
+import { SignInSuccess } from './success';
 
 function SignInRoutes(): JSX.Element {
   const environment = useEnvironment();
+  const user = useUser();
   const { setLoginMethods } = useLoginMethods();
+
+  console.log(user);
 
   useEffect(() => {
     setLoginMethods(environment.authSettings.availableWeb3LoginMethods);
   }, [environment.authSettings, setLoginMethods]);
 
+  if (user.loggedIn) {
+    return <SignInSuccess />;
+  }
+
   return (
     <Flow.Root flow="sign-in">
       <Switch>
-        <Route path="web3">
-          <SignInWeb3 />
+        <Route path="sign-nonce">
+          <SignNonce />
+        </Route>
+        <Route path="success">
+          <SignInSuccess />
         </Route>
         <Route index>
           <SignInStart />
@@ -39,6 +54,8 @@ export const SignInModal = (props: SignInProps): JSX.Element => {
     ...props,
   };
 
+  const slashAuth = useCoreSlashAuth();
+
   return (
     <Route path="sign-in">
       <ComponentContext.Provider
@@ -48,9 +65,11 @@ export const SignInModal = (props: SignInProps): JSX.Element => {
           routing: 'virtual',
         }}
       >
-        <LoginMethodsProvider>
-          <SignInRoutes />
-        </LoginMethodsProvider>
+        <Web3LoginStateProvider manager={slashAuth.manager}>
+          <LoginMethodsProvider>
+            <SignInRoutes />
+          </LoginMethodsProvider>
+        </Web3LoginStateProvider>
       </ComponentContext.Provider>
     </Route>
   );

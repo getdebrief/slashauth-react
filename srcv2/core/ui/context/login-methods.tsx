@@ -3,6 +3,13 @@ import React from 'react';
 import { useSafeState } from '../hooks';
 import { createContextAndHook } from '../../../shared/utils';
 
+export enum LoginMethodType {
+  Web3 = 'web3',
+  MagicLink = 'magic-link',
+  FederatedGoogle = 'federated-google',
+  FederatedDiscord = 'federated-discord',
+}
+
 export type LoginMethod = {
   ready: boolean;
   name: string;

@@ -1,6 +1,5 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import { addFontFamily, isFamilySupported } from '../../fonts';
-import { animations } from '../../styles/animation';
 import { transitionTiming } from '../../styles/transitions';
 import { IModalContainerStyles, ModalStyles } from '../../types/modal';
 
@@ -22,12 +21,22 @@ export const DEFAULT_MODAL_CONTAINER_STYLES: IModalContainerStyles = {
   border: 'none',
   background: 'white',
   color: 'black',
-  animation: `${animations.modalSlideAndFade} 180ms ${transitionTiming.easeOut}`,
 };
 
 export const ModalContent = React.forwardRef<HTMLDivElement, Props>(
   ({ modalStyles, children }: Props, ref) => {
-    const wrapperStyles = React.useMemo(() => {
+    const modalContentsStyle: React.CSSProperties = {
+      width: 'calc(336px - 2rem)',
+      height: '446px',
+      flexGrow: 1,
+      display: 'flex',
+      flexDirection: 'column',
+      paddingTop: '2rem',
+      paddingLeft: '1rem',
+      paddingRight: '1rem',
+    };
+
+    const wrapperStyles = useMemo(() => {
       const resp: React.CSSProperties = {
         ...(modalStyles.defaultModalBodyStyles ||
           DEFAULT_MODAL_CONTAINER_STYLES),
@@ -51,15 +60,59 @@ export const ModalContent = React.forwardRef<HTMLDivElement, Props>(
       return resp;
     }, [modalStyles]);
 
+    const bodyStyles = useMemo(() => {
+      const resp: React.CSSProperties = {
+        width: '100%',
+        flexGrow: 1,
+        display: 'flex',
+        flexDirection: 'column' as const,
+        alignItems: 'center',
+        overflowY: 'hidden' as const,
+      };
+
+      if (modalStyles.alignItems) {
+        resp.alignItems = modalStyles.alignItems;
+      }
+
+      return resp;
+    }, [modalStyles.alignItems]);
+
     return (
       <div
+        style={wrapperStyles}
         ref={ref}
         aria-modal="true"
         role="dialog"
-        style={wrapperStyles}
-        onClick={(e) => e.stopPropagation()}
+        onClick={(e) => {
+          console.log('detected click');
+          e.stopPropagation();
+        }}
       >
-        {children}
+        <div
+          className="slashauth-modal-body"
+          style={{
+            ...modalContentsStyle,
+          }}
+        >
+          <div style={bodyStyles}>{children}</div>
+        </div>
+        <div
+          style={{
+            flexShrink: 0,
+            display: 'flex',
+            flexDirection: 'row',
+            justifyContent: 'center',
+            alignItems: 'center',
+            borderTop: '1px solid #e6e6e6',
+            width: '100%',
+            paddingBottom: '1rem',
+            paddingTop: '1rem',
+          }}
+        >
+          <span style={{ fontSize: '12px', color: '#9B9B9B' }}>
+            Powered by /auth
+          </span>
+        </div>
       </div>
     );
   }

@@ -8,12 +8,10 @@ type Props = {
 };
 
 const Root = ({ children }: Props): JSX.Element => {
-  console.log('in the header root, children: ', children);
   return <FlexCol>{children}</FlexCol>;
 };
 
 const Title = ({ children }: Props): JSX.Element => {
-  console.log('in the title');
   return (
     <h1
       style={{

@@ -1,5 +1,6 @@
-import React from 'react';
+import React, { Component } from 'react';
 import ReactDOM from 'react-dom';
+import ReactDOMClient from 'react-dom/client';
 import { PRESERVED_QUERYSTRING_PARAMS } from '../../shared/constants';
 import { useSafeLayoutEffect } from '../../shared/hooks';
 import { SlashAuthOptions, SlashAuthStyle } from '../../shared/types';
@@ -86,14 +87,25 @@ const mountComponentManager = (
   slashAuthRoot.setAttribute('id', 's8-components');
   document.body.appendChild(slashAuthRoot);
 
-  ReactDOM.render<ComponentManagerComponentProps>(
-    <ComponentManagerComponent
-      slashAuth={slashAuth}
-      options={options}
-      environment={environment}
-    />,
-    slashAuthRoot
-  );
+  if (ReactDOMClient && ReactDOMClient.createRoot) {
+    const root = ReactDOMClient.createRoot(slashAuthRoot);
+    root.render(
+      <ComponentManagerComponent
+        slashAuth={slashAuth}
+        options={options}
+        environment={environment}
+      />
+    );
+  } else {
+    ReactDOM.render<ComponentManagerComponentProps>(
+      <ComponentManagerComponent
+        slashAuth={slashAuth}
+        options={options}
+        environment={environment}
+      />,
+      slashAuthRoot
+    );
+  }
 
   return componentController;
 };
@@ -150,7 +162,6 @@ const ComponentManagerComponent = (props: ComponentManagerComponentProps) => {
     };
 
     componentController.openModal = (name, props) => {
-      console.log('setting state with name: ', name);
       setManagerState((curr) => ({ ...curr, [name + 'Modal']: props }));
     };
   }, []);

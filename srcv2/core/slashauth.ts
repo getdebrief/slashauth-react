@@ -4,13 +4,20 @@ import {
   LogoutOptions,
   SlashAuthClientOptions,
 } from '../shared/global';
-import { SlashAuthModalStyle, SlashAuthOptions } from '../shared/types';
+import {
+  SlashAuthListenerPayload,
+  SlashAuthModalStyle,
+  SlashAuthOptions,
+  SlashAuthWeb3ListenerPayload,
+} from '../shared/types';
 import { ProviderOptions, SignInOptions } from '../types/slashauth';
 import SlashAuthClient from './client';
+import { LoginMethodType } from './ui/context/login-methods';
 import { ComponentControls, mountComponentManager } from './ui/manager';
 import { Environment } from './ui/types/environment';
 import { ModalType } from './ui/types/modal';
-import { Web3Manager } from './web3/manager';
+import { User } from './user';
+import { Web3Manager, Web3ManagerEventType } from './web3/manager';
 
 interface AppModalConfig {
   clientID?: string;
@@ -22,6 +29,9 @@ interface AppModalConfig {
 interface LoggedInState {
   account: Account | null;
 }
+
+export type Listener = (payload: SlashAuthListenerPayload) => void;
+export type UnsubscribeCallback = () => void;
 
 /**
  * This is the main class for the repo. This handles state management
@@ -35,21 +45,55 @@ export class SlashAuth {
   #clientOptions: SlashAuthClientOptions;
   #client: SlashAuthClient;
 
+  #user: User;
+
   #web3Manager: Web3Manager;
 
   #modalConfig: AppModalConfig | null = null;
   #isReady = false;
 
-  #loggedInState: LoggedInState = null;
+  #listeners: Listener[];
 
   constructor(options: SlashAuthClientOptions) {
     this.#clientOptions = options;
     this.#client = new SlashAuthClient(options);
+    this.#user = new User();
+    this.#listeners = [];
     this.#initializeWeb3Manager(options.providerOptions || {});
+  }
+
+  public get appName() {
+    return this.#modalConfig?.name;
+  }
+
+  public get manager() {
+    return this.#web3Manager;
   }
 
   public get client() {
     return this.#client;
+  }
+
+  public get user() {
+    return this.#user;
+  }
+
+  public getWalletContext(): SlashAuthWeb3ListenerPayload {
+    return {
+      connected: this.#web3Manager.connected,
+      provider: this.#web3Manager.provider,
+      signer: this.#web3Manager.signer,
+      address: this.#web3Manager.address,
+    };
+  }
+
+  public addListener(listener: Listener): UnsubscribeCallback {
+    this.#listeners.push(listener);
+    // Emit immediately
+    this.#emitSingle(listener);
+    return () => {
+      this.#listeners = this.#listeners.filter((l) => l !== listener);
+    };
   }
 
   public isReady = () => this.#isReady;
@@ -58,15 +102,11 @@ export class SlashAuth {
     if (this.#isReady) {
       return;
     }
+    this.#web3Manager.onEvent(this.#handleWeb3Event.bind(this));
     await Promise.all([
       this.fetchAppModalConfig(),
-      this.#client.checkSession().then((isLoggedIn) => {
-        if (isLoggedIn) {
-          this.#client.getAccount().then((account) => {
-            this.#loggedInState = { account };
-          });
-        }
-      }),
+      this.checkLoginState(),
+      this.#web3Manager.autoConnect(),
     ]);
 
     // TODO: Fetch this from the appmodalconfig.
@@ -96,12 +136,26 @@ export class SlashAuth {
     }
 
     this.#isReady = true;
-    // TODO: When the user is logged in, we should check every 30 seconds if
-    // they are still logged in.
+
+    this.#emitAll();
   }
 
+  public checkLoginState = async () => {
+    const isLoggedIn = await this.#client.checkSession();
+    if (isLoggedIn) {
+      const account = await this.#client.getAccount();
+      const tokenClaims = await this.#client.getIdTokenClaims();
+      this.#user.setLoggedInState(tokenClaims, account, LoginMethodType.Web3);
+      this.#emitAll();
+    } else {
+      this.#user.setLoggedOut();
+    }
+  };
+
   public logout = async (options?: LogoutOptions) => {
-    return this.#client.logout(options);
+    await this.#client.logout(options);
+    this.#user.setLoggedOut();
+    this.#emitAll();
   };
 
   public openSignIn = (options: SignInOptions) => {
@@ -135,7 +189,27 @@ export class SlashAuth {
     }
   }
 
-  #initializeWeb3Manager = (options: ProviderOptions) => {
+  #emitAll = () => {
+    this.#listeners.forEach((listener) => {
+      this.#emitSingle(listener);
+    });
+  };
+
+  #emitSingle = (listener: Listener) => {
+    listener({
+      core: {
+        isReady: this.#isReady,
+      },
+      user: this.user,
+      web3: this.getWalletContext(),
+    });
+  };
+
+  #handleWeb3Event = (event: Web3ManagerEventType) => {
+    this.#emitAll();
+  };
+
+  #initializeWeb3Manager = async (options: ProviderOptions) => {
     const extractedOptions = {
       ...options,
     };
@@ -156,7 +230,5 @@ export class SlashAuth {
       infura: extractedOptions?.infura,
       publicConf: extractedOptions?.publicConf,
     });
-
-    // TODO: Hook up listeners
   };
 }

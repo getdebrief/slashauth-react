@@ -1,15 +1,14 @@
-import { Connector } from '@wagmi/core';
-import React from 'react';
+import React, { useEffect } from 'react';
 import { createContextAndHook } from '../../../shared/utils';
+import { Web3Manager, Web3ManagerEventType } from '../../web3/manager';
 import { useSafeState } from '../hooks';
-import { Web3LoginMethod } from './login-methods';
 
 type Web3LoginState = {
+  connected: boolean;
   address: string;
   nonce: string;
   signature: string;
-  connector: Connector;
-  loginMethod: Web3LoginMethod;
+  web3Manager: Web3Manager;
 };
 
 type Web3LoginStateCtxValue = {
@@ -20,19 +19,36 @@ type Web3LoginStateCtxValue = {
 const [Web3LoginStateCtx, _useWeb3LoginState] =
   createContextAndHook<Web3LoginStateCtxValue>('Web3LoginState');
 
-const Web3LoginStateProvider = (props: React.PropsWithChildren<any>) => {
+const Web3LoginStateProvider = (
+  props: React.PropsWithChildren<{ manager: Web3Manager }>
+) => {
   const [state, setState] = useSafeState<Web3LoginState>({
-    address: undefined,
+    connected: props.manager.connected,
+    address: props.manager.address,
     nonce: undefined,
     signature: undefined,
-    connector: undefined,
-    loginMethod: undefined,
+    web3Manager: props.manager,
   });
 
   const value = React.useMemo(
     () => ({ value: { state, setState } }),
     [state, setState]
   );
+
+  useEffect(() => {
+    const listener = (type: Web3ManagerEventType, mgr: Web3Manager) => {
+      if (type === 'connect') {
+        setState((s) => ({ ...s, connected: true, address: mgr.address }));
+      } else if (type === 'disconnect') {
+        setState((s) => ({ ...s, connected: false, address: undefined }));
+      }
+    };
+    props.manager.onEvent(listener);
+    return () => {
+      props.manager.offEvent(listener);
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   return (
     <Web3LoginStateCtx.Provider value={value}>
@@ -51,27 +67,23 @@ const useWeb3LoginState = () => {
         address: undefined,
         nonce: undefined,
         signature: undefined,
-        connector: undefined,
-        loginMethod: undefined,
+        connected: false,
+        web3Manager: state.web3Manager,
       }),
-    setLoginMethod: (loginMethod: Web3LoginMethod) =>
-      setState((s) => ({ ...s, loginMethod })),
-    setAddress: (address: string) => setState((s) => ({ ...s, address })),
     setNonce: (nonce: string) => setState((s) => ({ ...s, nonce })),
     setSignature: (signature: string) => setState((s) => ({ ...s, signature })),
-    setConnector: (connector: Connector) =>
-      setState((s) => ({ ...s, connector })),
   };
 };
 
 export { useWeb3LoginState, Web3LoginStateProvider };
 
 export const withWeb3LoginStateProvider = <T,>(
+  manager: Web3Manager,
   Component: React.ComponentType<T>
 ) => {
   return (props: T) => {
     return (
-      <Web3LoginStateProvider>
+      <Web3LoginStateProvider manager={manager}>
         <Component {...props} />
       </Web3LoginStateProvider>
     );

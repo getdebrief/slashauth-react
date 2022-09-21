@@ -13,10 +13,9 @@ export const Card = React.forwardRef<HTMLDivElement, CardProps>(
         <BaseCard
           style={{
             margin: '0, 1.5rem',
-            width: '100%',
             maxWidth: 'calc(100vw - 20rem)',
-            minWidth: '336px',
-            minHeight: '446px',
+            width: '336px',
+            height: '446px',
             // TODO: Check on smaller screen sizes.
           }}
           ref={ref}

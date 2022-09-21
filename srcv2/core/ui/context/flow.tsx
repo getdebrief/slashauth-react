@@ -6,6 +6,7 @@ type FlowMetadata = {
   flow: 'sign-in';
   part?:
     | 'start'
+    | 'sign-nonce'
     | 'wallet'
     | 'ethWallet'
     | 'emailLink'
