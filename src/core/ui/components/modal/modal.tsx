@@ -3,7 +3,7 @@ import React from 'react';
 import { useSafeLayoutEffect } from '../../../../shared/hooks';
 import { useAppearance } from '../../context/appearance';
 import { usePopover, useScrollLock } from '../../hooks';
-import { BasicPortal, Portal } from '../../portal';
+import { BasicPortal } from '../../portal';
 import { ModalBackdrop } from './backdrop';
 import { ModalContent } from './modal-content';
 

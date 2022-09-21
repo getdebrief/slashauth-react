@@ -287,6 +287,7 @@ export function tokensToFunction<P extends object = object>(
     return undefined;
   });
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   return (data: Record<string, any> | null | undefined) => {
     let path = '';
 

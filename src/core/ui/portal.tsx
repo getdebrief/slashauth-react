@@ -12,6 +12,7 @@ type PortalProps<
   node: HTMLDivElement;
   component:
     | React.FunctionComponent<PropsType>
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     | React.ComponentClass<PropsType, any>;
   props: PropsType & { path?: string; routing?: string };
   preservedParams?: string[];
@@ -42,13 +43,15 @@ export class Portal<
 type BasicPortalProps = React.PropsWithChildren<Record<string, unknown>>;
 
 export const BasicPortal = (props: BasicPortalProps) => {
-  const elRef = React.useRef(document.createElement('div'));
+  const elem = document.createElement('div');
+  const elRef = React.useRef(elem);
 
   React.useEffect(() => {
     document.body.appendChild(elRef.current);
     return () => {
-      document.body.removeChild(elRef.current);
+      document.body.removeChild(elem);
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   return createPortal(props.children, elRef.current);

@@ -2,7 +2,6 @@ import { useMemo } from 'react';
 import { useAppearance } from '../../context/appearance';
 import { useCoreSlashAuth } from '../../context/core-slashauth';
 import { useSignInContext } from './context';
-import { SignInWeb3Buttons } from './sign-in-web3-buttons';
 
 type Props = {
   children: React.ReactNode;
@@ -10,28 +9,11 @@ type Props = {
 
 const DARK_SLASHAUTH_ICON =
   'https://d1l2xccggl7xwv.cloudfront.net/icons/slashauth-dark.png';
-const LIGHT_SLASHAUTH_ICON =
-  'https://d1l2xccggl7xwv.cloudfront.net/icons/slashauth-light.png';
 
 export const SignInCard = ({ children }: Props) => {
   const slashAuth = useCoreSlashAuth();
   const { modalStyle } = useAppearance();
   const { walletConnectOnly } = useSignInContext();
-
-  // const modalStepContents = useMemo(() => {
-  //   if (!hasFetchedAppConfig) {
-  //     return <LoadingModalContents textColor={styles.fontColor || '#000000'} />;
-  //   }
-
-  //   if (loginStep === LoginStep.CONNECT_WALLET) {
-  //     return walletLoginContents;
-  //   } else if (loginStep === LoginStep.SIGN_NONCE) {
-  //     return <SigningTransactionModalContents />;
-  //   } else if (loginStep === LoginStep.LOADING) {
-  //     return <LoadingModalContents textColor={styles.fontColor || '#000000'} />;
-  //   }
-  //   return walletLoginContents;
-  // }, [hasFetchedAppConfig, styles.fontColor, walletLoginContents]);
 
   const headerTextAlign = useMemo(() => {
     switch (modalStyle.alignItems) {

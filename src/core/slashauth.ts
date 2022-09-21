@@ -1,9 +1,5 @@
 import { errorInitializeFailed } from '../shared/errors/slashauth-errors';
-import {
-  Account,
-  LogoutOptions,
-  SlashAuthClientOptions,
-} from '../shared/global';
+import { LogoutOptions, SlashAuthClientOptions } from '../shared/global';
 import {
   SlashAuthListenerPayload,
   SlashAuthModalStyle,
@@ -24,7 +20,7 @@ import {
   UnsubscribeFn,
 } from './ui/manager';
 import { Environment } from './ui/types/environment';
-import { ModalStyles, ModalType } from './ui/types/modal';
+import { ModalType } from './ui/types/modal';
 import { User } from './user';
 import { Web3Manager, Web3ManagerEventType } from './web3/manager';
 
@@ -33,10 +29,6 @@ interface AppModalConfig {
   name?: string;
   description?: string;
   modalStyle: SlashAuthModalStyle;
-}
-
-interface LoggedInState {
-  account: Account | null;
 }
 
 export type Listener = (payload: SlashAuthListenerPayload) => void;

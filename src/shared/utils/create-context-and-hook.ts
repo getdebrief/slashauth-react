@@ -25,6 +25,7 @@ export function createContextAndHook<CtxValue>(
   const useCtx = (): CtxValue => {
     const ctx = React.useContext(Ctx);
     if (skipCheck) {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       return ctx ? ctx.value : (undefined as any);
     }
     if (!options.assertCtxFn) {

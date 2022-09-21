@@ -20,7 +20,7 @@
     "test:cover": "jest --coverage",
     "prepare": "node -e \"try { require('husky').install() } catch (e) {if (e.code !== 'MODULE_NOT_FOUND') throw e}\"",
     "lint": "npx eslint --ext .ts --ext .tsx --max-warnings 0 .",
-    "lint-fix": "npx eslint --ext .ts --ext .tsx --max-warnings 0 --fix ./srcv2"
+    "lint-fix": "npx eslint --ext .ts --ext .tsx --max-warnings 0 --fix ./src"
   },
   "author": "",
   "license": "MIT",

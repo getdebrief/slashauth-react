@@ -9,7 +9,7 @@ export async function loadScript(
   { async, defer, globalObject }: LoadScriptOptions = {}
 ) {
   if (!src) {
-    throw 'Missing script src...';
+    throw new Error('Missing script src...');
   }
 
   return new Promise((resolve, reject) => {

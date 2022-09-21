@@ -1,5 +1,3 @@
-import { transitionTiming } from '../../styles/transitions';
-
 type Props = {
   children: React.ReactNode;
   onClick: () => void;

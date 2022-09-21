@@ -14,6 +14,7 @@ type CardStateCtxValue = {
 const [CardStateCtx, _useCardState] =
   createContextAndHook<CardStateCtxValue>('CardState');
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 const CardStateProvider = (props: React.PropsWithChildren<any>) => {
   const [state, setState] = useSafeState<State>({
     status: 'idle',

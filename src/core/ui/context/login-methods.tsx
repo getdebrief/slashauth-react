@@ -22,10 +22,6 @@ export type Web3LoginMethod = LoginMethod & {
   chain: string;
 };
 
-type EthLoginMethod = Web3LoginMethod & {
-  chain: 'eth';
-};
-
 type LoginMethodCtxValue = {
   loginMethods: LoginMethod[];
   setLoginMethods: React.Dispatch<React.SetStateAction<LoginMethod[]>>;

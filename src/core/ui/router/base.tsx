@@ -13,7 +13,9 @@ interface BaseRouterProps {
   startPath: string;
   getPath: () => string;
   getQueryString: () => string;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   internalNavigate: (toURL: URL) => Promise<any> | any;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   onExternalNavigate?: () => any;
   refreshEvents?: Array<keyof WindowEventMap>;
   preservedParams?: string[];

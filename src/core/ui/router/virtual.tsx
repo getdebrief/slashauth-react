@@ -7,6 +7,7 @@ export const VIRTUAL_ROUTER_BASE_PATH = 'SLASHAUTH-ROUTER/VIRTUAL';
 interface VirtualRouterProps {
   startPath: string;
   preservedParams?: string[];
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   onExternalNavigate?: () => any;
   children: React.ReactNode;
 }

@@ -45,7 +45,9 @@ type SlashAuthAPIFunctions = {
 
 type Web3Fields = {
   connectedWallet: string | null;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   ethereum: any;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   provider: any;
 
   connect: (transparent: boolean) => Promise<string | null>;

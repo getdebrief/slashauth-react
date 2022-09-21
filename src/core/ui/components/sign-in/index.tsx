@@ -1,11 +1,7 @@
-import { useEffect } from 'react';
 import { useAppearance } from '../../context/appearance';
 import { useCoreSlashAuth } from '../../context/core-slashauth';
 import { useEnvironment } from '../../context/environment';
-import {
-  LoginMethodsProvider,
-  useLoginMethods,
-} from '../../context/login-methods';
+import { LoginMethodsProvider } from '../../context/login-methods';
 import { useUser } from '../../context/user';
 import { Web3LoginStateProvider } from '../../context/web3-signin';
 import { Route } from '../../router/route';

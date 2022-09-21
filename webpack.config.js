@@ -2,7 +2,7 @@
 const webpack = require('webpack');
 
 module.exports = {
-  entry: './srcv2/index.ts',
+  entry: './src/index.ts',
   devtool: 'source-map',
   resolve: {
     extensions: ['.ts', '.tsx', '.js', '.jsx'],

@@ -70,7 +70,6 @@ import { CacheKeyManifest } from '../shared/cache/key-manifest';
 import getDeviceID from '../shared/device';
 import {
   getNonceToSign,
-  logout as apiLogout,
   hasRoleAPICall,
   getRoleMetadataAPICall,
   hasOrgRoleAPICall,
