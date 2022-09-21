@@ -7,15 +7,15 @@
     "url": "https://github.com/slashauth/slashauth-react.git"
   },
   "description": "Slashauth library for react apps powered by @slashauth",
-  "main": "distv2/index.cjs.js",
-  "module": "distv2/index.esm.js",
-  "types": "distv2/index.d.ts",
+  "main": "dist/index.cjs.js",
+  "module": "dist/index.esm.js",
+  "types": "dist/index.d.ts",
   "files": [
-    "distv2/*"
+    "dist/*"
   ],
   "scripts": {
     "prepublishOnly": "npm run build",
-    "build": "node esbuild.js && tsc --emitDeclarationOnly --outDir distv2",
+    "build": "node esbuild.js && tsc --emitDeclarationOnly --outDir dist",
     "test": "jest",
     "test:cover": "jest --coverage",
     "prepare": "node -e \"try { require('husky').install() } catch (e) {if (e.code !== 'MODULE_NOT_FOUND') throw e}\"",

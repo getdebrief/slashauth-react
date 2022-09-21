@@ -1,11 +1,6 @@
 {
   "compilerOptions": {
     "target": "es2020",
-    "lib": [
-      "dom",
-      "dom.iterable",
-      "esnext"
-    ],
     "allowJs": true,
     "skipLibCheck": true,
     "esModuleInterop": true,
@@ -17,16 +12,16 @@
     "resolveJsonModule": true,
     "isolatedModules": true,
     "jsx": "react-jsx",
-    "outDir": "distv2",
+    "outDir": "dist",
     "declaration": true,
     "emitDeclarationOnly": true,
     "downlevelIteration": true
   },
   "compileOnSave": true,
   "include": [
-    "srcv2"
+    "src"
   ],
-  "exclude": ["node_modules", "dist", "distv2", "bak"],
+  "exclude": ["node_modules", "dist"],
   "paths": {
     "crypto": [
       "node_modules/crypto-browserify"

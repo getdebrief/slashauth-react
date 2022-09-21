@@ -11,13 +11,13 @@ const esbuild = require('esbuild');
 
 esbuild.build({
   logLevel: 'info',
-  entryPoints: ['srcv2/index.ts'],
+  entryPoints: ['src/index.ts'],
   bundle: true,
-  minify: false,
+  minify: true,
   target: 'es2020',
   format: 'esm',
-  outfile: './distv2/index.esm.js',
-  outbase: './srcv2',
+  outfile: './dist/index.esm.js',
+  outbase: './src',
   treeShaking: true,
   external: ['react', 'react-dom'],
   plugins: [
@@ -31,13 +31,13 @@ esbuild.build({
 
 esbuild.build({
   logLevel: 'info',
-  entryPoints: ['srcv2/index.ts'],
+  entryPoints: ['src/index.ts'],
   bundle: true,
-  minify: false,
+  minify: true,
   target: 'es2020',
   format: 'cjs',
-  outfile: './distv2/index.cjs.js',
-  outbase: './srcv2',
+  outfile: './dist/index.cjs.js',
+  outbase: './src',
   treeShaking: true,
   external: ['react', 'react-dom'],
   plugins: [cssModulesPlugin()],

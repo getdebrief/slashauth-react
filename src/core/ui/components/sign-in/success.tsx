@@ -1,10 +1,18 @@
+import { useEffect } from 'react';
 import { withCardStateProvider } from '../../context/card';
+import { useCoreSlashAuth } from '../../context/core-slashauth';
 import { Flow } from '../flow/flow';
 import { SignInCard } from './card';
 import { useSignInContext } from './context';
 
 const _SignInSuccess = () => {
+  const slashAuth = useCoreSlashAuth();
   const { walletConnectOnly } = useSignInContext();
+
+  useEffect(() => {
+    setTimeout(() => slashAuth.closeSignIn(), 2000);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   return (
     <Flow.Part part="complete">
