@@ -84,7 +84,6 @@ export const ModalContent = React.forwardRef<HTMLDivElement, Props>(
         aria-modal="true"
         role="dialog"
         onClick={(e) => {
-          console.log('detected click');
           e.stopPropagation();
         }}
       >

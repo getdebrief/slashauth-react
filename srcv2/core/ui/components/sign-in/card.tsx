@@ -1,6 +1,7 @@
 import { useMemo } from 'react';
 import { useAppearance } from '../../context/appearance';
 import { useCoreSlashAuth } from '../../context/core-slashauth';
+import { useSignInContext } from './context';
 import { SignInWeb3Buttons } from './sign-in-web3-buttons';
 
 type Props = {
@@ -15,6 +16,7 @@ const LIGHT_SLASHAUTH_ICON =
 export const SignInCard = ({ children }: Props) => {
   const slashAuth = useCoreSlashAuth();
   const { modalStyle } = useAppearance();
+  const { walletConnectOnly } = useSignInContext();
 
   // const modalStepContents = useMemo(() => {
   //   if (!hasFetchedAppConfig) {
@@ -59,7 +61,9 @@ export const SignInCard = ({ children }: Props) => {
         }}
       />
       <div style={{ marginTop: '1rem', textAlign: headerTextAlign }}>
-        <div style={{ fontSize: '24px', fontWeight: 700 }}>Login to</div>
+        <div style={{ fontSize: '24px', fontWeight: 700 }}>
+          {walletConnectOnly ? 'Connect Wallet' : 'Login'}
+        </div>
         <div style={{ fontSize: '16px', fontWeight: 500 }}>
           {' '}
           {slashAuth.appName || 'Unnamed App'}

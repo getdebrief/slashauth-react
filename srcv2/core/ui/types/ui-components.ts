@@ -27,6 +27,8 @@ export type RedirectOptions = {
 };
 
 export type SignInProps = {
+  walletConnectOnly?: boolean;
+  walletConnectTransparent?: boolean;
   /*
    * Root URL where the component is mounted on, eg: '/sign in'
    */

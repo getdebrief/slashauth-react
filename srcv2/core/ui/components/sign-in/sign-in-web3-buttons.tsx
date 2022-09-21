@@ -3,8 +3,10 @@ import { useLoginMethods, Web3LoginMethod } from '../../context/login-methods';
 import { useWeb3LoginState } from '../../context/web3-signin';
 import { useRouter } from '../../router/context';
 import { ConnectorButton } from '../web3-login-button';
+import { useSignInContext } from './context';
 
 export const SignInWeb3Buttons = () => {
+  const { walletConnectOnly } = useSignInContext();
   const enabledLoginMethods = useLoginMethods();
   const web3LoginState = useWeb3LoginState();
 
@@ -14,8 +16,7 @@ export const SignInWeb3Buttons = () => {
     ) as unknown as Web3LoginMethod[];
   }, [enabledLoginMethods.loginMethods]);
 
-  const { navigate, fullPath } = useRouter();
-  console.log('full path: ', fullPath);
+  const { navigate } = useRouter();
 
   return (
     <>
@@ -28,8 +29,11 @@ export const SignInWeb3Buttons = () => {
               await web3LoginState.web3Manager.connectToConnectorWithID(
                 loginMethod.id
               );
-              console.log('about to redirect');
-              navigate('./sign-nonce');
+              if (walletConnectOnly) {
+                navigate('./success');
+              } else {
+                navigate('./sign-nonce');
+              }
             }}
           />
         );

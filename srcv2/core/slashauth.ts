@@ -10,10 +10,18 @@ import {
   SlashAuthOptions,
   SlashAuthWeb3ListenerPayload,
 } from '../shared/types';
-import { ProviderOptions, SignInOptions } from '../types/slashauth';
+import {
+  ConnectOptions,
+  ProviderOptions,
+  SignInOptions,
+} from '../types/slashauth';
 import SlashAuthClient from './client';
 import { LoginMethodType } from './ui/context/login-methods';
-import { ComponentControls, mountComponentManager } from './ui/manager';
+import {
+  ComponentControls,
+  mountComponentManager,
+  UnsubscribeFn,
+} from './ui/manager';
 import { Environment } from './ui/types/environment';
 import { ModalType } from './ui/types/modal';
 import { User } from './user';
@@ -140,6 +148,62 @@ export class SlashAuth {
     this.#emitAll();
   }
 
+  public connectWallet = async (
+    options: ConnectOptions = {}
+  ): Promise<string | null> => {
+    await this.#web3Manager.autoConnect();
+    if (options.transparent || this.#web3Manager.address) {
+      return this.#web3Manager.address;
+    }
+    return new Promise((resolve, reject) => {
+      let unsubscribe: UnsubscribeFn | null = null;
+      try {
+        this.openSignIn({
+          walletConnectOnly: true,
+        });
+        unsubscribe = this.#componentController.addListener((payload) => {
+          if (payload.action === 'close') {
+            unsubscribe();
+            if (this.#web3Manager.address) {
+              resolve(this.#web3Manager.address);
+            } else {
+              resolve(null);
+            }
+          }
+        });
+      } catch (err) {
+        if (unsubscribe) {
+          unsubscribe();
+        }
+        reject(err);
+      }
+    });
+  };
+
+  public openSignInSync = (options: SignInOptions = {}): Promise<void> => {
+    return new Promise((resolve, reject) => {
+      let unsubscribe: UnsubscribeFn | null = null;
+      try {
+        this.openSignIn(options);
+        unsubscribe = this.#componentController.addListener((payload) => {
+          if (payload.action === 'close') {
+            unsubscribe();
+            if (this.#web3Manager.address) {
+              resolve();
+            } else {
+              resolve();
+            }
+          }
+        });
+      } catch (err) {
+        if (unsubscribe) {
+          unsubscribe();
+        }
+        reject(err);
+      }
+    });
+  };
+
   public checkLoginState = async () => {
     const isLoggedIn = await this.#client.checkSession();
     if (isLoggedIn) {
@@ -205,7 +269,20 @@ export class SlashAuth {
     });
   };
 
-  #handleWeb3Event = (event: Web3ManagerEventType) => {
+  #handleWeb3Event = async (event: Web3ManagerEventType) => {
+    if (event === 'disconnect' || event === 'accountChange') {
+      console.log(this.manager.address);
+      if (
+        this.user.loggedIn &&
+        this.user.loginMethod === LoginMethodType.Web3 &&
+        (!this.manager.address ||
+          this.user.account.rawAddress?.toLowerCase() !==
+            this.manager.address?.toLowerCase())
+      ) {
+        await this.logout();
+        return;
+      }
+    }
     this.#emitAll();
   };
 

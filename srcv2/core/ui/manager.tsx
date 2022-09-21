@@ -10,7 +10,6 @@ import { SlashAuth } from '../slashauth';
 import { Modal } from './components/modal';
 import { SignInModal } from './components/sign-in';
 import { AppearanceProvider } from './context/appearance';
-import { CoreSlashAuthContext } from './context/core-slashauth';
 import { EnvironmentProvider } from './context/environment';
 import { FlowMetadataProvider } from './context/flow';
 import { SlashAuthUIProvider } from './context/slashauth';
@@ -19,6 +18,13 @@ import { VirtualRouter } from './router/virtual';
 import { Environment } from './types/environment';
 import { ModalType } from './types/modal';
 import { AvailableComponentProps, SignInProps } from './types/ui-components';
+
+export type ComponentListener = (payload: ComponentListenerPayload) => void;
+export type ComponentListenerPayload = {
+  action: 'open' | 'close' | 'mount' | 'unmount';
+  type: ModalType;
+};
+export type UnsubscribeFn = () => void;
 
 export interface ComponentControls {
   mountComponent: (params: {
@@ -39,6 +45,8 @@ export interface ComponentControls {
     props?: unknown;
   }) => void;
   closeModal: (modalType: ModalType) => void;
+
+  addListener: (listener: ComponentListener) => UnsubscribeFn;
 }
 
 const componentController: ComponentControls = {
@@ -47,6 +55,7 @@ const componentController: ComponentControls = {
   openModal: uninitializedStub,
   updateProps: uninitializedStub,
   closeModal: uninitializedStub,
+  addListener: uninitializedStub,
 };
 
 const AvailableComponents = {};
@@ -66,6 +75,7 @@ interface ComponentManagerState {
   options?: SlashAuthOptions | undefined;
   signInModal: null | SignInProps;
   nodes: Map<HTMLDivElement, HtmlNodeOptions>;
+  listeners: ComponentListener[];
 }
 
 interface ComponentManagerComponentProps {
@@ -117,6 +127,7 @@ const ComponentManagerComponent = (props: ComponentManagerComponentProps) => {
       options: props.options,
       signInModal: null,
       nodes: new Map(),
+      listeners: [],
     }
   );
 
@@ -135,6 +146,12 @@ const ComponentManagerComponent = (props: ComponentManagerComponentProps) => {
         });
         return { ...curr, nodes };
       });
+      managerState.listeners.forEach((l) => {
+        l({
+          action: 'mount',
+          type: name,
+        });
+      });
     };
 
     componentController.unmountComponent = (params) => {
@@ -142,6 +159,12 @@ const ComponentManagerComponent = (props: ComponentManagerComponentProps) => {
       setManagerState((curr) => {
         curr.nodes.delete(node);
         return { ...curr, nodes };
+      });
+      managerState.listeners.forEach((l) => {
+        l({
+          action: 'unmount',
+          type: ModalType.SignIn,
+        });
       });
     };
 
@@ -159,10 +182,36 @@ const ComponentManagerComponent = (props: ComponentManagerComponentProps) => {
 
     componentController.closeModal = (name) => {
       setManagerState((curr) => ({ ...curr, [name + 'Modal']: null }));
+      managerState.listeners.forEach((l) => {
+        l({
+          action: 'close',
+          type: name,
+        });
+      });
     };
 
     componentController.openModal = (name, props) => {
       setManagerState((curr) => ({ ...curr, [name + 'Modal']: props }));
+      managerState.listeners.forEach((l) => {
+        l({
+          action: 'open',
+          type: name,
+        });
+      });
+    };
+
+    componentController.addListener = (listener: ComponentListener) => {
+      const unsubscribeFn = () => {
+        setManagerState((curr) => {
+          curr.listeners = curr.listeners.filter((l) => l !== listener);
+          return { ...curr };
+        });
+      };
+      setManagerState((curr) => {
+        curr.listeners.push(listener);
+        return { ...curr };
+      });
+      return unsubscribeFn;
     };
   }, []);
 

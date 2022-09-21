@@ -44,6 +44,7 @@ export const ConnectorButton = ({ loginMethod, onClick }: Props) => {
         paddingRight: '1rem',
         marginBottom: '0.5rem',
         fontSize: '12px',
+        cursor: 'pointer',
       }}
       onMouseEnter={() => setHover(true)}
       onMouseLeave={() => setHover(false)}

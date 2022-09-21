@@ -7,12 +7,11 @@ import {
 } from '../../context/login-methods';
 import { useUser } from '../../context/user';
 import { Web3LoginStateProvider } from '../../context/web3-signin';
-import { useRouter } from '../../router/context';
 import { Route } from '../../router/route';
 import { Switch } from '../../router/switch';
 import { SignInProps } from '../../types/ui-components';
 import { Flow } from '../flow/flow';
-import { ComponentContext } from './context';
+import { ComponentContext, useSignInContext } from './context';
 import { SignNonce } from './sign-nonce';
 import { SignInStart } from './start';
 import { SignInSuccess } from './success';
@@ -21,8 +20,7 @@ function SignInRoutes(): JSX.Element {
   const environment = useEnvironment();
   const user = useUser();
   const { setLoginMethods } = useLoginMethods();
-
-  console.log(user);
+  const { walletConnectOnly } = useSignInContext();
 
   useEffect(() => {
     setLoginMethods(environment.authSettings.availableWeb3LoginMethods);
@@ -35,9 +33,11 @@ function SignInRoutes(): JSX.Element {
   return (
     <Flow.Root flow="sign-in">
       <Switch>
-        <Route path="sign-nonce">
-          <SignNonce />
-        </Route>
+        {!walletConnectOnly && (
+          <Route path="sign-nonce">
+            <SignNonce />
+          </Route>
+        )}
         <Route path="success">
           <SignInSuccess />
         </Route>

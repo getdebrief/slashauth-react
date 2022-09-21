@@ -46,7 +46,6 @@ export const Modal = (props: ModalProps) => {
         aria-hidden
         onClick={() => {
           handleClose();
-          console.log('handling close');
         }}
       >
         <ModalContent ref={floating} modalStyles={appearance.modalStyle}>

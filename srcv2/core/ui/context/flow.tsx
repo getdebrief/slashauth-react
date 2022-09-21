@@ -3,7 +3,7 @@ import React from 'react';
 import { createContextAndHook } from '../../../shared/utils';
 
 type FlowMetadata = {
-  flow: 'sign-in';
+  flow: 'sign-in' | 'wallet-connect';
   part?:
     | 'start'
     | 'sign-nonce'

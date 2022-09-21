@@ -8,5 +8,3 @@ import {
 SlashAuth.mountComponentManager = mountComponentManager;
 
 export { SlashAuth, SlashAuthProvider, useSlashAuth };
-
-export { default as ReactFromModule } from 'react';

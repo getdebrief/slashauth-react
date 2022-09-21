@@ -2,7 +2,13 @@ import { CoinbaseWalletSDKOptions } from '@coinbase/wallet-sdk/dist/CoinbaseWall
 import { IWalletConnectProviderOptions } from '@walletconnect/types';
 
 // eslint-disable-next-line @typescript-eslint/no-empty-interface
-export interface SignInOptions {}
+export interface SignInOptions {
+  walletConnectOnly?: boolean;
+}
+
+export interface ConnectOptions {
+  transparent?: boolean;
+}
 
 export interface CoreSlashAuth {
   version?: string;

@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useCallback, useEffect } from 'react';
 import {
   Account,
   CacheLocation,
@@ -231,13 +231,81 @@ const SlashAuthContext =
 export function LegacyProvider({ children }: _Props) {
   const slashAuth = useCoreSlashAuth();
 
+  const connect = useCallback(
+    async (transparent?: boolean): Promise<string> => {
+      return slashAuth.connectWallet({ transparent });
+    },
+    [slashAuth]
+  );
+
+  const hasRole = useCallback(
+    async (role: string): Promise<boolean> => {
+      return slashAuth.client.hasRole(role);
+    },
+    [slashAuth.client]
+  );
+
+  const hasOrgRole = useCallback(
+    async (organizationID: string, role: string): Promise<boolean> => {
+      return slashAuth.client.hasOrgRole(organizationID, role);
+    },
+    [slashAuth.client]
+  );
+
+  const getRoleMetadata = useCallback(
+    async (role: string): Promise<ObjectMap> => {
+      return slashAuth.client.getRoleMetadata(role);
+    },
+    [slashAuth.client]
+  );
+
+  const getAccessTokenSilently = useCallback(
+    async (options?: GetTokenSilentlyOptions): Promise<string> => {
+      return slashAuth.client.getTokenSilently(options);
+    },
+    [slashAuth.client]
+  );
+
+  const loginNoRedirectNoPopup = useCallback(
+    async (options?: LoginNoRedirectNoPopupOptions): Promise<void> => {
+      return slashAuth.openSignInSync({});
+    },
+    [slashAuth]
+  );
+
+  const logout = useCallback(
+    async (options?: LogoutOptions): Promise<void> => {
+      return slashAuth.logout(options);
+    },
+    [slashAuth]
+  );
+
+  const getIdTokenClaims = useCallback(
+    async (options?: GetIdTokenClaimsOptions): Promise<IdToken> => {
+      return slashAuth.client.getIdTokenClaims(options);
+    },
+    [slashAuth.client]
+  );
+
+  const checkSession = useCallback(async (): Promise<boolean> => {
+    return slashAuth.client.checkSession();
+  }, [slashAuth.client]);
+
   const [state, setState] = React.useState<SlashAuthContextProviderState>({
     ...emptyContext,
+    connect,
+    hasRole,
+    hasOrgRole,
+    getRoleMetadata,
+    getAccessTokenSilently,
+    loginNoRedirectNoPopup,
+    logout,
+    getIdTokenClaims,
+    checkSession,
   });
 
   useEffect(() => {
     const unsubscribe = slashAuth.addListener((payload) => {
-      console.log('received payload: ', payload);
       setState((prevState) => ({
         ...prevState,
         account: payload.user.account,

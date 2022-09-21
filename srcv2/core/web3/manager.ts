@@ -242,7 +242,7 @@ export class Web3Manager {
 
   #onConnectorConnect = async () => {
     this.connectedConnector.on('change', async (state) => {
-      if (state.account) {
+      if (state.account && this.connectedConnector) {
         this.#address = await this.connectedConnector.getAccount();
         this.#signer = await this.connectedConnector.getSigner();
         this.#provider = await this.connectedConnector.getProvider();
@@ -282,9 +282,10 @@ export class Web3Manager {
 
   #attachClientListeners() {
     const unsubscribe = this.#client.subscribe(
-      ({ data, status }) => ({
+      ({ data, status, connector }) => ({
         address: data?.account,
         status,
+        connector,
       }),
       (state, prevState) => {
         if (
@@ -295,9 +296,13 @@ export class Web3Manager {
         } else if (state.status !== prevState.status) {
           if (state.status === 'connected') {
             this.#onConnectorConnect();
-          } else if (state.status === 'disconnected') {
+          } else if (
+            state.status === 'disconnected' &&
+            prevState.status !== 'disconnected' &&
+            !!prevState.connector
+          ) {
             this.#disconnectListeners.forEach((l) => l());
-            this.onConnectorDisconnect();
+            this.#onConnectorDisconnect(prevState.connector);
           }
         }
       },
@@ -313,6 +318,7 @@ export class Web3Manager {
       }),
       (state, prevState) => {
         if (
+          state.connector &&
           state.connector?.id !== prevState.connector?.id &&
           // This fires twice sometimes.
           this.connectedConnector?.id !== state.connector?.id
@@ -330,9 +336,9 @@ export class Web3Manager {
     this.unsubscribeFns.push(connectorListenUnsubscribe);
   }
 
-  public onConnectorDisconnect = () => {
-    this.connectedConnector?.off('change');
-    this.connectedConnector?.off('disconnect');
-    this.connectedConnector?.off('message');
+  #onConnectorDisconnect = (connector: Connector) => {
+    connector.off('change');
+    connector.off('disconnect');
+    connector.off('message');
   };
 }

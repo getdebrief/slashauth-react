@@ -19,6 +19,16 @@ export class Account {
     default?: string;
     allWallets?: string[];
   };
+
+  get rawAddress(): string | undefined {
+    if (this.wallet?.default) {
+      if (this.wallet.default.indexOf(':') !== -1) {
+        return this.wallet.default.split(':')[1];
+      }
+      return this.wallet.default;
+    }
+    return undefined;
+  }
 }
 
 // eslint-disable-next-line @typescript-eslint/no-empty-interface
