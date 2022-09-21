@@ -210,7 +210,7 @@ export class SlashAuth {
   };
 
   public logout = async (options?: LogoutOptions) => {
-    await this.#client.logout(options);
+    this.#client.logout(options);
     this.#user.setLoggedOut();
     this.#emitAll();
   };
