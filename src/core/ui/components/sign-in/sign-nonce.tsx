@@ -1,6 +1,5 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { shortenEthAddress } from '../../../../shared/utils/eth';
-import { useAppearance } from '../../context/appearance';
 import { withCardStateProvider } from '../../context/card';
 import { useCoreSlashAuth } from '../../context/core-slashauth';
 import { useDeviceContext } from '../../context/device-id';
@@ -20,7 +19,7 @@ const _SignNonce = () => {
   const { address, web3Manager } = useWeb3LoginState();
   const { navigate } = useRouter();
   const [loggingIn, setLoggingIn] = useState(false);
-  const appearance = useAppearance();
+  const [loginWithAPIActive, setLoginWithAPIActive] = useState(false);
 
   useEffect(() => {
     setFetchedNonce(null);
@@ -34,7 +33,7 @@ const _SignNonce = () => {
 
   const signNonceAndLogin = useCallback(async () => {
     if (loggingIn) {
-      console.error('current logging in. Check metamask');
+      console.error('currently logging in. Check metamask');
       return;
     }
     setLoggingIn(true);
@@ -45,22 +44,27 @@ const _SignNonce = () => {
       } catch (err) {
         // If this errors, the user has rejected the signature.
         console.error('User rejected the signature');
-        // TODO: update the state.
+        navigate('../error');
         return;
       }
       if (signature) {
         try {
+          setLoginWithAPIActive(true);
           await client.walletLoginInPage({
             address,
-            signature,
+            signature: signature + '1',
           });
           slashAuth.checkLoginState();
         } catch (err) {
           console.error('Failed to login: ', err);
-          // TODO: Show failure state.
+          navigate('../error');
           return;
+        } finally {
+          setLoginWithAPIActive(false);
         }
         navigate('../success');
+      } else {
+        navigate('../error');
       }
     } finally {
       setLoggingIn(false);
@@ -78,9 +82,10 @@ const _SignNonce = () => {
   const contents = useMemo(() => {
     if (!fetchedNonce) {
       handleFetchNonce();
-      return (
-        <LoadingModalContents textColor={appearance.modalStyle.fontColor} />
-      );
+      return <LoadingModalContents />;
+    }
+    if (loginWithAPIActive) {
+      return <LoadingModalContents />;
     }
     if (loggingIn) {
       return (
@@ -134,10 +139,10 @@ const _SignNonce = () => {
     );
   }, [
     address,
-    appearance.modalStyle.fontColor,
     fetchedNonce,
     handleFetchNonce,
     loggingIn,
+    loginWithAPIActive,
     navigate,
     signNonceAndLogin,
   ]);

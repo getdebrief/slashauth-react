@@ -1,10 +1,13 @@
 import { ScaleLoader } from 'react-spinners';
+import { useAppearance } from '../../context/appearance';
 
 type Props = {
   textColor: string;
 };
 
-export const LoadingModalContents = ({ textColor }: Props) => {
+export const LoadingModalContents = () => {
+  const appearance = useAppearance();
+
   return (
     <div
       style={{
@@ -15,7 +18,11 @@ export const LoadingModalContents = ({ textColor }: Props) => {
         justifyContent: 'center',
       }}
     >
-      <ScaleLoader height={35} width={4} color={textColor} />
+      <ScaleLoader
+        height={35}
+        width={4}
+        color={appearance.modalStyle.fontColor}
+      />
     </div>
   );
 };

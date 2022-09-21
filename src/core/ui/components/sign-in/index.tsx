@@ -10,6 +10,7 @@ import { SignInProps } from '../../types/ui-components';
 import { Flow } from '../flow/flow';
 import { ModalContent } from '../modal/modal-content';
 import { ComponentContext, useSignInContext } from './context';
+import { SignInError } from './error';
 import { SignNonce } from './sign-nonce';
 import { SignInStart } from './start';
 import { SignInSuccess } from './success';
@@ -53,6 +54,9 @@ function SignInRoutes(): JSX.Element {
               )}
               <Route path="success">
                 <SignInSuccess />
+              </Route>
+              <Route path="error">
+                <SignInError />
               </Route>
               <Route index>
                 <SignInStart />
