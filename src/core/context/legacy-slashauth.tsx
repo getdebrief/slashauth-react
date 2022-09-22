@@ -1,4 +1,9 @@
-import React, { useCallback, useEffect } from 'react';
+import React, {
+  useCallback,
+  useEffect,
+  useLayoutEffect,
+  useState,
+} from 'react';
 import {
   Account,
   CacheLocation,
@@ -187,21 +192,39 @@ export interface SlashAuthProviderOptions {
 export function SlashAuthProvider(
   props: SlashAuthProviderOptions
 ): JSX.Element | null {
+  const [slashAuth, setSlashAuth] = useState<SlashAuth | null>(null);
+  const [initialized, setInitialized] = useState(false);
+
   const { clientID, redirectUri, domain, ...validOpts } = props;
   if (!clientID || clientID === '') {
     throw new Error('clientID is required');
   }
-  const slashAuth = new SlashAuth({
-    ...validOpts,
-    domain: domain || 'https://slashauth.com',
-    clientID: clientID,
-    slashAuthClient: {
-      name: 'slashAuth-react',
-      version: '',
-    },
-  });
 
-  slashAuth.initialize();
+  useEffect(() => {
+    if (!slashAuth && domain && clientID) {
+      const slashAuth = new SlashAuth({
+        ...validOpts,
+        domain: domain || 'https://slashauth.com',
+        clientID: clientID,
+        slashAuthClient: {
+          name: 'slashAuth-react',
+          version: '',
+        },
+      });
+      setSlashAuth(slashAuth);
+    }
+  }, [clientID, domain, slashAuth, validOpts]);
+
+  useEffect(() => {
+    if (slashAuth && !initialized) {
+      setInitialized(true);
+      slashAuth.initialize();
+    }
+  }, [initialized, slashAuth]);
+
+  if (!slashAuth) {
+    return <div />;
+  }
 
   return (
     <SlashAuthUIProvider slashAuth={slashAuth}>
