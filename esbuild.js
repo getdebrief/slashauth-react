@@ -9,6 +9,10 @@ const cssModulesPlugin = require('esbuild-css-modules-plugin');
 
 const esbuild = require('esbuild');
 
+const yargs = require('yargs');
+
+const argv = process.argv.slice(2);
+
 esbuild.build({
   logLevel: 'info',
   entryPoints: ['src/index.ts'],
@@ -19,6 +23,7 @@ esbuild.build({
   outfile: './dist/index.esm.js',
   outbase: './src',
   treeShaking: true,
+  watch: argv.indexOf('--watch') !== -1,
   external: ['react', 'react-dom'],
   plugins: [
     NodeModulesPolyfillPlugin(),
@@ -36,6 +41,7 @@ esbuild.build({
   minify: true,
   target: 'es2020',
   format: 'cjs',
+  watch: argv.indexOf('--watch') !== -1,
   outfile: './dist/index.cjs.js',
   outbase: './src',
   treeShaking: true,
