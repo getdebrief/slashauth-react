@@ -9,8 +9,6 @@ const cssModulesPlugin = require('esbuild-css-modules-plugin');
 
 const esbuild = require('esbuild');
 
-const yargs = require('yargs');
-
 const argv = process.argv.slice(2);
 
 esbuild.build({
