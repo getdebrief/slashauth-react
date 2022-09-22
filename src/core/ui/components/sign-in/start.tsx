@@ -32,10 +32,6 @@ const _SignInStart = () => {
         return;
       }
       try {
-        console.log(
-          'setting attempted login method: ',
-          loginMethods.find((m) => m.id === id)
-        );
         setSelectedLoginMethod(loginMethods.find((m) => m.id === id));
         setConnecting(true);
         await web3LoginState.web3Manager.connectToConnectorWithID(id);

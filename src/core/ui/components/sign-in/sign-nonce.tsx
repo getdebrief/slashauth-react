@@ -52,7 +52,7 @@ const _SignNonce = () => {
           setLoginWithAPIActive(true);
           await client.walletLoginInPage({
             address,
-            signature: signature + '1',
+            signature: signature,
           });
           slashAuth.checkLoginState();
         } catch (err) {
