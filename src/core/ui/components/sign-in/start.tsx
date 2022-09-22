@@ -7,19 +7,23 @@ import { useCallback, useEffect, useState } from 'react';
 import { useRouter } from '../../router/context';
 import { useWeb3LoginState } from '../../context/web3-signin';
 import { LoadingModalContents } from './loading';
+import { useLoginMethods } from '../../context/login-methods';
 
 const _SignInStart = () => {
   const { viewOnly, walletConnectOnly } = useSignInContext();
   const { navigate } = useRouter();
   const web3LoginState = useWeb3LoginState();
+  const { loginMethods, setSelectedLoginMethod } = useLoginMethods();
 
   const [isConnecting, setConnecting] = useState(false);
 
   useEffect(() => {
+    setSelectedLoginMethod(null);
     setConnecting(false);
     return () => {
       setConnecting(false);
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const handleConnectWalletClick = useCallback(
@@ -28,6 +32,11 @@ const _SignInStart = () => {
         return;
       }
       try {
+        console.log(
+          'setting attempted login method: ',
+          loginMethods.find((m) => m.id === id)
+        );
+        setSelectedLoginMethod(loginMethods.find((m) => m.id === id));
         setConnecting(true);
         await web3LoginState.web3Manager.connectToConnectorWithID(id);
         if (walletConnectOnly) {
@@ -39,7 +48,14 @@ const _SignInStart = () => {
         setConnecting(false);
       }
     },
-    [navigate, viewOnly, walletConnectOnly, web3LoginState.web3Manager]
+    [
+      loginMethods,
+      navigate,
+      setSelectedLoginMethod,
+      viewOnly,
+      walletConnectOnly,
+      web3LoginState.web3Manager,
+    ]
   );
 
   return (

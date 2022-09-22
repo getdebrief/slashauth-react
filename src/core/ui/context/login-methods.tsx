@@ -24,6 +24,8 @@ export type Web3LoginMethod = LoginMethod & {
 
 type LoginMethodCtxValue = {
   loginMethods: LoginMethod[];
+  selectedLoginMethod: LoginMethod | null;
+  setSelectedLoginMethod: (loginMethod: LoginMethod | null) => void;
   setLoginMethods: React.Dispatch<React.SetStateAction<LoginMethod[]>>;
 };
 
@@ -37,9 +39,19 @@ const LoginMethodsProvider = (
     props.loginMethods || []
   );
 
+  const [selectedLoginMethod, setSelectedLoginMethod] =
+    useSafeState<LoginMethod | null>(null);
+
   const value = React.useMemo(
-    () => ({ value: { loginMethods: state, setLoginMethods: setState } }),
-    [state, setState]
+    () => ({
+      value: {
+        loginMethods: state,
+        setLoginMethods: setState,
+        selectedLoginMethod,
+        setSelectedLoginMethod,
+      },
+    }),
+    [state, setState, selectedLoginMethod, setSelectedLoginMethod]
   );
   return (
     <LoginMethodCtx.Provider value={value}>
@@ -49,11 +61,18 @@ const LoginMethodsProvider = (
 };
 
 const useLoginMethods = () => {
-  const { loginMethods, setLoginMethods } = _useLoginMethods();
+  const {
+    loginMethods,
+    setLoginMethods,
+    selectedLoginMethod,
+    setSelectedLoginMethod,
+  } = _useLoginMethods();
 
   return {
     loginMethods,
     setLoginMethods,
+    selectedLoginMethod,
+    setSelectedLoginMethod,
   };
 };
 

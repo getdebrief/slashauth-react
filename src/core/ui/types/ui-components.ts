@@ -1,3 +1,5 @@
+import { LoginMethod } from '../context/login-methods';
+
 export const CLASS_PREFIX = 's8-';
 
 type ComponentMode = 'modal' | 'mounted';
