@@ -7,6 +7,7 @@ import {
   SlashAuthStyle,
   SlashAuthWeb3ListenerPayload,
 } from '../shared/types';
+import { inBrowser } from '../shared/utils/browser';
 import {
   ConnectOptions,
   ProviderOptions,
@@ -100,8 +101,8 @@ export class SlashAuth {
   public isReady = () => this.#isReady;
 
   public async initialize() {
-    if (this.#isReady) {
-      return;
+    if (this.#isReady || !inBrowser()) {
+      return Promise.resolve();
     }
     this.#web3Manager.onEvent(this.#handleWeb3Event.bind(this));
     await Promise.all([

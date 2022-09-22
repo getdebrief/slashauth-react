@@ -1,9 +1,4 @@
-import React, {
-  useCallback,
-  useEffect,
-  useLayoutEffect,
-  useState,
-} from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import {
   Account,
   CacheLocation,
@@ -14,6 +9,7 @@ import {
   LogoutOptions,
 } from '../../shared/global';
 import { SlashAuthStyle } from '../../shared/types';
+import { inBrowser } from '../../shared/utils/browser';
 import { ObjectMap } from '../../shared/utils/object';
 import { uninitializedStub } from '../../shared/utils/stub';
 import { ProviderOptions, SignInOptions } from '../../types/slashauth';
@@ -201,7 +197,7 @@ export function SlashAuthProvider(
   }
 
   useEffect(() => {
-    if (!slashAuth && domain && clientID) {
+    if (!slashAuth && clientID) {
       const slashAuth = new SlashAuth({
         ...validOpts,
         domain: domain || 'https://slashauth.com',
