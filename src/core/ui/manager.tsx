@@ -26,7 +26,7 @@ import {
 let createRoot: any;
 if (parseInt(ReactDOM.version.split('.')[0]) > 17) {
   // This is hacky but the only way to get around it.
-  import('react-dom/client').then(({ createRoot: domCreateRoot }) => {
+  await import('react-dom/client').then(({ createRoot: domCreateRoot }) => {
     createRoot = domCreateRoot;
   });
 }
