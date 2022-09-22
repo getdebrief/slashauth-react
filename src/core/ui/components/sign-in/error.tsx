@@ -13,7 +13,6 @@ import { SignInCard } from './card';
 export const SignInError = () => {
   const { navigate } = useRouter();
   const { selectedLoginMethod } = useLoginMethods();
-  console.log(selectedLoginMethod);
   const appearance = useAppearance();
 
   const loginMethod = useMemo(() => {
