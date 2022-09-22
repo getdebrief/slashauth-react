@@ -1,11 +1,6 @@
 {
   "compilerOptions": {
-    "target": "es5",
-    "lib": [
-      "dom",
-      "dom.iterable",
-      "esnext"
-    ],
+    "target": "es2020",
     "allowJs": true,
     "skipLibCheck": true,
     "esModuleInterop": true,
@@ -48,6 +43,9 @@
     ],
     "url": [
       "node_modules/url"
+    ],
+    "zlib": [
+      "node_modules/browserify-zlib"
     ]
   }
 }

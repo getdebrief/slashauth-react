@@ -1,77 +1,11 @@
-import 'react-dom';
-import { useContext } from 'react';
-import SlashAuthContext, { SlashAuthContextInterface } from './auth-context';
+import { SlashAuth } from './core/slashauth';
+import { mountComponentManager } from './core/ui/manager';
+import {
+  SlashAuthProvider,
+  useSlashAuth,
+} from './core/context/legacy-slashauth';
+import { supportedFontFamilies } from './core/ui/fonts';
 
-import 'core-js/es/string/starts-with';
-import 'core-js/es/symbol';
-import 'core-js/es/array/from';
-import 'core-js/es/typed-array/slice';
-import 'core-js/es/array/includes';
-import 'core-js/es/string/includes';
-import 'core-js/es/set';
-import SlashAuthClient from './client';
-import { SlashAuthClientOptions } from './global';
-import { activeContextValue } from './provider';
+SlashAuth.mountComponentManager = mountComponentManager;
 
-export * from './global';
-
-/**
- * Asynchronously creates the SlashAuthClient instance and calls `checkSession`.
- *
- * **Note:** There are caveats to using this in a private browser tab, which may not silently authenticate
- * a user on page refresh.
- *
- * @param options The client options
- * @returns An instance of SlashAuthClient
- */
-export default async function createSlashAuthClient(
-  options: SlashAuthClientOptions
-) {
-  if (!options.clientID || options.clientID === '') {
-    throw new Error('clientID is required');
-  }
-  const slashAuth = new SlashAuthClient(options);
-  await slashAuth.checkSession();
-  return slashAuth;
-}
-
-export { SlashAuthClient };
-
-export {
-  GenericError,
-  AuthenticationError,
-  TimeoutError,
-  PopupTimeoutError,
-  PopupCancelledError,
-  MfaRequiredError,
-} from './errors';
-
-export { LocalStorageCache, InMemoryCache } from './cache';
-
-export { default as SlashAuthProvider } from './provider';
-export {
-  SlashAuthStepFetchingNonce,
-  SlashAuthStepLoggedIn,
-  SlashAuthStepLoggingIn,
-  SlashAuthStepNonceReceived,
-  SlashAuthStepNone,
-} from './auth-context';
-
-export const useSlashAuth = () => {
-  const slashAuth = useContext(SlashAuthContext);
-
-  return slashAuth;
-};
-
-export const getSlashauthContext = (): SlashAuthContextInterface => ({
-  ...activeContextValue,
-});
-
-export { UnstyledModal } from './modal/unstyled';
-export {
-  isFamilySupported,
-  addFontFamily,
-  addAllFontFamilies,
-  supportedFontFamilies,
-} from './fonts';
-export { WagmiConnector } from './provider/wagmi-connectors';
+export { SlashAuth, SlashAuthProvider, useSlashAuth, supportedFontFamilies };
