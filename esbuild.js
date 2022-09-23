@@ -15,14 +15,15 @@ esbuild.build({
   logLevel: 'info',
   entryPoints: ['src/index.ts'],
   bundle: true,
-  minify: true,
+  minify: false,
   target: 'es2020',
   format: 'esm',
   outfile: './dist/index.esm.js',
   outbase: './src',
   treeShaking: true,
   watch: argv.indexOf('--watch') !== -1,
-  external: ['react', 'react-dom'],
+  external: ['react', 'react-dom', 'wagmi', 'ethers', '@wagmi/core'],
+  platform: 'browser',
   plugins: [
     NodeModulesPolyfillPlugin(),
     NodeGlobalPolyfillPlugin({

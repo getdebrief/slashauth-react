@@ -1,4 +1,5 @@
 import React, { useCallback, useEffect, useState } from 'react';
+import { useConnect, useDisconnect, WagmiConfig } from 'wagmi';
 import {
   Account,
   CacheLocation,
@@ -16,6 +17,7 @@ import { ProviderOptions, SignInOptions } from '../../types/slashauth';
 import { SlashAuth } from '../slashauth';
 import { useCoreSlashAuth } from '../ui/context/core-slashauth';
 import { SlashAuthUIProvider } from '../ui/context/slashauth';
+import { SlashAuthWagmiProvider, useWeb3Manager } from './wagmi-provider';
 
 type AuthFunctions = {
   getAccessTokenSilently: (
@@ -188,8 +190,25 @@ export interface SlashAuthProviderOptions {
 export function SlashAuthProvider(
   props: SlashAuthProviderOptions
 ): JSX.Element | null {
+  return (
+    <SlashAuthWagmiProvider options={props.providers}>
+      {/* eslint-disable-next-line react/jsx-pascal-case */}
+      <_SlashAuthProvider {...props}>{props.children}</_SlashAuthProvider>
+    </SlashAuthWagmiProvider>
+  );
+}
+
+export function _SlashAuthProvider(
+  props: SlashAuthProviderOptions
+): JSX.Element | null {
   const [slashAuth, setSlashAuth] = useState<SlashAuth | null>(null);
   const [initialized, setInitialized] = useState(false);
+  const [, setIsReady] = useState(false);
+
+  const web3Manager = useWeb3Manager();
+
+  const connect = useConnect();
+  const disconnect = useDisconnect();
 
   const { clientID, redirectUri, domain, ...validOpts } = props;
   if (!clientID || clientID === '') {
@@ -197,8 +216,8 @@ export function SlashAuthProvider(
   }
 
   useEffect(() => {
-    if (!slashAuth && clientID) {
-      const slashAuth = new SlashAuth({
+    if (!slashAuth && clientID && web3Manager) {
+      const slashAuth = new SlashAuth(web3Manager, {
         ...validOpts,
         domain: domain || 'https://slashauth.com',
         clientID: clientID,
@@ -207,25 +226,38 @@ export function SlashAuthProvider(
           version: '',
         },
       });
+      web3Manager.setClientFunctions({
+        connect: connect.connectAsync,
+        disconnect: disconnect.disconnectAsync,
+      });
       setSlashAuth(slashAuth);
     }
-  }, [clientID, domain, slashAuth, validOpts]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [clientID, domain, slashAuth, validOpts, web3Manager]);
 
   useEffect(() => {
     if (slashAuth && !initialized) {
-      setInitialized(true);
+      const unsub = slashAuth.addListener(({ core }) => {
+        if (core.isReady) {
+          setIsReady(true);
+          unsub();
+        }
+      });
       slashAuth.initialize();
+      setInitialized(true);
     }
   }, [initialized, slashAuth]);
 
-  if (!slashAuth) {
+  if (!slashAuth || !slashAuth?.isReady()) {
     return <div />;
   }
 
   return (
-    <SlashAuthUIProvider slashAuth={slashAuth}>
-      <LegacyProvider>{props.children}</LegacyProvider>
-    </SlashAuthUIProvider>
+    <WagmiConfig client={slashAuth.manager.client}>
+      <SlashAuthUIProvider slashAuth={slashAuth}>
+        <LegacyProvider>{props.children}</LegacyProvider>
+      </SlashAuthUIProvider>
+    </WagmiConfig>
   );
 }
 

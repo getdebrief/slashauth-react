@@ -58,6 +58,7 @@
     "eslint-plugin-import": "^2.25.4",
     "eslint-plugin-prettier": "^4.0.0",
     "eslint-plugin-react-hooks": "^4.3.0",
+    "ethers": "^5.7.1",
     "husky": "^7.0.4",
     "jest": "^29.0.3",
     "jest-environment-jsdom": "^29.0.3",
@@ -72,12 +73,15 @@
     "tsup": "^6.2.1",
     "typescript": "4.5.5",
     "vitest": "^0.20.3",
+    "wagmi": "^0.6.7",
     "webpack": "^5.73.0",
     "webpack-cli": "^4.9.2"
   },
   "peerDependencies": {
-    "react": ">=17.0.0",
-    "react-dom": ">=17.0.0"
+    "ethers": ">=5.5.1",
+    "react": ">=17",
+    "react-dom": ">=17",
+    "wagmi": "0.5.x || 0.6.x"
   },
   "eslintConfig": {
     "extends": [
@@ -95,7 +99,6 @@
     "@coinbase/wallet-sdk": "^3.0.11",
     "@floating-ui/react-dom-interactions": "^0.9.3",
     "@heroicons/react": "^1.0.6",
-    "@wagmi/core": "^0.5.0",
     "@walletconnect/ethereum-provider": "^1.8.0",
     "@walletconnect/types": "^1.7.8",
     "@walletconnect/web3-provider": "^1.7.8",
@@ -105,7 +108,6 @@
     "dequal": "^2.0.3",
     "email-validator": "^2.0.4",
     "es-cookie": "^1.3.2",
-    "ethers": "^5.6.9",
     "eventemitter3": "^4.0.7",
     "https-browserify": "^1.0.0",
     "immer": "^9.0.15",

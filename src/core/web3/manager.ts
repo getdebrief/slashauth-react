@@ -1,15 +1,17 @@
 import {
-  ChainProviderFn,
-  Client,
-  configureChains,
-  connect,
-  Connector,
-  createClient,
-  defaultChains,
-  disconnect,
   InjectedConnector,
   Provider,
+  ConnectArgs,
+  ConnectResult,
 } from '@wagmi/core';
+import {
+  Client,
+  createClient,
+  ChainProviderFn,
+  configureChains,
+  Connector,
+  defaultChains,
+} from 'wagmi';
 import { alchemyProvider } from '@wagmi/core/providers/alchemy';
 import { infuraProvider } from '@wagmi/core/providers/infura';
 import { publicProvider } from '@wagmi/core/providers/public';
@@ -52,6 +54,17 @@ type EventListener = (
   mgr: Web3Manager
 ) => void;
 
+type ConnectFunction = (
+  args?: Partial<ConnectArgs> | undefined
+) => Promise<ConnectResult<Provider> | null>;
+
+type DisconnectFunction = () => Promise<void>;
+
+type SetClientFunctionsArgs = {
+  connect: ConnectFunction;
+  disconnect: DisconnectFunction;
+};
+
 export class Web3Manager {
   #connected: boolean;
   #provider: Provider | undefined;
@@ -68,6 +81,13 @@ export class Web3Manager {
   #connectListeners: ConnectListener[] = [];
   #disconnectListeners: DisconnectListener[] = [];
   #eventListeners: EventListener[] = [];
+
+  #connectFn: ConnectFunction = () => null;
+  #disconnectFn: DisconnectFunction = () => null;
+
+  get client(): ReturnType<typeof createClient> {
+    return this.#client as ReturnType<typeof createClient>;
+  }
 
   get connected(): boolean {
     return this.#connected;
@@ -102,8 +122,13 @@ export class Web3Manager {
     this.#attachClientListeners();
   }
 
+  public setClientFunctions({ connect, disconnect }: SetClientFunctionsArgs) {
+    this.#connectFn = connect;
+    this.#disconnectFn = disconnect;
+  }
+
   public async clearState() {
-    return disconnect();
+    return this.#disconnectFn();
   }
 
   public onEvent(listener: EventListener) {
@@ -155,7 +180,7 @@ export class Web3Manager {
   }
 
   public async disconnect(): Promise<void> {
-    await disconnect();
+    await this.#disconnectFn();
   }
 
   public async autoConnect(): Promise<string | null> {
@@ -180,7 +205,8 @@ export class Web3Manager {
         await this.disconnect();
       }
     }
-    await connect({
+
+    await this.#connectFn({
       chainId: this.#client.lastUsedChainId,
       connector,
     });
@@ -233,7 +259,7 @@ export class Web3Manager {
     ];
 
     this.#client = createClient({
-      autoConnect,
+      autoConnect: false,
       connectors: this.#connectors,
       provider,
       webSocketProvider,
