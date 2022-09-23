@@ -15,7 +15,7 @@ esbuild.build({
   logLevel: 'info',
   entryPoints: ['src/index.ts'],
   bundle: true,
-  minify: false,
+  minify: argv.indexOf('--no-minify') === -1,
   target: 'es2020',
   format: 'esm',
   outfile: './dist/index.esm.js',

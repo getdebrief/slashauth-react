@@ -1,5 +1,6 @@
 import { CoinbaseWalletSDKOptions } from '@coinbase/wallet-sdk/dist/CoinbaseWalletSDK';
 import { IWalletConnectProviderOptions } from '@walletconnect/types';
+import { Chain, createClient } from 'wagmi';
 
 // eslint-disable-next-line @typescript-eslint/no-empty-interface
 export interface SignInOptions {
@@ -21,8 +22,16 @@ export interface CoreSlashAuth {
   isReady: () => boolean;
 }
 
+export type WagmiOptions = {
+  wagmiClient?: ReturnType<typeof createClient>;
+  enabledChains?: Chain[];
+  pollingIntervalMs?: number;
+};
+
 export type ProviderOptions = {
   appName?: string;
+  // Use this to override the created wagmi client
+  wagmi?: WagmiOptions;
   coinbasewallet?: CoinbaseWalletSDKOptions;
   walletconnect?: IWalletConnectProviderOptions;
   alchemy?: {

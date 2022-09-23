@@ -2,7 +2,6 @@ import { createContext, useContext, useEffect, useState } from 'react';
 import { WagmiConfig } from 'wagmi';
 import { ProviderOptions } from '../../types/slashauth';
 import { Web3Manager } from '../web3/manager';
-import { SlashAuthProviderOptions } from './legacy-slashauth';
 
 type Props = {
   options: ProviderOptions;
@@ -29,14 +28,19 @@ export const SlashAuthWagmiProvider = ({ options, children }: Props) => {
       extractedOptions.appName = options.coinbasewallet.appName;
     }
 
-    setWeb3Manager(
-      new Web3Manager({
-        appName: extractedOptions.appName,
-        alchemy: extractedOptions?.alchemy,
-        infura: extractedOptions?.infura,
-        publicConf: extractedOptions?.publicConf,
-      })
-    );
+    setWeb3Manager((curr) => {
+      if (curr) {
+        return curr;
+      } else {
+        return new Web3Manager({
+          appName: extractedOptions.appName,
+          alchemy: extractedOptions?.alchemy,
+          infura: extractedOptions?.infura,
+          publicConf: extractedOptions?.publicConf,
+          wagmiOptions: extractedOptions?.wagmi,
+        });
+      }
+    });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 

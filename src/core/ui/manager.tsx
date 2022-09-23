@@ -1,6 +1,5 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
-import { WagmiConfig } from 'wagmi';
 import { PRESERVED_QUERYSTRING_PARAMS } from '../../shared/constants';
 import { useSafeLayoutEffect } from '../../shared/hooks';
 import { SlashAuthOptions, SlashAuthStyle } from '../../shared/types';
@@ -249,33 +248,31 @@ const ComponentManagerComponent = (props: ComponentManagerComponentProps) => {
   );
 
   return (
-    <WagmiConfig client={props.slashAuth.manager.client}>
-      <SlashAuthUIProvider slashAuth={props.slashAuth}>
-        <EnvironmentProvider value={props.environment}>
-          {[...nodes].map(([node, component]) => {
-            return (
-              <AppearanceProvider
+    <SlashAuthUIProvider slashAuth={props.slashAuth}>
+      <EnvironmentProvider value={props.environment}>
+        {[...nodes].map(([node, component]) => {
+          return (
+            <AppearanceProvider
+              key={component.key}
+              signInModalStyle={
+                managerState.appearanceOverride?.signInModalStyle ||
+                managerState.appearance?.signInModalStyle
+              }
+            >
+              <Portal<AvailableComponentCtx>
+                componentName={component.name}
                 key={component.key}
-                signInModalStyle={
-                  managerState.appearanceOverride?.signInModalStyle ||
-                  managerState.appearance?.signInModalStyle
-                }
-              >
-                <Portal<AvailableComponentCtx>
-                  componentName={component.name}
-                  key={component.key}
-                  component={AvailableComponents[component.name]}
-                  props={component.props || {}}
-                  node={node}
-                  preservedParams={PRESERVED_QUERYSTRING_PARAMS}
-                />
-              </AppearanceProvider>
-            );
-          })}
-          {signInModal && mountedSignInModal}
-        </EnvironmentProvider>
-      </SlashAuthUIProvider>
-    </WagmiConfig>
+                component={AvailableComponents[component.name]}
+                props={component.props || {}}
+                node={node}
+                preservedParams={PRESERVED_QUERYSTRING_PARAMS}
+              />
+            </AppearanceProvider>
+          );
+        })}
+        {signInModal && mountedSignInModal}
+      </EnvironmentProvider>
+    </SlashAuthUIProvider>
   );
 };
 

@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useState } from 'react';
-import { useConnect, useDisconnect, WagmiConfig } from 'wagmi';
+import { useClient, useConnect, useDisconnect, WagmiConfig } from 'wagmi';
 import {
   Account,
   CacheLocation,
@@ -207,9 +207,6 @@ export function _SlashAuthProvider(
 
   const web3Manager = useWeb3Manager();
 
-  const connect = useConnect();
-  const disconnect = useDisconnect();
-
   const { clientID, redirectUri, domain, ...validOpts } = props;
   if (!clientID || clientID === '') {
     throw new Error('clientID is required');
@@ -226,17 +223,13 @@ export function _SlashAuthProvider(
           version: '',
         },
       });
-      web3Manager.setClientFunctions({
-        connect: connect.connectAsync,
-        disconnect: disconnect.disconnectAsync,
-      });
       setSlashAuth(slashAuth);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [clientID, domain, slashAuth, validOpts, web3Manager]);
 
   useEffect(() => {
-    if (slashAuth && !initialized) {
+    if (slashAuth && web3Manager && !initialized) {
       const unsub = slashAuth.addListener(({ core }) => {
         if (core.isReady) {
           setIsReady(true);
@@ -246,18 +239,16 @@ export function _SlashAuthProvider(
       slashAuth.initialize();
       setInitialized(true);
     }
-  }, [initialized, slashAuth]);
+  }, [initialized, slashAuth, web3Manager]);
 
-  if (!slashAuth || !slashAuth?.isReady()) {
+  if (!slashAuth || !slashAuth?.isReady() || !web3Manager) {
     return <div />;
   }
 
   return (
-    <WagmiConfig client={slashAuth.manager.client}>
-      <SlashAuthUIProvider slashAuth={slashAuth}>
-        <LegacyProvider>{props.children}</LegacyProvider>
-      </SlashAuthUIProvider>
-    </WagmiConfig>
+    <SlashAuthUIProvider slashAuth={slashAuth}>
+      <LegacyProvider>{props.children}</LegacyProvider>
+    </SlashAuthUIProvider>
   );
 }
 

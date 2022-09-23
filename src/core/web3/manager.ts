@@ -1,9 +1,4 @@
-import {
-  InjectedConnector,
-  Provider,
-  ConnectArgs,
-  ConnectResult,
-} from '@wagmi/core';
+import { InjectedConnector, Provider, connect, disconnect } from '@wagmi/core';
 import {
   Client,
   createClient,
@@ -19,6 +14,7 @@ import { CoinbaseWalletConnector } from '@wagmi/core/connectors/coinbaseWallet';
 import { MetaMaskConnector } from '@wagmi/core/connectors/metaMask';
 import { WalletConnectConnector } from '@wagmi/core/connectors/walletConnect';
 import { Signer } from 'ethers';
+import { WagmiOptions } from '../../types/slashauth';
 
 export type Web3ManagerEventType =
   | 'accountChange'
@@ -28,6 +24,7 @@ export type Web3ManagerEventType =
 
 type Config = {
   appName: string;
+  wagmiOptions?: WagmiOptions;
   alchemy?: {
     apiKey: string;
   };
@@ -54,17 +51,6 @@ type EventListener = (
   mgr: Web3Manager
 ) => void;
 
-type ConnectFunction = (
-  args?: Partial<ConnectArgs> | undefined
-) => Promise<ConnectResult<Provider> | null>;
-
-type DisconnectFunction = () => Promise<void>;
-
-type SetClientFunctionsArgs = {
-  connect: ConnectFunction;
-  disconnect: DisconnectFunction;
-};
-
 export class Web3Manager {
   #connected: boolean;
   #provider: Provider | undefined;
@@ -81,9 +67,6 @@ export class Web3Manager {
   #connectListeners: ConnectListener[] = [];
   #disconnectListeners: DisconnectListener[] = [];
   #eventListeners: EventListener[] = [];
-
-  #connectFn: ConnectFunction = () => null;
-  #disconnectFn: DisconnectFunction = () => null;
 
   get client(): ReturnType<typeof createClient> {
     return this.#client as ReturnType<typeof createClient>;
@@ -122,13 +105,8 @@ export class Web3Manager {
     this.#attachClientListeners();
   }
 
-  public setClientFunctions({ connect, disconnect }: SetClientFunctionsArgs) {
-    this.#connectFn = connect;
-    this.#disconnectFn = disconnect;
-  }
-
   public async clearState() {
-    return this.#disconnectFn();
+    return disconnect();
   }
 
   public onEvent(listener: EventListener) {
@@ -180,7 +158,7 @@ export class Web3Manager {
   }
 
   public async disconnect(): Promise<void> {
-    await this.#disconnectFn();
+    await disconnect();
   }
 
   public async autoConnect(): Promise<string | null> {
@@ -206,7 +184,7 @@ export class Web3Manager {
       }
     }
 
-    await this.#connectFn({
+    await connect({
       chainId: this.#client.lastUsedChainId,
       connector,
     });
@@ -219,6 +197,13 @@ export class Web3Manager {
   #createClient(autoConnect: boolean) {
     const providers: ChainProviderFn[] = [];
     const { alchemy, infura, publicConf, appName } = this.#config;
+    const configPassedIn =
+      !!alchemy ||
+      !!infura ||
+      !!publicConf ||
+      !!appName ||
+      !!this.#config.wagmiOptions?.enabledChains ||
+      !!this.#config.wagmiOptions?.pollingIntervalMs;
     if (alchemy) {
       providers.push(alchemyProvider(alchemy));
     }
@@ -230,9 +215,11 @@ export class Web3Manager {
     }
 
     const { chains, provider, webSocketProvider } = configureChains(
-      defaultChains,
+      this.#config.wagmiOptions?.enabledChains || defaultChains,
       providers,
-      { pollingInterval: 30_000 }
+      {
+        pollingInterval: this.#config.wagmiOptions?.pollingIntervalMs || 30_000,
+      }
     );
 
     this.#connectors = [
@@ -258,12 +245,23 @@ export class Web3Manager {
       }),
     ];
 
-    this.#client = createClient({
-      autoConnect: false,
-      connectors: this.#connectors,
-      provider,
-      webSocketProvider,
-    }) as WagmiClient;
+    if (this.#config.wagmiOptions?.wagmiClient) {
+      // The user has passed in a client. We should warn if they have other
+      // options defined.
+      if (configPassedIn) {
+        console.warn(
+          'Wagmi client was passed to SlashAuthProvider as well as other configuration options. The client passed in will be used and other options are ignored.'
+        );
+      }
+      this.#client = this.#config.wagmiOptions.wagmiClient;
+    } else {
+      this.#client = createClient({
+        autoConnect,
+        connectors: this.#connectors,
+        provider,
+        webSocketProvider,
+      }) as WagmiClient;
+    }
   }
 
   #onConnectorConnect = async () => {
