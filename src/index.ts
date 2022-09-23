@@ -8,4 +8,6 @@ import { supportedFontFamilies } from './core/ui/fonts';
 
 SlashAuth.mountComponentManager = mountComponentManager;
 
+export { useAccount, useNetwork } from './core/hooks';
+
 export { SlashAuth, SlashAuthProvider, useSlashAuth, supportedFontFamilies };
