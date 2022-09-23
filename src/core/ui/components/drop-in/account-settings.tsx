@@ -1,4 +1,8 @@
+import { useUser } from '../../context/user';
+
 export const AccountSettings = () => {
+  const user = useUser();
+  console.log('user', user);
   return (
     <div>
       <Header>Account Settings</Header>
@@ -6,6 +10,8 @@ export const AccountSettings = () => {
         Your account settings and connected social accounts can be ajdusted
         here.
       </SubHeader>
+      <Label>Name</Label>
+      <Value>Value</Value>
     </div>
   );
 };
@@ -14,4 +20,14 @@ const Header = ({ children }) => (
     {children}
   </div>
 );
-const SubHeader = ({ children }) => <div>{children}</div>;
+const SubHeader = ({ children }) => (
+  <div style={{ fontSize: 18, lineHeight: '22px' }}>{children}</div>
+);
+const Label = ({ children }) => (
+  <div style={{ fontWeight: 600, fontSize: 18, lineHeight: '22px' }}>
+    {children}
+  </div>
+);
+const Value = ({ children }) => (
+  <div style={{ fontSize: 16, lineHeight: '20px' }}>{children}</div>
+);
