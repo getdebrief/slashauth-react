@@ -5,7 +5,14 @@ import {
   useSlashAuth,
 } from './core/context/legacy-slashauth';
 import { supportedFontFamilies } from './core/ui/fonts';
+import { useNetwork } from './core/context/useNetwork';
 
 SlashAuth.mountComponentManager = mountComponentManager;
 
-export { SlashAuth, SlashAuthProvider, useSlashAuth, supportedFontFamilies };
+export {
+  SlashAuth,
+  SlashAuthProvider,
+  useSlashAuth,
+  useNetwork,
+  supportedFontFamilies,
+};
