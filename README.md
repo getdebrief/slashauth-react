@@ -11,13 +11,13 @@
 
 ## Installation
 
-Install slashauth react using NPM:
+Install slashauth react and peer dependencies using NPM:
 
-`npm i --save @slashauth/slashauth-react`
+`npm i --save @slashauth/slashauth-react wagmi ethers`
 
 Or Yarn
 
-`yarn add @slashauth/slashauth-react`
+`yarn add @slashauth/slashauth-react wagmi ethers`
 
 ## Getting started
 
@@ -28,6 +28,43 @@ If you prefer, you can follow along with the [quickstart guide](https://docs.sla
 Visit the [/auth app](https://app.slashauth.xyz) and login with your wallet. Create a new app and take note of the Client ID as you'll need it in the next step. Also, ensure you add any authorized domains that you run your app at (for instance, `http://localhost:3000`).
 
 ![Creating an app](https://d1l2xccggl7xwv.cloudfront.net/slashauth/slashauth-client-id.png)
+
+### Migrating a Wagmi project
+
+If you currently use Wagmi in your project, all you have to do is replace your `WagmiConfig` component with the `SlashAuthProvider` component. You can even pass in your client if you want to the providers (this is optional).
+
+```tsx
+// file:index.tsx
+import ReactDOM from 'react-dom/client';
+import './index.css';
+import App from './App';
+import { SlashAuthProvider } from '@slashauth/slashauth-react';
+import { configureChains, defaultChains, createClient, chain } from 'wagmi';
+
+const root = ReactDOM.createRoot(
+  document.getElementById('root') as HTMLElement
+);
+
+const { chains, provider } = configureChains(
+  defaultChains,
+  [publicProvider()],
+  { pollingInterval: 30_000 }
+);
+const wagmiClient = createClient({
+  autoConnect: true,
+  provider: provider,
+}) as ReturnType<typeof createClient>;
+
+root.render(
+  <SlashAuthProvider clientID={{/* Your client id here */} providers={{
+    wagmi: {
+      wagmiClient,
+    },
+  }}>
+    <App />
+  </SlashAuthProvider>
+);
+```
 
 ### Connect the Provider
 

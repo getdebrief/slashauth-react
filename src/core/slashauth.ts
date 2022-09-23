@@ -8,11 +8,7 @@ import {
   SlashAuthWeb3ListenerPayload,
 } from '../shared/types';
 import { inBrowser } from '../shared/utils/browser';
-import {
-  ConnectOptions,
-  ProviderOptions,
-  SignInOptions,
-} from '../types/slashauth';
+import { ConnectOptions, SignInOptions } from '../types/slashauth';
 import SlashAuthClient from './client';
 import { LoginMethodType } from './ui/context/login-methods';
 import {
@@ -56,12 +52,12 @@ export class SlashAuth {
 
   #listeners: Listener[];
 
-  constructor(options: SlashAuthClientOptions) {
+  constructor(web3Manager: Web3Manager, options: SlashAuthClientOptions) {
     this.#clientOptions = options;
     this.#client = new SlashAuthClient(options);
     this.#user = new User();
     this.#listeners = [];
-    this.#initializeWeb3Manager(options.providerOptions || {});
+    this.#web3Manager = web3Manager;
   }
 
   public get appName() {
@@ -301,26 +297,26 @@ export class SlashAuth {
     this.#emitAll();
   };
 
-  #initializeWeb3Manager = async (options: ProviderOptions) => {
-    const extractedOptions = {
-      ...options,
-    };
+  // #initializeWeb3Manager = async (options: ProviderOptions) => {
+  //   const extractedOptions = {
+  //     ...options,
+  //   };
 
-    if (!options.infura && options.walletconnect?.infuraId) {
-      extractedOptions.infura = {
-        apiKey: options.walletconnect.infuraId,
-      };
-    }
+  //   if (!options.infura && options.walletconnect?.infuraId) {
+  //     extractedOptions.infura = {
+  //       apiKey: options.walletconnect.infuraId,
+  //     };
+  //   }
 
-    if (!options.appName && options.coinbasewallet?.appName) {
-      extractedOptions.appName = options.coinbasewallet.appName;
-    }
+  //   if (!options.appName && options.coinbasewallet?.appName) {
+  //     extractedOptions.appName = options.coinbasewallet.appName;
+  //   }
 
-    this.#web3Manager = new Web3Manager({
-      appName: extractedOptions.appName,
-      alchemy: extractedOptions?.alchemy,
-      infura: extractedOptions?.infura,
-      publicConf: extractedOptions?.publicConf,
-    });
-  };
+  //   this.#web3Manager = new Web3Manager({
+  //     appName: extractedOptions.appName,
+  //     alchemy: extractedOptions?.alchemy,
+  //     infura: extractedOptions?.infura,
+  //     publicConf: extractedOptions?.publicConf,
+  //   });
+  // };
 }
