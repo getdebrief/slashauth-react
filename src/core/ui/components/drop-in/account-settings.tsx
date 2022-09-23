@@ -12,6 +12,13 @@ export const AccountSettings = () => {
       </SubHeader>
       <Label>Name</Label>
       <Value>Value</Value>
+      <Label>Email</Label>
+      <Value>Value</Value>
+      <Label>Wallet</Label>
+      <Value>
+        {user.account?.wallet_type}
+        {user.account?.wallet.default}
+      </Value>
     </div>
   );
 };
