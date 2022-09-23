@@ -253,7 +253,7 @@ export class Web3Manager {
           'Wagmi client was passed to SlashAuthProvider as well as other configuration options. The client passed in will be used and other options are ignored.'
         );
       }
-      this.#client = this.#config.wagmiOptions.wagmiClient;
+      this.#client = this.#config.wagmiOptions.wagmiClient as WagmiClient;
     } else {
       this.#client = createClient({
         autoConnect,
