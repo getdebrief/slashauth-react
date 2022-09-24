@@ -7,7 +7,7 @@ import {
 } from '../../context/login-methods';
 import { useRouter } from '../../router/context';
 import { PrimaryButton } from '../primitives/button';
-import { ConnectorButton } from '../web3-login-button';
+import { WalletConnectorButton } from '../web3-login-button';
 import { SignInCard } from './card';
 
 export const SignInError = () => {
@@ -31,7 +31,7 @@ export const SignInError = () => {
           >
             You tried logging in with:
           </p>
-          <ConnectorButton
+          <WalletConnectorButton
             loginMethod={selectedLoginMethod as Web3LoginMethod}
             // eslint-disable-next-line @typescript-eslint/no-empty-function
             onClick={() => {}}

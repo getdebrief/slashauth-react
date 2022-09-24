@@ -1,6 +1,7 @@
 import React from 'react';
 import { useLoginMethods, Web3LoginMethod } from '../../context/login-methods';
-import { ConnectorButton } from '../web3-login-button';
+import { WalletConnectorButton } from '../web3-login-button';
+import { MagicLinkConnectorButton } from './magic-link-login-button';
 
 type Props = {
   onConnectWalletClick: (id: string) => void;
@@ -19,13 +20,14 @@ export const SignInWeb3Buttons = ({ onConnectWalletClick }: Props) => {
     <>
       {web3LoginMethods.map((loginMethod) => {
         return (
-          <ConnectorButton
+          <WalletConnectorButton
             key={loginMethod.id}
             loginMethod={loginMethod}
             onClick={() => onConnectWalletClick(loginMethod.id)}
           />
         );
       })}
+      <MagicLinkConnectorButton onClick={() => console.log('click')} />
     </>
   );
 };

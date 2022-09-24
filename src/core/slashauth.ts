@@ -2,6 +2,7 @@ import { errorInitializeFailed } from '../shared/errors/slashauth-errors';
 import { LogoutOptions, SlashAuthClientOptions } from '../shared/global';
 import {
   SlashAuthListenerPayload,
+  SlashAuthLoginMethodConfig,
   SlashAuthModalStyle,
   SlashAuthOptions,
   SlashAuthStyle,
@@ -10,7 +11,7 @@ import {
 import { inBrowser } from '../shared/utils/browser';
 import { ConnectOptions, SignInOptions } from '../types/slashauth';
 import SlashAuthClient from './client';
-import { LoginMethodType } from './ui/context/login-methods';
+import { LoginMethodType, Web3LoginMethod } from './ui/context/login-methods';
 import {
   ComponentControls,
   mountComponentManager,
@@ -26,6 +27,7 @@ interface AppModalConfig {
   name?: string;
   description?: string;
   modalStyle: SlashAuthModalStyle;
+  loginMethods: SlashAuthLoginMethodConfig;
 }
 
 export type Listener = (payload: SlashAuthListenerPayload) => void;
@@ -110,16 +112,38 @@ export class SlashAuth {
     // TODO: Fetch this from the appmodalconfig.
     this.#environment = {
       authSettings: {
-        availableWeb3LoginMethods: this.#web3Manager.connectors.map(
-          (connector) => ({
-            id: connector.id,
-            name: connector.name,
-            type: 'web3',
-            chain: 'eth',
-            ready: connector.ready,
+        availableWeb3LoginMethods: this.#web3Manager.connectors
+          .map((connector) => {
+            if (this.#modalConfig.loginMethods.web3.eth) {
+              switch (connector.id) {
+                case 'metaMask':
+                  if (
+                    !this.#modalConfig.loginMethods.web3.eth.metamask.enabled
+                  ) {
+                    return null;
+                  }
+                  break;
+                default:
+                  if (
+                    this.#modalConfig.loginMethods.web3.eth[connector.id] &&
+                    !this.#modalConfig.loginMethods.web3.eth[connector.id]
+                      .enabled
+                  ) {
+                    return null;
+                  }
+              }
+            }
+            return {
+              id: connector.id,
+              name: connector.name,
+              type: 'web3',
+              chain: 'eth',
+              ready: connector.ready,
+            };
           })
-        ),
-        isMagicLinkEnabled: true,
+          .filter((connector) => connector !== null) as Web3LoginMethod[],
+        isMagicLinkEnabled:
+          !!this.#modalConfig.loginMethods.web2.magicLink?.enabled,
       },
     };
 
@@ -129,6 +153,7 @@ export class SlashAuth {
         this.#environment,
         {
           style: this.#modalConfig,
+          loginMethods: this.#modalConfig.loginMethods,
         } as SlashAuthOptions
       );
     }

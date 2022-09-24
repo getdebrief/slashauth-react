@@ -83,7 +83,7 @@ const _SignInStart = () => {
                     textAlign: 'start',
                   }}
                 >
-                  Connect your wallet:
+                  {walletConnectOnly ? 'Continue' : 'Sign in'} with:
                 </p>
               </div>
               <SignInWeb3Buttons

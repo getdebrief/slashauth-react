@@ -254,6 +254,7 @@ export class Web3Manager {
         );
       }
       this.#client = this.#config.wagmiOptions.wagmiClient as WagmiClient;
+      this.#connectors = this.#client.connectors;
     } else {
       this.#client = createClient({
         autoConnect,

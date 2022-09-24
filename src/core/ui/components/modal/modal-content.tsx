@@ -26,13 +26,13 @@ export const ModalContent = React.forwardRef<HTMLDivElement, Props>(
   ({ modalStyles, children }: Props, ref) => {
     const modalContentsStyle: React.CSSProperties = {
       width: '336px',
-      height: '446px',
+      maxHeight: '446px',
       flexGrow: 1,
       display: 'flex',
       flexDirection: 'column',
-      paddingTop: '2rem',
-      paddingLeft: '1rem',
-      paddingRight: '1rem',
+      paddingTop: '3rem',
+      paddingLeft: '2rem',
+      paddingRight: '2rem',
     };
 
     const wrapperStyles = useMemo(() => {
@@ -101,10 +101,9 @@ export const ModalContent = React.forwardRef<HTMLDivElement, Props>(
             flexDirection: 'row',
             justifyContent: 'center',
             alignItems: 'center',
-            borderTop: '1px solid #e6e6e6',
             width: '100%',
-            paddingBottom: '1rem',
-            paddingTop: '1rem',
+            paddingBottom: '3rem',
+            paddingTop: '1.5rem',
           }}
         >
           <span style={{ fontSize: '12px', color: '#9B9B9B' }}>

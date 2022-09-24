@@ -17,6 +17,33 @@ export interface SlashAuthModalStyle {
   iconURL?: string;
 }
 
+export interface SlashAuthLoginMethodConfig {
+  web3: {
+    enabled: boolean;
+    eth: {
+      enabled: boolean;
+      metamask: {
+        enabled: boolean;
+      };
+      walletConnect: {
+        enabled: boolean;
+      };
+      coinbaseWallet: {
+        enabled: boolean;
+      };
+      injected: {
+        enabled: boolean;
+      };
+    };
+  };
+  web2: {
+    enabled: boolean;
+    magicLink?: {
+      enabled: boolean;
+    };
+  };
+}
+
 export interface ComputedSlashAuthModalStyle {
   backgroundColor: string;
   borderRadius: string;

@@ -44,10 +44,6 @@ export const SignInCard = ({ children }: Props) => {
       />
       <div style={{ marginTop: '1rem', textAlign: headerTextAlign }}>
         <div style={{ fontSize: '24px', fontWeight: 700 }}>
-          {walletConnectOnly ? 'Connect Wallet' : 'Login'}
-        </div>
-        <div style={{ fontSize: '16px', fontWeight: 500 }}>
-          {' '}
           {slashAuth.appName || 'Unnamed App'}
         </div>
       </div>

@@ -1,6 +1,7 @@
 import { ProviderOptions } from '../types/slashauth';
 import { ICache } from './cache';
 import { verify as verifyIdToken } from './jwt';
+import { SlashAuthLoginMethodConfig } from './types';
 import { ObjectMap } from './utils/object';
 
 export const CONNECT_MODAL_ID = 'SLASHAUTH_CONNECT_MODAL_ID';
@@ -207,6 +208,7 @@ export interface GetAppConfigResponse {
     hoverButtonBackgroundColor?: string;
     iconURL?: string;
   };
+  loginMethods: SlashAuthLoginMethodConfig;
 }
 
 export interface LoginWithSignedNonceResponse {
