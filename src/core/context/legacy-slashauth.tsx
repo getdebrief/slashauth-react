@@ -38,6 +38,7 @@ type AuthFunctions = {
 type UIFunctions = {
   mountSignIn: (node: HTMLDivElement, options: SignInOptions) => void;
   updateAppearanceOverride: (overrides?: SlashAuthStyle) => void;
+  goToAccountPage: () => void;
 };
 
 type SlashAuthAPIFunctions = {
@@ -270,6 +271,7 @@ const emptyContext = {
   getIdTokenClaims: uninitializedStub,
   checkSession: uninitializedStub,
   mountSignIn: uninitializedStub,
+  goToAccountPage: uninitializedStub,
   updateAppearanceOverride: uninitializedStub,
   connectedWallet: null,
   ethereum: null,

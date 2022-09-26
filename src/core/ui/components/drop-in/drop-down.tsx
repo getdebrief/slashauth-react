@@ -12,6 +12,7 @@ export const DropDown = () => {
     logout,
     loginNoRedirectNoPopup,
     connect,
+    goToAccountPage,
   } = context;
   return (
     <DropDownDiv>
@@ -48,7 +49,11 @@ export const DropDown = () => {
             </Row>
           </Section>
           <Section>
-            <Row>
+            <Row
+              onClick={() => {
+                goToAccountPage();
+              }}
+            >
               <Icon>{gearIcon}</Icon>
               Manage account
             </Row>
