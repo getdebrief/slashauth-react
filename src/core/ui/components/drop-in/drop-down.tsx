@@ -17,10 +17,16 @@ export const DropDown = () => {
               <Icon>{twitterIcon}</Icon>
               @0xhaileym
             </Row>
-            <Row>
-              <Icon>{googleIcon}</Icon>
-              haileymiller298@gmail.com
-            </Row>
+            <div
+              style={{
+                paddingTop: 8,
+              }}
+            >
+              <Row>
+                <Icon>{googleIcon}</Icon>
+                haileymiller298@gmail.com
+              </Row>
+            </div>
           </Section>
           <Section>
             <Row>
