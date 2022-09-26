@@ -13,12 +13,16 @@ export const DropDown = () => {
       {isOpen && (
         <Content>
           <Section>
-            <Icon>{gearIcon}</Icon>
-            Manage account
+            <Row>
+              <Icon>{gearIcon}</Icon>
+              Manage account
+            </Row>
           </Section>
           <Section>
-            <Icon>{logoutIcon}</Icon>
-            Sign out
+            <Row>
+              <Icon>{logoutIcon}</Icon>
+              Sign out
+            </Row>
           </Section>
         </Content>
       )}
@@ -59,12 +63,20 @@ const Content = ({ children }) => (
     {children}
   </div>
 );
+const Row = ({ children }) => (
+  <div
+    style={{
+      display: 'flex',
+    }}
+  >
+    {children}
+  </div>
+);
 const Section = ({ children }) => (
   <div
     style={{
       fontSize: 12,
       lineHeight: '20px',
-      display: 'flex',
     }}
   >
     {children}
