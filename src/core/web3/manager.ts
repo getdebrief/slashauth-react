@@ -1,15 +1,12 @@
+import { InjectedConnector, Provider, connect, disconnect } from '@wagmi/core';
 import {
-  ChainProviderFn,
   Client,
-  configureChains,
-  connect,
-  Connector,
   createClient,
+  ChainProviderFn,
+  configureChains,
+  Connector,
   defaultChains,
-  disconnect,
-  InjectedConnector,
-  Provider,
-} from '@wagmi/core';
+} from 'wagmi';
 import { alchemyProvider } from '@wagmi/core/providers/alchemy';
 import { infuraProvider } from '@wagmi/core/providers/infura';
 import { publicProvider } from '@wagmi/core/providers/public';
@@ -17,6 +14,7 @@ import { CoinbaseWalletConnector } from '@wagmi/core/connectors/coinbaseWallet';
 import { MetaMaskConnector } from '@wagmi/core/connectors/metaMask';
 import { WalletConnectConnector } from '@wagmi/core/connectors/walletConnect';
 import { Signer } from 'ethers';
+import { WagmiOptions } from '../../types/slashauth';
 
 export type Web3ManagerEventType =
   | 'accountChange'
@@ -26,6 +24,7 @@ export type Web3ManagerEventType =
 
 type Config = {
   appName: string;
+  wagmiOptions?: WagmiOptions;
   alchemy?: {
     apiKey: string;
   };
@@ -68,6 +67,10 @@ export class Web3Manager {
   #connectListeners: ConnectListener[] = [];
   #disconnectListeners: DisconnectListener[] = [];
   #eventListeners: EventListener[] = [];
+
+  get client(): ReturnType<typeof createClient> {
+    return this.#client as ReturnType<typeof createClient>;
+  }
 
   get connected(): boolean {
     return this.#connected;
@@ -180,6 +183,7 @@ export class Web3Manager {
         await this.disconnect();
       }
     }
+
     await connect({
       chainId: this.#client.lastUsedChainId,
       connector,
@@ -193,6 +197,13 @@ export class Web3Manager {
   #createClient(autoConnect: boolean) {
     const providers: ChainProviderFn[] = [];
     const { alchemy, infura, publicConf, appName } = this.#config;
+    const configPassedIn =
+      !!alchemy ||
+      !!infura ||
+      !!publicConf ||
+      !!appName ||
+      !!this.#config.wagmiOptions?.enabledChains ||
+      !!this.#config.wagmiOptions?.pollingIntervalMs;
     if (alchemy) {
       providers.push(alchemyProvider(alchemy));
     }
@@ -204,9 +215,11 @@ export class Web3Manager {
     }
 
     const { chains, provider, webSocketProvider } = configureChains(
-      defaultChains,
+      this.#config.wagmiOptions?.enabledChains || defaultChains,
       providers,
-      { pollingInterval: 30_000 }
+      {
+        pollingInterval: this.#config.wagmiOptions?.pollingIntervalMs || 30_000,
+      }
     );
 
     this.#connectors = [
@@ -232,12 +245,23 @@ export class Web3Manager {
       }),
     ];
 
-    this.#client = createClient({
-      autoConnect,
-      connectors: this.#connectors,
-      provider,
-      webSocketProvider,
-    }) as WagmiClient;
+    if (this.#config.wagmiOptions?.wagmiClient) {
+      // The user has passed in a client. We should warn if they have other
+      // options defined.
+      if (configPassedIn) {
+        console.warn(
+          'Wagmi client was passed to SlashAuthProvider as well as other configuration options. The client passed in will be used and other options are ignored.'
+        );
+      }
+      this.#client = this.#config.wagmiOptions.wagmiClient as WagmiClient;
+    } else {
+      this.#client = createClient({
+        autoConnect,
+        connectors: this.#connectors,
+        provider,
+        webSocketProvider,
+      }) as WagmiClient;
+    }
   }
 
   #onConnectorConnect = async () => {

@@ -10,7 +10,7 @@ import { DropDown } from './core/ui/components/drop-in/drop-down';
 
 SlashAuth.mountComponentManager = mountComponentManager;
 
-export { useAccount, useNetwork } from './core/hooks';
+export { useNetwork, useAccount } from './core/hooks';
 
 export {
   SlashAuth,
