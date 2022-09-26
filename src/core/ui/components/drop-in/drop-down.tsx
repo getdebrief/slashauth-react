@@ -6,15 +6,25 @@ export const DropDown = () => {
   const [isOpen, setIsOpen] = useState(true);
   return (
     <div>
-      DropDown
       <div>
         {profilePicturePlaceholder}
         {user.account?.wallet.default}
       </div>
-      {isOpen && <div></div>}
+      {isOpen && <Content>content</Content>}
     </div>
   );
 };
+const Content = ({ children }) => (
+  <div
+    style={{
+      background: 'white',
+      color: 'black',
+      width: 246,
+    }}
+  >
+    {children}
+  </div>
+);
 const Section = ({ children }) => (
   <div style={{ fontSize: 16, lineHeight: '20px' }}>{children}</div>
 );
