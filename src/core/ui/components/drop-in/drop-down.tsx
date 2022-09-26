@@ -5,21 +5,33 @@ export const DropDown = () => {
   const user = useUser();
   const [isOpen, setIsOpen] = useState(true);
   return (
-    <div>
+    <DropDownDiv>
       <div>
         {profilePicturePlaceholder}
         {user.account?.wallet.default}
       </div>
       {isOpen && <Content>content</Content>}
-    </div>
+    </DropDownDiv>
   );
 };
+const DropDownDiv = ({ children }) => (
+  <div
+    style={{
+      position: 'relative',
+    }}
+  >
+    {children}
+  </div>
+);
 const Content = ({ children }) => (
   <div
     style={{
+      position: 'absolute',
+      right: 0,
       background: 'white',
       color: 'black',
       width: 246,
+      boxShadow: '0px 2px 8px rgba(0, 0, 0, 0.15)',
     }}
   >
     {children}
