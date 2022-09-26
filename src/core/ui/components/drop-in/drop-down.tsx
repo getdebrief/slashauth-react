@@ -1,9 +1,18 @@
 import { useUser } from '../../context/user';
 import { useState } from 'react';
+import { useSlashAuth } from '../../../context/legacy-slashauth';
 
 export const DropDown = () => {
   const user = useUser();
   const [isOpen, setIsOpen] = useState(true);
+  const context = useSlashAuth();
+  const {
+    initialized,
+    isAuthenticated,
+    logout,
+    loginNoRedirectNoPopup,
+    connect,
+  } = context;
   return (
     <DropDownDiv>
       <div>
@@ -49,7 +58,11 @@ export const DropDown = () => {
             </Row>
           </Section>
           <Section>
-            <Row>
+            <Row
+              onClick={() => {
+                logout();
+              }}
+            >
               <Icon>{logoutIcon}</Icon>
               Sign out
             </Row>
@@ -105,14 +118,18 @@ const Content = ({ children }) => (
     {children}
   </div>
 );
-const Row = ({ children }) => (
+const Row = (
+  props: React.DetailedHTMLProps<
+    React.HTMLAttributes<HTMLDivElement>,
+    HTMLDivElement
+  >
+) => (
   <div
     style={{
       display: 'flex',
     }}
-  >
-    {children}
-  </div>
+    {...props}
+  />
 );
 const Section = ({ children }) => (
   <div
