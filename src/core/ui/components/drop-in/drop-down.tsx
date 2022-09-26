@@ -23,33 +23,29 @@ export const DropDown = () => {
         <Content>
           <Section>
             <Name>Hailey Miller</Name>
-            <div
+            <Row
               style={{
                 paddingTop: 8,
                 color: '#2F5FFC',
               }}
             >
-              <Row>
-                <Icon>{plusIcon}</Icon>
-                Connect web3 wallet
-              </Row>
-            </div>
+              <Icon>{plusIcon}</Icon>
+              Connect web3 wallet
+            </Row>
           </Section>
           <Section>
             <Row>
               <Icon>{twitterIcon}</Icon>
               @0xhaileym
             </Row>
-            <div>
-              <Row
-                style={{
-                  paddingTop: 8,
-                }}
-              >
-                <Icon>{googleIcon}</Icon>
-                haileymiller298@gmail.com
-              </Row>
-            </div>
+            <Row
+              style={{
+                paddingTop: 8,
+              }}
+            >
+              <Icon>{googleIcon}</Icon>
+              haileymiller298@gmail.com
+            </Row>
           </Section>
           <Section>
             <Row>
