@@ -14,7 +14,7 @@ export const DropDown = () => {
         <Content>
           <Section>Manage account</Section>
           <Section>
-            {logoutIcon}
+            <Icon>{logoutIcon}</Icon>
             Sign out
           </Section>
         </Content>
@@ -22,6 +22,17 @@ export const DropDown = () => {
     </DropDownDiv>
   );
 };
+const Icon = ({ children }) => (
+  <div
+    style={{
+      marginRight: 12.5,
+      display: 'flex',
+      alignItems: 'center',
+    }}
+  >
+    {children}
+  </div>
+);
 const DropDownDiv = ({ children }) => (
   <div
     style={{
@@ -46,7 +57,15 @@ const Content = ({ children }) => (
   </div>
 );
 const Section = ({ children }) => (
-  <div style={{ fontSize: 12, lineHeight: '20px' }}>{children}</div>
+  <div
+    style={{
+      fontSize: 12,
+      lineHeight: '20px',
+      display: 'flex',
+    }}
+  >
+    {children}
+  </div>
 );
 const profilePicturePlaceholder = (
   <svg
