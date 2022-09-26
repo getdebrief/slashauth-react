@@ -40,12 +40,12 @@ export const DropDown = () => {
               <Icon>{twitterIcon}</Icon>
               @0xhaileym
             </Row>
-            <div
-              style={{
-                paddingTop: 8,
-              }}
-            >
-              <Row>
+            <div>
+              <Row
+                style={{
+                  paddingTop: 8,
+                }}
+              >
                 <Icon>{googleIcon}</Icon>
                 haileymiller298@gmail.com
               </Row>
@@ -119,18 +119,22 @@ const Content = ({ children }) => (
   </div>
 );
 const Row = (
-  props: React.DetailedHTMLProps<
+  props_: React.DetailedHTMLProps<
     React.HTMLAttributes<HTMLDivElement>,
     HTMLDivElement
   >
-) => (
-  <div
-    style={{
-      display: 'flex',
-    }}
-    {...props}
-  />
-);
+) => {
+  const { style, ...props } = props_;
+  return (
+    <div
+      style={{
+        display: 'flex',
+        ...style,
+      }}
+      {...props}
+    />
+  );
+};
 const Section = ({ children }) => (
   <div
     style={{
