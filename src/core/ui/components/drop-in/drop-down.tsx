@@ -65,8 +65,26 @@ export const DropDown = () => {
     </>
   );
   let firstSection: JSX.Element;
+  const hashDisplayRowContent = (
+    <>
+      {hashDisplay}
+      <Icon
+        style={{ marginLeft: 8, cursor: 'pointer' }}
+        onClick={() => {
+          navigator.clipboard.writeText(hash);
+        }}
+      >
+        {copyIcon}
+      </Icon>
+    </>
+  );
   if (user.name) {
-    firstSection = <PrimaryID>{user.name}</PrimaryID>;
+    firstSection = (
+      <>
+        <PrimaryID>{user.name}</PrimaryID>
+        <Row>{hashDisplayRowContent}</Row>
+      </>
+    );
   } else if (hashDisplay) {
     firstSection = (
       <Row
@@ -74,15 +92,7 @@ export const DropDown = () => {
           ...primaryIdStyle,
         }}
       >
-        {hashDisplay}
-        <Icon
-          style={{ marginLeft: 8, cursor: 'pointer' }}
-          onClick={() => {
-            navigator.clipboard.writeText(hash);
-          }}
-        >
-          {copyIcon}
-        </Icon>
+        {hashDisplayRowContent}
       </Row>
     );
   } else {
