@@ -34,6 +34,22 @@ export const DropDown = () => {
           </div>
         </Row>
       </Section>
+      <Section>
+        <div
+          onClick={() => {
+            loginNoRedirectNoPopup();
+          }}
+          style={{
+            background: '#2F5FFC',
+            color: 'white',
+            padding: '6px 52px',
+            fontWeight: 500,
+            borderRadius: '10px',
+          }}
+        >
+          Login to continue
+        </div>
+      </Section>
     </>
   );
   if (!initialized) return <ScaleLoader height={35} width={4} />;
