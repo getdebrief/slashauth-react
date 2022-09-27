@@ -153,6 +153,9 @@ export const DropDown = () => {
   );
 };
 const testUser = {
+  loggedOut: {
+    loggedIn: false,
+  },
   emailOnly: {
     loggedIn: true,
     email: 'Hailey@slashauth.com',
