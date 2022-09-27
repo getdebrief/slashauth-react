@@ -163,13 +163,15 @@ const Row = (
     HTMLDivElement
   >
 ) => {
-  const { style, ...props } = props_;
+  const { style, onClick, ...props } = props_;
   return (
     <div
       style={{
         display: 'flex',
+        cursor: onClick ? 'pointer' : undefined,
         ...style,
       }}
+      onClick={onClick}
       {...props}
     />
   );
