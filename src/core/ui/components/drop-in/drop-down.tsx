@@ -85,6 +85,7 @@ export const DropDown = () => {
               <Row
                 style={{
                   paddingTop: 8,
+                  ...primaryIdStyle,
                 }}
               >
                 {hashDisplay}
@@ -152,18 +153,14 @@ export const DropDown = () => {
     </DropDownDiv>
   );
 };
-const Name = ({ children }) => (
-  <div
-    style={{
-      fontWeight: 600,
-      fontSize: '16px',
-      lineHeight: '20px',
-      textAlign: 'left',
-    }}
-  >
-    {children}
-  </div>
-);
+const Name = ({ children }) => <div style={primaryIdStyle}>{children}</div>;
+const primaryIdStyle: React.CSSProperties = {
+  fontWeight: 600,
+  fontSize: '16px',
+  lineHeight: '20px',
+  textAlign: 'left',
+};
+
 const Icon = (
   props_: React.DetailedHTMLProps<
     React.HTMLAttributes<HTMLDivElement>,
