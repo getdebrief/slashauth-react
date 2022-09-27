@@ -32,7 +32,7 @@ export const DropDown = () => {
       {isOpen && (
         <Content>
           <Section>
-            <Name>Hailey Miller</Name>
+            {/*<Name>{user.name}</Name>*/}
             {hashDisplay ? (
               <Row
                 style={{
