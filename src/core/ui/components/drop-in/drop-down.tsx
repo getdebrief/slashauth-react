@@ -57,16 +57,20 @@ export const DropDown = () => {
         >
           {profilePicturePlaceholder}
         </div>
-        {hashDisplay}
-        <div
-          style={{
-            marginLeft: 14,
-            marginRight: 13,
-            transform: isOpen ? 'rotate(180deg)' : undefined,
-          }}
-        >
-          {chevronDown}
-        </div>
+        {user.loggedIn && (
+          <>
+            {hashDisplay}
+            <div
+              style={{
+                marginLeft: 14,
+                marginRight: 13,
+                transform: isOpen ? 'rotate(180deg)' : undefined,
+              }}
+            >
+              {chevronDown}
+            </div>
+          </>
+        )}
       </div>
       {isOpen && (
         <Content>
