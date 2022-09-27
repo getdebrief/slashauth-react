@@ -50,13 +50,13 @@ export const DropDown = () => {
       >
         <div
           style={{
-            margin: user.loggedIn ? 3 : undefined,
+            margin: user.wallet ? 3 : undefined,
             display: 'flex',
           }}
         >
           {profilePicturePlaceholder}
         </div>
-        {user.loggedIn && (
+        {user.wallet && (
           <>
             <div
               style={{
