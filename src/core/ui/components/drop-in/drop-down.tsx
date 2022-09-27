@@ -100,6 +100,7 @@ const DropDownDiv = ({ children }) => (
   <div
     style={{
       position: 'relative',
+      color: '#374151',
     }}
   >
     {children}
@@ -111,7 +112,6 @@ const Content = ({ children }) => (
       position: 'absolute',
       right: 0,
       background: 'white',
-      color: 'black',
       width: 246,
       boxShadow: '0px 2px 8px rgba(0, 0, 0, 0.15)',
     }}
