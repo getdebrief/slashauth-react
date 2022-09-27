@@ -61,12 +61,13 @@ export const DropDown = () => {
           style={{
             marginLeft: 14,
             marginRight: 13,
+            transform: isOpen ? 'rotate(180deg)' : undefined,
           }}
         >
           {chevronDown}
         </div>
       </div>
-      {user.loggedIn && isOpen && (
+      {isOpen && (
         <Content>
           <Section>
             {/*<Name>{user.name}</Name>*/}
@@ -129,6 +130,7 @@ export const DropDown = () => {
             <Row
               onClick={() => {
                 logout();
+                setIsOpen(false);
               }}
             >
               <Icon>{logoutIcon}</Icon>
