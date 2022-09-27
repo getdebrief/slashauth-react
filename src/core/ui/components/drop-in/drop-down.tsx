@@ -14,15 +14,16 @@ export const DropDown = () => {
     connect,
     goToAccountPage,
   } = context;
-  const hashDisplay = useMemo(() => {
+  const [hash, hashDisplay] = useMemo(() => {
     if (user.wallet) {
       const hash: string = user.wallet.default.split(':')[1]; //undefined possible
       const hashDisplay =
         hash.substring(0, 6) +
         '...' +
         hash.substring(hash.length - 4, hash.length);
-      return hashDisplay;
+      return [hash, hashDisplay];
     }
+    return [];
   }, [user.wallet]);
 
   return (
@@ -45,7 +46,7 @@ export const DropDown = () => {
                 <Icon
                   style={{ marginLeft: 8 }}
                   onClick={() => {
-                    console.log('copy');
+                    navigator.clipboard.writeText(hash);
                   }}
                 >
                   {copyIcon}
