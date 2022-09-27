@@ -34,20 +34,20 @@ export const DropDown = () => {
               Connect web3 wallet
             </Row>
           </Section>
-          <Section>
-            <Row>
-              <Icon>{twitterIcon}</Icon>
-              @0xhaileym
-            </Row>
-            <Row
-              style={{
-                paddingTop: 8,
-              }}
-            >
-              <Icon>{googleIcon}</Icon>
-              haileymiller298@gmail.com
-            </Row>
-          </Section>
+          {/*<Section>*/}
+          {/*  <Row>*/}
+          {/*    <Icon>{twitterIcon}</Icon>*/}
+          {/*    @0xhaileym*/}
+          {/*  </Row>*/}
+          {/*  <Row*/}
+          {/*    style={{*/}
+          {/*      paddingTop: 8,*/}
+          {/*    }}*/}
+          {/*  >*/}
+          {/*    <Icon>{googleIcon}</Icon>*/}
+          {/*    haileymiller298@gmail.com*/}
+          {/*  </Row>*/}
+          {/*</Section>*/}
           <Section>
             <Row
               onClick={() => {
