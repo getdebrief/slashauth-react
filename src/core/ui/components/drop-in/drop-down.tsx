@@ -33,9 +33,12 @@ export const DropDown = () => {
         style={{
           cursor: 'pointer',
           display: 'flex',
+          alignItems: 'center',
           fontWeight: 500,
           fontSize: '16px',
           lineHeight: '20px',
+          border: '1px solid #E6E8EB',
+          borderRadius: '22px',
         }}
         onClick={() => {
           if (user.loggedIn) {
@@ -45,7 +48,14 @@ export const DropDown = () => {
           }
         }}
       >
-        {profilePicturePlaceholder}
+        <div
+          style={{
+            marginRight: 10,
+            display: 'flex',
+          }}
+        >
+          {profilePicturePlaceholder}
+        </div>
         {hashDisplay}
       </div>
       {user.loggedIn && isOpen && (
