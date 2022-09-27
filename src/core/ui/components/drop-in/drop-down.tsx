@@ -29,7 +29,9 @@ export const DropDown = () => {
     <>
       <Section>
         <Row>
-          <div>
+          <div
+            style={{ textAlign: 'left', fontSize: '14px', lineHeight: '20px' }}
+          >
             Login to <strong>{testCompany}</strong> to view account settings
           </div>
         </Row>
