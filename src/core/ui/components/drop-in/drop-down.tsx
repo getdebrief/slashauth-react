@@ -50,7 +50,7 @@ export const DropDown = () => {
       >
         <div
           style={{
-            margin: 3,
+            margin: user.loggedIn ? 3 : undefined,
             display: 'flex',
           }}
         >
