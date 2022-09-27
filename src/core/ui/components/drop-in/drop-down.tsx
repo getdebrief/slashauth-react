@@ -51,7 +51,6 @@ export const DropDown = () => {
         <div
           style={{
             margin: 3,
-            marginRight: 10,
             display: 'flex',
           }}
         >
@@ -59,7 +58,13 @@ export const DropDown = () => {
         </div>
         {user.loggedIn && (
           <>
-            {hashDisplay}
+            <div
+              style={{
+                marginLeft: 10,
+              }}
+            >
+              {hashDisplay}
+            </div>
             <div
               style={{
                 marginLeft: 14,
