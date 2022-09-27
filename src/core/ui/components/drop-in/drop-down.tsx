@@ -28,7 +28,11 @@ export const DropDown = () => {
   const loggedOutContent = (
     <>
       <Section>
-        <Row>Login to {testCompany} to view account settings</Row>
+        <Row>
+          <div>
+            Login to <strong>{testCompany}</strong> to view account settings
+          </div>
+        </Row>
       </Section>
     </>
   );
