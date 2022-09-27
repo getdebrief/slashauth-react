@@ -1,6 +1,7 @@
 import { useUser } from '../../context/user';
 import { useMemo, useState } from 'react';
 import { useSlashAuth } from '../../../context/legacy-slashauth';
+import { ScaleLoader } from 'react-spinners';
 
 export const DropDown = () => {
   const user = useUser();
@@ -8,7 +9,6 @@ export const DropDown = () => {
   const context = useSlashAuth();
   const {
     initialized,
-    isAuthenticated,
     logout,
     loginNoRedirectNoPopup,
     connect,
@@ -26,6 +26,7 @@ export const DropDown = () => {
     return [];
   }, [user.wallet]);
 
+  if (!initialized) return <ScaleLoader height={35} width={4} />;
   return (
     <DropDownDiv>
       <div
