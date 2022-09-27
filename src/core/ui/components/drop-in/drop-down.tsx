@@ -174,7 +174,7 @@ const Icon = (
   return (
     <div
       style={{
-        marginRight: 12.5,
+        marginRight: 10,
         display: 'flex',
         alignItems: 'center',
         ...style,
