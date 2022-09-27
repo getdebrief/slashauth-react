@@ -79,7 +79,7 @@ export const DropDown = () => {
       </div>
       {isOpen && (
         <Content>
-          <Section>
+          <Section style={{ borderTop: 'none' }}>
             {/*<Name>{user.name}</Name>*/}
             {hashDisplay ? (
               <Row
@@ -224,18 +224,26 @@ const Row = (
     />
   );
 };
-const Section = ({ children }) => (
-  <div
-    style={{
-      fontSize: 12,
-      lineHeight: '20px',
-      borderTop: '1px solid #E7E9ED',
-      padding: 15,
-    }}
+const Section = (
+  props_: React.DetailedHTMLProps<
+    React.HTMLAttributes<HTMLDivElement>,
+    HTMLDivElement
   >
-    {children}
-  </div>
-);
+) => {
+  const { style, ...props } = props_;
+  return (
+    <div
+      style={{
+        fontSize: 12,
+        lineHeight: '20px',
+        borderTop: '1px solid #E7E9ED',
+        padding: 15,
+        ...style,
+      }}
+      {...props}
+    />
+  );
+};
 const profilePicturePlaceholder = (
   <svg
     width="36"
