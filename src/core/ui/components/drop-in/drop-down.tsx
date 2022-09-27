@@ -119,7 +119,7 @@ export const DropDown = () => {
           fontWeight: 500,
           fontSize: '16px',
           lineHeight: '20px',
-          border: '1px solid #E6E8EB',
+          border: user.wallet ? '1px solid #E6E8EB' : undefined,
           borderRadius: '22px',
         }}
         onClick={() => {
