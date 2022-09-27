@@ -106,17 +106,25 @@ const Name = ({ children }) => (
     {children}
   </div>
 );
-const Icon = ({ children }) => (
-  <div
-    style={{
-      marginRight: 12.5,
-      display: 'flex',
-      alignItems: 'center',
-    }}
+const Icon = (
+  props_: React.DetailedHTMLProps<
+    React.HTMLAttributes<HTMLDivElement>,
+    HTMLDivElement
   >
-    {children}
-  </div>
-);
+) => {
+  const { style, ...props } = props_;
+  return (
+    <div
+      style={{
+        marginRight: 12.5,
+        display: 'flex',
+        alignItems: 'center',
+        ...style,
+      }}
+      {...props}
+    />
+  );
+};
 const DropDownDiv = ({ children }) => (
   <div
     style={{
