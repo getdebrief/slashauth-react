@@ -3,9 +3,14 @@ import { useMemo, useState } from 'react';
 import { useSlashAuth } from '../../../context/legacy-slashauth';
 import { ScaleLoader } from 'react-spinners';
 
+type TestUser = {
+  loggedIn: boolean;
+  wallet?: { default: string };
+  email?: string;
+};
 export const DropDown = () => {
-  const user = useUser();
-  const [isOpen, setIsOpen] = useState(false);
+  const user: TestUser = testUser.walletAndSocial;
+  const [isOpen, setIsOpen] = useState(true);
   const context = useSlashAuth();
   const {
     initialized,
@@ -179,13 +184,24 @@ export const DropDown = () => {
     </DropDownDiv>
   );
 };
-const testUser = {
+const testUser: { [k: string]: TestUser } = {
+  walletOnly: {
+    loggedIn: true,
+    wallet: {
+      default: '',
+    },
+  },
   loggedOut: {
     loggedIn: false,
   },
   emailOnly: {
     loggedIn: true,
     email: 'Hailey@slashauth.com',
+    wallet: undefined,
+  },
+  walletAndSocial: {
+    loggedIn: true,
+    email: '',
     wallet: undefined,
   },
 };
