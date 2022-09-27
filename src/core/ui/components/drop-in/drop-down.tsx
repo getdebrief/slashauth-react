@@ -44,7 +44,7 @@ export const DropDown = () => {
               >
                 {hashDisplay}
                 <Icon
-                  style={{ marginLeft: 8 }}
+                  style={{ marginLeft: 8, cursor: 'pointer' }}
                   onClick={() => {
                     navigator.clipboard.writeText(hash);
                   }}
