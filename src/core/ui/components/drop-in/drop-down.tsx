@@ -64,42 +64,47 @@ export const DropDown = () => {
       </Section>
     </>
   );
+  let firstSection: JSX.Element;
+  if (user.name) {
+    firstSection = <PrimaryID>{user.name}</PrimaryID>;
+  } else if (hashDisplay) {
+    firstSection = (
+      <Row
+        style={{
+          ...primaryIdStyle,
+        }}
+      >
+        {hashDisplay}
+        <Icon
+          style={{ marginLeft: 8, cursor: 'pointer' }}
+          onClick={() => {
+            navigator.clipboard.writeText(hash);
+          }}
+        >
+          {copyIcon}
+        </Icon>
+      </Row>
+    );
+  } else {
+    firstSection = (
+      <Row
+        style={{
+          paddingTop: 8,
+          color: '#2F5FFC',
+        }}
+        onClick={() => {
+          connect(false);
+        }}
+      >
+        <Icon>{plusIcon}</Icon>
+        Connect web3 wallet
+      </Row>
+    );
+  }
   if (!initialized) return <ScaleLoader height={35} width={4} />;
   const loggedInContent = (
     <>
-      <Section style={{ borderTop: 'none' }}>
-        <PrimaryID>{user.name}</PrimaryID>
-        {hashDisplay ? (
-          <Row
-            style={{
-              ...primaryIdStyle,
-            }}
-          >
-            {hashDisplay}
-            <Icon
-              style={{ marginLeft: 8, cursor: 'pointer' }}
-              onClick={() => {
-                navigator.clipboard.writeText(hash);
-              }}
-            >
-              {copyIcon}
-            </Icon>
-          </Row>
-        ) : (
-          <Row
-            style={{
-              paddingTop: 8,
-              color: '#2F5FFC',
-            }}
-            onClick={() => {
-              connect(false);
-            }}
-          >
-            <Icon>{plusIcon}</Icon>
-            Connect web3 wallet
-          </Row>
-        )}
-      </Section>
+      <Section style={{ borderTop: 'none' }}>{firstSection}</Section>
       <Section>
         <Row>
           <Icon>{twitterIcon}</Icon>
