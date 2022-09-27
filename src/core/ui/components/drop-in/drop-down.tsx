@@ -4,6 +4,7 @@ import { useSlashAuth } from '../../../context/legacy-slashauth';
 import { ScaleLoader } from 'react-spinners';
 
 type TestUser = {
+  name?: string;
   loggedIn: boolean;
   wallet?: { default: string };
   email?: string;
@@ -67,7 +68,7 @@ export const DropDown = () => {
   const loggedInContent = (
     <>
       <Section style={{ borderTop: 'none' }}>
-        {/*<Name>{user.name}</Name>*/}
+        <Name>{user.name}</Name>
         {hashDisplay ? (
           <Row
             style={{
@@ -203,6 +204,7 @@ const testUser: { [k: string]: TestUser } = {
     wallet: undefined,
   },
   walletAndSocial: {
+    name: 'Hailey Miller',
     loggedIn: true,
     email: '',
     wallet: {
