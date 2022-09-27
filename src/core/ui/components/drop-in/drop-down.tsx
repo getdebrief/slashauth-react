@@ -152,6 +152,7 @@ const Content = ({ children }) => (
       background: 'white',
       width: 246,
       boxShadow: '0px 2px 8px rgba(0, 0, 0, 0.15)',
+      borderRadius: '6px',
     }}
   >
     {children}
