@@ -174,7 +174,6 @@ export const DropDown = () => {
               style={{
                 marginLeft: 14,
                 marginRight: 13,
-                transform: isOpen ? 'rotate(180deg)' : undefined,
               }}
             >
               {chevronDown}
