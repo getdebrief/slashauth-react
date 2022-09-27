@@ -232,7 +232,7 @@ const Section = ({ children }) => (
       fontSize: 12,
       lineHeight: '20px',
       borderTop: '1px solid #E7E9ED',
-      padding: 17.5,
+      padding: 15,
     }}
   >
     {children}
