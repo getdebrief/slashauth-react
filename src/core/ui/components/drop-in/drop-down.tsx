@@ -30,7 +30,13 @@ export const DropDown = () => {
   return (
     <DropDownDiv>
       <div
-        style={{ cursor: 'pointer' }}
+        style={{
+          cursor: 'pointer',
+          display: 'flex',
+          fontWeight: 500,
+          fontSize: '16px',
+          lineHeight: '20px',
+        }}
         onClick={() => {
           if (user.loggedIn) {
             setIsOpen((b) => !b);
@@ -40,6 +46,7 @@ export const DropDown = () => {
         }}
       >
         {profilePicturePlaceholder}
+        {hashDisplay}
       </div>
       {user.loggedIn && isOpen && (
         <Content>
