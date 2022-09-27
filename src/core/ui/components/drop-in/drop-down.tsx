@@ -50,6 +50,7 @@ export const DropDown = () => {
       >
         <div
           style={{
+            margin: 3,
             marginRight: 10,
             display: 'flex',
           }}
