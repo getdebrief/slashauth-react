@@ -28,7 +28,18 @@ export const DropDown = () => {
 
   return (
     <DropDownDiv>
-      <div>{profilePicturePlaceholder}</div>
+      <div
+        style={{ cursor: 'pointer' }}
+        onClick={() => {
+          if (user.loggedIn) {
+            setIsOpen((b) => !b);
+          } else {
+            loginNoRedirectNoPopup();
+          }
+        }}
+      >
+        {profilePicturePlaceholder}
+      </div>
       {isOpen && (
         <Content>
           <Section>
