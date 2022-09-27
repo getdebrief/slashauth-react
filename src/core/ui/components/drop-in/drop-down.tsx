@@ -64,39 +64,35 @@ export const DropDown = () => {
       </Section>
     </>
   );
-  let firstSection: JSX.Element;
-  const hashDisplayRowContent = (
-    <>
-      {hashDisplay}
-      <Icon
-        style={{ marginLeft: 8, cursor: 'pointer' }}
-        onClick={() => {
-          navigator.clipboard.writeText(hash);
-        }}
-      >
-        {copyIcon}
-      </Icon>
-    </>
-  );
-  if (user.name) {
-    firstSection = (
-      <>
-        <PrimaryID>{user.name}</PrimaryID>
-        <Row>{hashDisplayRowContent}</Row>
-      </>
-    );
-  } else if (hashDisplay) {
-    firstSection = (
+  const primaryId: 'name' | 'wallet' | 'email' = (
+    ['name', 'wallet', 'email'] as const
+  ).find((e) => !!user[e]);
+  console.log('primaryId', primaryId);
+  let hashDisplayElement: JSX.Element;
+  if (hashDisplay) {
+    hashDisplayElement = (
       <Row
-        style={{
-          ...primaryIdStyle,
-        }}
+        style={
+          primaryId === 'wallet'
+            ? {
+                ...primaryIdStyle,
+              }
+            : undefined
+        }
       >
-        {hashDisplayRowContent}
+        {hashDisplay}
+        <Icon
+          style={{ marginLeft: 8, cursor: 'pointer' }}
+          onClick={() => {
+            navigator.clipboard.writeText(hash);
+          }}
+        >
+          {copyIcon}
+        </Icon>
       </Row>
     );
   } else {
-    firstSection = (
+    hashDisplayElement = (
       <Row
         style={{
           paddingTop: 8,
@@ -111,6 +107,13 @@ export const DropDown = () => {
       </Row>
     );
   }
+  const firstSection = (
+    <>
+      <PrimaryID>{user[primaryId]}</PrimaryID>
+      {hashDisplayElement}
+    </>
+  );
+
   if (!initialized) return <ScaleLoader height={35} width={4} />;
   const loggedInContent = (
     <>
