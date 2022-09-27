@@ -1,5 +1,5 @@
 import { useUser } from '../../context/user';
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import { useSlashAuth } from '../../../context/legacy-slashauth';
 
 export const DropDown = () => {
@@ -14,11 +14,22 @@ export const DropDown = () => {
     connect,
     goToAccountPage,
   } = context;
+  const hashDisplay = useMemo(() => {
+    if (user.wallet) {
+      const hash: string = user.wallet.default.split(':')[1]; //undefined possible
+      const hashDisplay =
+        hash.substring(0, 6) +
+        '...' +
+        hash.substring(hash.length - 4, hash.length);
+      return hashDisplay;
+    }
+  }, [user.wallet]);
+
   return (
     <DropDownDiv>
       <div>
         {profilePicturePlaceholder}
-        {user.account?.wallet.default}
+        {hashDisplay}
       </div>
       {isOpen && (
         <Content>
