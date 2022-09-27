@@ -84,7 +84,6 @@ export const DropDown = () => {
             {hashDisplay ? (
               <Row
                 style={{
-                  paddingTop: 8,
                   ...primaryIdStyle,
                 }}
               >
