@@ -109,7 +109,7 @@ export const DropDown = () => {
   }
   const firstSection = (
     <>
-      <PrimaryID>{user[primaryId]}</PrimaryID>
+      {primaryId !== 'wallet' && <PrimaryID>{user[primaryId]}</PrimaryID>}
       {hashDisplayElement}
     </>
   );
