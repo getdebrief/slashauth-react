@@ -5,7 +5,7 @@ import { ScaleLoader } from 'react-spinners';
 
 export const DropDown = () => {
   const user = useUser();
-  const [isOpen, setIsOpen] = useState(true);
+  const [isOpen, setIsOpen] = useState(false);
   const context = useSlashAuth();
   const {
     initialized,
