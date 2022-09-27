@@ -7,6 +7,10 @@ type TestUser = {
   loggedIn: boolean;
   wallet?: { default: string };
   email?: string;
+  social?: {
+    google: string;
+    twitter: string;
+  };
 };
 export const DropDown = () => {
   const user: TestUser = testUser.walletAndSocial;
@@ -205,6 +209,7 @@ const testUser: { [k: string]: TestUser } = {
     wallet: {
       default: 'eth:0x6c713198b09add6ee54c535e4135860907afd4b4',
     },
+    social: { google: 'haileymiller298@gmail.com', twitter: '@0xhaileym' },
   },
 };
 const testCompany = 'Acme corp';
