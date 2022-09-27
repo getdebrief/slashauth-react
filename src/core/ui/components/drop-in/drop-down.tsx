@@ -68,7 +68,7 @@ export const DropDown = () => {
   const loggedInContent = (
     <>
       <Section style={{ borderTop: 'none' }}>
-        <Name>{user.name}</Name>
+        <PrimaryID>{user.name}</PrimaryID>
         {hashDisplay ? (
           <Row
             style={{
@@ -215,7 +215,9 @@ const testUser: { [k: string]: TestUser } = {
 };
 const testCompany = 'Acme corp';
 
-const Name = ({ children }) => <div style={primaryIdStyle}>{children}</div>;
+const PrimaryID = ({ children }) => (
+  <div style={primaryIdStyle}>{children}</div>
+);
 const primaryIdStyle: React.CSSProperties = {
   fontWeight: 600,
   fontSize: '16px',
