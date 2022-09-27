@@ -152,6 +152,14 @@ export const DropDown = () => {
     </DropDownDiv>
   );
 };
+const testUser = {
+  emailOnly: {
+    loggedIn: true,
+    email: 'Hailey@slashauth.com',
+    wallet: undefined,
+  },
+};
+
 const Name = ({ children }) => <div style={primaryIdStyle}>{children}</div>;
 const primaryIdStyle: React.CSSProperties = {
   fontWeight: 600,
