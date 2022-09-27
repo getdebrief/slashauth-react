@@ -41,7 +41,7 @@ export const DropDown = () => {
       >
         {profilePicturePlaceholder}
       </div>
-      {isOpen && (
+      {user.loggedIn && isOpen && (
         <Content>
           <Section>
             {/*<Name>{user.name}</Name>*/}
