@@ -28,10 +28,7 @@ export const DropDown = () => {
 
   return (
     <DropDownDiv>
-      <div>
-        {profilePicturePlaceholder}
-        {hashDisplay}
-      </div>
+      <div>{profilePicturePlaceholder}</div>
       {isOpen && (
         <Content>
           <Section>
@@ -273,9 +270,9 @@ const copyIcon = (
     <path
       d="M4 10H2.5C1.67157 10 1 9.32843 1 8.5V2.5C1 1.67157 1.67157 1 2.5 1H8.5C9.32843 1 10 1.67157 10 2.5V4M5.5 13H11.5C12.3284 13 13 12.3284 13 11.5V5.5C13 4.67157 12.3284 4 11.5 4H5.5C4.67157 4 4 4.67157 4 5.5V11.5C4 12.3284 4.67157 13 5.5 13Z"
       stroke="#9CA3AF"
-      stroke-width="1.5"
-      stroke-linecap="round"
-      stroke-linejoin="round"
+      strokeWidth="1.5"
+      strokeLinecap="round"
+      strokeLinejoin="round"
     />
   </svg>
 );
