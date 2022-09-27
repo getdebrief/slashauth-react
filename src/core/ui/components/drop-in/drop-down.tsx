@@ -55,6 +55,9 @@ export const DropDown = () => {
                   paddingTop: 8,
                   color: '#2F5FFC',
                 }}
+                onClick={() => {
+                  connect(false);
+                }}
               >
                 <Icon>{plusIcon}</Icon>
                 Connect web3 wallet
