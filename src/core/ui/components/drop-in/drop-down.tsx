@@ -35,15 +35,25 @@ export const DropDown = () => {
         <Content>
           <Section>
             <Name>Hailey Miller</Name>
-            <Row
-              style={{
-                paddingTop: 8,
-                color: '#2F5FFC',
-              }}
-            >
-              <Icon>{plusIcon}</Icon>
-              Connect web3 wallet
-            </Row>
+            {hashDisplay ? (
+              <Row
+                style={{
+                  paddingTop: 8,
+                }}
+              >
+                {hashDisplay}
+              </Row>
+            ) : (
+              <Row
+                style={{
+                  paddingTop: 8,
+                  color: '#2F5FFC',
+                }}
+              >
+                <Icon>{plusIcon}</Icon>
+                Connect web3 wallet
+              </Row>
+            )}
           </Section>
           {/*<Section>*/}
           {/*  <Row>*/}
