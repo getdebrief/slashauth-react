@@ -202,7 +202,9 @@ const testUser: { [k: string]: TestUser } = {
   walletAndSocial: {
     loggedIn: true,
     email: '',
-    wallet: undefined,
+    wallet: {
+      default: 'eth:0x6c713198b09add6ee54c535e4135860907afd4b4',
+    },
   },
 };
 const testCompany = 'Acme corp';
