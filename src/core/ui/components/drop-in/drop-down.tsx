@@ -99,20 +99,20 @@ export const DropDown = () => {
           </Row>
         )}
       </Section>
-      {/*<Section>*/}
-      {/*  <Row>*/}
-      {/*    <Icon>{twitterIcon}</Icon>*/}
-      {/*    @0xhaileym*/}
-      {/*  </Row>*/}
-      {/*  <Row*/}
-      {/*    style={{*/}
-      {/*      paddingTop: 8,*/}
-      {/*    }}*/}
-      {/*  >*/}
-      {/*    <Icon>{googleIcon}</Icon>*/}
-      {/*    haileymiller298@gmail.com*/}
-      {/*  </Row>*/}
-      {/*</Section>*/}
+      <Section>
+        <Row>
+          <Icon>{twitterIcon}</Icon>
+          {user.social.twitter}
+        </Row>
+        <Row
+          style={{
+            paddingTop: 8,
+          }}
+        >
+          <Icon>{googleIcon}</Icon>
+          {user.social.google}
+        </Row>
+      </Section>
       <Section>
         <Row
           onClick={() => {
