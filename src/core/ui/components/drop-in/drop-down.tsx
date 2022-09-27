@@ -33,6 +33,78 @@ export const DropDown = () => {
     </>
   );
   if (!initialized) return <ScaleLoader height={35} width={4} />;
+  const loggedInContent = (
+    <>
+      <Section style={{ borderTop: 'none' }}>
+        {/*<Name>{user.name}</Name>*/}
+        {hashDisplay ? (
+          <Row
+            style={{
+              ...primaryIdStyle,
+            }}
+          >
+            {hashDisplay}
+            <Icon
+              style={{ marginLeft: 8, cursor: 'pointer' }}
+              onClick={() => {
+                navigator.clipboard.writeText(hash);
+              }}
+            >
+              {copyIcon}
+            </Icon>
+          </Row>
+        ) : (
+          <Row
+            style={{
+              paddingTop: 8,
+              color: '#2F5FFC',
+            }}
+            onClick={() => {
+              connect(false);
+            }}
+          >
+            <Icon>{plusIcon}</Icon>
+            Connect web3 wallet
+          </Row>
+        )}
+      </Section>
+      {/*<Section>*/}
+      {/*  <Row>*/}
+      {/*    <Icon>{twitterIcon}</Icon>*/}
+      {/*    @0xhaileym*/}
+      {/*  </Row>*/}
+      {/*  <Row*/}
+      {/*    style={{*/}
+      {/*      paddingTop: 8,*/}
+      {/*    }}*/}
+      {/*  >*/}
+      {/*    <Icon>{googleIcon}</Icon>*/}
+      {/*    haileymiller298@gmail.com*/}
+      {/*  </Row>*/}
+      {/*</Section>*/}
+      <Section>
+        <Row
+          onClick={() => {
+            goToAccountPage();
+          }}
+        >
+          <Icon>{gearIcon}</Icon>
+          Manage account
+        </Row>
+      </Section>
+      <Section>
+        <Row
+          onClick={() => {
+            logout();
+            setIsOpen(false);
+          }}
+        >
+          <Icon>{logoutIcon}</Icon>
+          Sign out
+        </Row>
+      </Section>
+    </>
+  );
   return (
     <DropDownDiv>
       <div
@@ -47,11 +119,7 @@ export const DropDown = () => {
           borderRadius: '22px',
         }}
         onClick={() => {
-          if (user.loggedIn) {
-            setIsOpen((b) => !b);
-          } else {
-            loginNoRedirectNoPopup();
-          }
+          setIsOpen((b) => !b);
         }}
       >
         <div
@@ -84,76 +152,7 @@ export const DropDown = () => {
         )}
       </div>
       {isOpen && (
-        <Content>
-          <Section style={{ borderTop: 'none' }}>
-            {/*<Name>{user.name}</Name>*/}
-            {hashDisplay ? (
-              <Row
-                style={{
-                  ...primaryIdStyle,
-                }}
-              >
-                {hashDisplay}
-                <Icon
-                  style={{ marginLeft: 8, cursor: 'pointer' }}
-                  onClick={() => {
-                    navigator.clipboard.writeText(hash);
-                  }}
-                >
-                  {copyIcon}
-                </Icon>
-              </Row>
-            ) : (
-              <Row
-                style={{
-                  paddingTop: 8,
-                  color: '#2F5FFC',
-                }}
-                onClick={() => {
-                  connect(false);
-                }}
-              >
-                <Icon>{plusIcon}</Icon>
-                Connect web3 wallet
-              </Row>
-            )}
-          </Section>
-          {/*<Section>*/}
-          {/*  <Row>*/}
-          {/*    <Icon>{twitterIcon}</Icon>*/}
-          {/*    @0xhaileym*/}
-          {/*  </Row>*/}
-          {/*  <Row*/}
-          {/*    style={{*/}
-          {/*      paddingTop: 8,*/}
-          {/*    }}*/}
-          {/*  >*/}
-          {/*    <Icon>{googleIcon}</Icon>*/}
-          {/*    haileymiller298@gmail.com*/}
-          {/*  </Row>*/}
-          {/*</Section>*/}
-          <Section>
-            <Row
-              onClick={() => {
-                goToAccountPage();
-              }}
-            >
-              <Icon>{gearIcon}</Icon>
-              Manage account
-            </Row>
-          </Section>
-          <Section>
-            <Row
-              onClick={() => {
-                logout();
-                setIsOpen(false);
-              }}
-            >
-              <Icon>{logoutIcon}</Icon>
-              Sign out
-            </Row>
-          </Section>
-        </Content>
+        <Content>{user.loggedIn ? loggedInContent : loggedOutContent}</Content>
       )}
     </DropDownDiv>
   );
@@ -168,6 +167,7 @@ const testUser = {
     wallet: undefined,
   },
 };
+const testCompany = 'Acme corp';
 
 const Name = ({ children }) => <div style={primaryIdStyle}>{children}</div>;
 const primaryIdStyle: React.CSSProperties = {
