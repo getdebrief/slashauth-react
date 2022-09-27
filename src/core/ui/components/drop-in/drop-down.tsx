@@ -25,7 +25,13 @@ export const DropDown = () => {
     }
     return [];
   }, [user.wallet]);
-
+  const loggedOutContent = (
+    <>
+      <Section>
+        <Row>Login to {testCompany} to view account settings</Row>
+      </Section>
+    </>
+  );
   if (!initialized) return <ScaleLoader height={35} width={4} />;
   return (
     <DropDownDiv>
