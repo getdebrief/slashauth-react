@@ -88,7 +88,6 @@ export const DropDown = () => {
   const primaryId: 'name' | 'wallet' | 'email' = (
     ['name', 'wallet', 'email'] as const
   ).find((e) => !!user[e]);
-  console.log('primaryId', primaryId);
   let hashDisplayElement: JSX.Element;
   if (walletDisplay) {
     hashDisplayElement = (
