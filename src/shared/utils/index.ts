@@ -23,12 +23,16 @@ type WalletLoginPayload = {
   device_id: string;
 };
 
+type MagicLinkLoginPayload = {
+  email: string;
+};
+
 export const runLoginIframe = async (
   authorizeUrl: string,
   eventOrigin: string,
-  method: 'wallet',
+  method: 'wallet' | 'magicLink',
   messageTypes: MessageTypes,
-  payload: WalletLoginPayload,
+  payload: WalletLoginPayload | MagicLinkLoginPayload,
   timeoutInSeconds: number = DEFAULT_AUTHORIZE_TIMEOUT_IN_SECONDS
 ): Promise<AuthenticationResult> => {
   return new Promise<AuthenticationResult>((res, rej) => {
