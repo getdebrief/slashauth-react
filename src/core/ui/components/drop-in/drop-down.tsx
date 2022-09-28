@@ -30,7 +30,7 @@ export const DropDown = () => {
   }, [user.wallet]);
   const ref = useRef();
   useEffect(() => {
-    const listener = (evt) => {
+    const listener = (evt: MouseEvent) => {
       if (!ref.current) return;
       const topDiv = ref.current;
       let targetEl = evt.target;
@@ -39,7 +39,7 @@ export const DropDown = () => {
           return;
         }
         // Go up the DOM
-        targetEl = (targetEl as any).parentNode;
+        targetEl = (targetEl as HTMLElement).parentNode;
       } while (targetEl);
       setIsOpen(false);
     };
