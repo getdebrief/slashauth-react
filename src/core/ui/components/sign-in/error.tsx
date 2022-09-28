@@ -7,7 +7,7 @@ import {
 } from '../../context/login-methods';
 import { useRouter } from '../../router/context';
 import { PrimaryButton } from '../primitives/button';
-import { WalletConnectorButton } from '../web3-login-button';
+import { WalletConnectorButton } from './web3-login-button';
 import { SignInCard } from './card';
 
 export const SignInError = () => {

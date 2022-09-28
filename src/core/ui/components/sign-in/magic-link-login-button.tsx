@@ -1,13 +1,21 @@
-import EmailIcon from '../../../../icon/email.svg';
+import { MailIcon } from '@heroicons/react/outline';
 import { AbstractConnectorButton } from './abstract-login-button';
 
 type Props = {
+  display?: 'full' | 'icon';
   onClick: () => void;
 };
 
-export const MagicLinkConnectorButton = ({ onClick }: Props) => {
+export const MagicLinkConnectorButton = ({ display, onClick }: Props) => {
+  const dim = display === 'icon' ? '24px' : '18px';
   return (
-    <AbstractConnectorButton onClick={onClick} disabled={false}>
+    <AbstractConnectorButton
+      onClick={onClick}
+      disabled={false}
+      additionalStyles={{
+        ...(display === 'icon' ? { justifyContent: 'center' } : {}),
+      }}
+    >
       <div
         style={{
           display: 'flex',
@@ -15,16 +23,12 @@ export const MagicLinkConnectorButton = ({ onClick }: Props) => {
           width: '24px',
           height: '24px',
           justifyContent: 'center',
-          marginRight: '1rem',
+          ...(display !== 'icon' ? { marginRight: '1rem' } : {}),
         }}
       >
-        <img
-          src={EmailIcon}
-          alt="Email Logo"
-          style={{ width: '18px', height: '14px', color: '#B6BCC8' }}
-        />
+        <MailIcon style={{ width: dim, height: dim, color: '#B6BCC8' }} />
       </div>
-      Sign in with a magic link
+      {display !== 'icon' && 'Sign in with a magic link'}
     </AbstractConnectorButton>
   );
 };

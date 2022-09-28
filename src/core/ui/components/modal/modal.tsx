@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 
 import { useSafeLayoutEffect } from '../../../../shared/hooks';
 import { useAppearance } from '../../context/appearance';

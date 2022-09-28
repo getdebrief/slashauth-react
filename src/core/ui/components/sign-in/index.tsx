@@ -4,6 +4,7 @@ import { useEnvironment } from '../../context/environment';
 import { LoginMethodsProvider } from '../../context/login-methods';
 import { useUser } from '../../context/user';
 import { Web3LoginStateProvider } from '../../context/web3-signin';
+import { useRouter } from '../../router/context';
 import { Route } from '../../router/route';
 import { Switch } from '../../router/switch';
 import { SignInProps } from '../../types/ui-components';
@@ -11,6 +12,7 @@ import { Flow } from '../flow/flow';
 import { ModalContent } from '../modal/modal-content';
 import { ComponentContext, useSignInContext } from './context';
 import { SignInError } from './error';
+import { MagicLinkSignIn } from './magic-link-sign-in';
 import { SignNonce } from './sign-nonce';
 import { SignInStart } from './start';
 import { SignInSuccess } from './success';
@@ -25,7 +27,10 @@ function SignInRoutes(): JSX.Element {
     return (
       <Web3LoginStateProvider manager={slashAuth.manager}>
         <LoginMethodsProvider
-          loginMethods={environment.authSettings.availableWeb3LoginMethods}
+          loginMethods={[
+            ...environment.authSettings.availableWeb3LoginMethods,
+            ...environment.authSettings.availableWeb2LoginMethods,
+          ]}
         >
           <Flow.Root flow="sign-in">
             <Route index>
@@ -40,7 +45,10 @@ function SignInRoutes(): JSX.Element {
   return (
     <Web3LoginStateProvider manager={slashAuth.manager}>
       <LoginMethodsProvider
-        loginMethods={environment.authSettings.availableWeb3LoginMethods}
+        loginMethods={[
+          ...environment.authSettings.availableWeb3LoginMethods,
+          ...environment.authSettings.availableWeb2LoginMethods,
+        ]}
       >
         <Flow.Root flow="sign-in">
           {user.loggedIn ? (
@@ -57,6 +65,12 @@ function SignInRoutes(): JSX.Element {
               </Route>
               <Route path="error">
                 <SignInError />
+              </Route>
+              <Route path="all-wallets">
+                <SignInStart showAllWallets showBackButton />
+              </Route>
+              <Route path="magic-link">
+                <MagicLinkSignIn />
               </Route>
               <Route index>
                 <SignInStart />

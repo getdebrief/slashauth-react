@@ -1,7 +1,7 @@
 import { useMemo } from 'react';
-import { Web3LoginMethod } from '../context/login-methods';
-import { AbstractConnectorButton } from './sign-in/abstract-login-button';
-import { useSignInContext } from './sign-in/context';
+import { Web3LoginMethod } from '../../context/login-methods';
+import { AbstractConnectorButton } from './abstract-login-button';
+import { useSignInContext } from './context';
 
 type Props = {
   loginMethod: Web3LoginMethod;

@@ -1,33 +1,51 @@
-import React from 'react';
-import { useLoginMethods, Web3LoginMethod } from '../../context/login-methods';
-import { WalletConnectorButton } from '../web3-login-button';
-import { MagicLinkConnectorButton } from './magic-link-login-button';
+import { useMemo } from 'react';
+import {
+  LoginMethod,
+  useLoginMethods,
+  Web3LoginMethod,
+} from '../../context/login-methods';
+import { useRouter } from '../../router/context';
+import { WalletConnectorButton } from './web3-login-button';
+import { AbstractConnectorButton } from './abstract-login-button';
 
 type Props = {
-  onConnectWalletClick: (id: string) => void;
+  showMoreAfter: number;
+  onClick: (loginMethod: LoginMethod) => void;
 };
 
-export const SignInWeb3Buttons = ({ onConnectWalletClick }: Props) => {
+export const SignInWeb3Buttons = ({ showMoreAfter, onClick }: Props) => {
+  const { navigate } = useRouter();
   const enabledLoginMethods = useLoginMethods();
 
-  const web3LoginMethods = React.useMemo(() => {
+  const web3LoginMethods = useMemo(() => {
     return enabledLoginMethods.loginMethods.filter(
       (m) => m.type === 'web3'
     ) as unknown as Web3LoginMethod[];
   }, [enabledLoginMethods.loginMethods]);
 
+  const loginMethodsToShow = useMemo(() => {
+    if (showMoreAfter > 0 && showMoreAfter < web3LoginMethods.length) {
+      return web3LoginMethods.slice(0, showMoreAfter);
+    }
+    return web3LoginMethods;
+  }, [showMoreAfter, web3LoginMethods]);
+
   return (
     <>
-      {web3LoginMethods.map((loginMethod) => {
+      {loginMethodsToShow.map((loginMethod) => {
         return (
           <WalletConnectorButton
             key={loginMethod.id}
             loginMethod={loginMethod}
-            onClick={() => onConnectWalletClick(loginMethod.id)}
+            onClick={() => onClick(loginMethod)}
           />
         );
       })}
-      <MagicLinkConnectorButton onClick={() => console.log('click')} />
+      {showMoreAfter > 0 && showMoreAfter < web3LoginMethods.length && (
+        <AbstractConnectorButton onClick={() => navigate('./all-wallets')}>
+          Show more wallets
+        </AbstractConnectorButton>
+      )}
     </>
   );
 };

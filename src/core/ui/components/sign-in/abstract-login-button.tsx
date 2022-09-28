@@ -3,6 +3,7 @@ import { useAppearance } from '../../context/appearance';
 
 type Props = {
   disabled?: boolean;
+  additionalStyles?: React.CSSProperties;
   children: React.ReactNode;
   onClick: () => void;
 };
@@ -10,6 +11,7 @@ type Props = {
 export const AbstractConnectorButton = ({
   onClick,
   disabled,
+  additionalStyles,
   children,
 }: Props) => {
   const appearance = useAppearance();
@@ -20,7 +22,7 @@ export const AbstractConnectorButton = ({
       disabled={disabled}
       style={{
         alignItems: 'center',
-        display: 'inline-flex',
+        display: 'flex',
         width: '100%',
         backgroundColor: isHover
           ? appearance.modalStyle.hoverButtonBackgroundColor
@@ -34,6 +36,8 @@ export const AbstractConnectorButton = ({
         marginBottom: '0.5rem',
         fontSize: '12px',
         cursor: 'pointer',
+        minHeight: '2.625rem',
+        ...additionalStyles,
       }}
       onMouseEnter={() => setHover(true)}
       onMouseLeave={() => setHover(false)}

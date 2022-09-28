@@ -11,7 +11,11 @@ import {
 import { inBrowser } from '../shared/utils/browser';
 import { ConnectOptions, SignInOptions } from '../types/slashauth';
 import SlashAuthClient from './client';
-import { LoginMethodType, Web3LoginMethod } from './ui/context/login-methods';
+import {
+  LoginMethod,
+  LoginMethodType,
+  Web3LoginMethod,
+} from './ui/context/login-methods';
 import {
   ComponentControls,
   mountComponentManager,
@@ -109,9 +113,15 @@ export class SlashAuth {
       this.#web3Manager.autoConnect(),
     ]);
 
+    console.log(
+      'is enabled? ',
+      this.#modalConfig.loginMethods.web2.magicLink?.enabled,
+      this.#modalConfig.loginMethods.web2
+    );
     // TODO: Fetch this from the appmodalconfig.
     this.#environment = {
       authSettings: {
+        availableWeb2LoginMethods: this.#getWeb2LoginMethods(),
         availableWeb3LoginMethods: this.#web3Manager.connectors
           .map((connector) => {
             if (this.#modalConfig.loginMethods.web3.eth) {
@@ -142,8 +152,6 @@ export class SlashAuth {
             };
           })
           .filter((connector) => connector !== null) as Web3LoginMethod[],
-        isMagicLinkEnabled:
-          !!this.#modalConfig.loginMethods.web2.magicLink?.enabled,
       },
     };
 
@@ -320,6 +328,21 @@ export class SlashAuth {
       }
     }
     this.#emitAll();
+  };
+
+  #getWeb2LoginMethods = (): LoginMethod[] => {
+    const resp: LoginMethod[] = [];
+    if (this.#modalConfig.loginMethods.web2.enabled) {
+      if (this.#modalConfig.loginMethods.web2.magicLink?.enabled) {
+        resp.push({
+          id: 'magic-link',
+          type: LoginMethodType.MagicLink,
+          name: 'Magic Link',
+          ready: true,
+        });
+      }
+    }
+    return resp;
   };
 
   // #initializeWeb3Manager = async (options: ProviderOptions) => {
