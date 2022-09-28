@@ -152,7 +152,13 @@ export const DropDown = () => {
     </>
   );
   return (
-    <DropDownDiv>
+    <div
+      style={{
+        position: 'relative',
+        color: '#374151',
+      }}
+      ref={ref}
+    >
       <div
         style={{
           cursor: 'pointer',
@@ -199,7 +205,7 @@ export const DropDown = () => {
       {isOpen && (
         <Content>{user.loggedIn ? loggedInContent : loggedOutContent}</Content>
       )}
-    </DropDownDiv>
+    </div>
   );
 };
 const testUser: { [k: string]: TestUser } = {
@@ -264,16 +270,7 @@ const Icon = (
     />
   );
 };
-const DropDownDiv = ({ children }) => (
-  <div
-    style={{
-      position: 'relative',
-      color: '#374151',
-    }}
-  >
-    {children}
-  </div>
-);
+
 const Content = ({ children }) => (
   <div
     style={{
