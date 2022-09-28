@@ -139,6 +139,26 @@ export const runWalletLoginIframe = async (
   );
 };
 
+export const runMagicLinkLoginIframe = async (
+  authorizeUrl: string,
+  eventOrigin: string,
+  payload: MagicLinkLoginPayload,
+  timeoutInSeconds: number = 60 * 10
+) => {
+  return runLoginIframe(
+    authorizeUrl,
+    eventOrigin,
+    'magicLink',
+    {
+      initialization: 'login_initialized',
+      messageTypeToSend: 'login',
+      responseTypes: ['login_response', 'authorization_response'],
+    },
+    payload,
+    timeoutInSeconds
+  );
+};
+
 export const runIframeWithType = async (
   authorizeUrl: string,
   eventOrigin: string,
