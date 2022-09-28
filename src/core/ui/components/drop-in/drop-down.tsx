@@ -1,5 +1,5 @@
 import { useUser } from '../../context/user';
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { useSlashAuth } from '../../../context/legacy-slashauth';
 import { ScaleLoader } from 'react-spinners';
 import { useCoreSlashAuth } from '../../context/core-slashauth';
@@ -28,6 +28,27 @@ export const DropDown = () => {
     }
     return [];
   }, [user.wallet]);
+  const ref = useRef();
+  useEffect(() => {
+    const listener = (evt) => {
+      if (!ref.current) return;
+      const topDiv = ref.current;
+      let targetEl = evt.target;
+      do {
+        if (targetEl === topDiv) {
+          return;
+        }
+        // Go up the DOM
+        targetEl = (targetEl as any).parentNode;
+      } while (targetEl);
+      setIsOpen(false);
+    };
+    document.addEventListener('click', listener);
+    return () => {
+      document.removeEventListener('click', listener);
+    };
+  }, []);
+
   const loggedOutContent = (
     <>
       <Section>
