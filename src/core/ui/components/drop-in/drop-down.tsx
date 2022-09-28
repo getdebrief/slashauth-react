@@ -15,10 +15,11 @@ type TestUser = {
   };
 };
 export const DropDown = () => {
-  const user: TestUser = testUser.loggedOut;
+  const user: TestUser = testUser.emailOnly;
   const [isOpen, setIsOpen] = useState(false);
   const context = useCoreSlashAuth();
-  const { isReady, logout, openSignIn, connect, goToAccountPage } = context;
+  const { isReady, logout, openSignIn, connectWallet, goToAccountPage } =
+    context;
   const [hash, hashDisplay] = useMemo(() => {
     if (user.wallet) {
       const hash: string = user.wallet.default.split(':')[1]; //undefined possible
@@ -95,7 +96,7 @@ export const DropDown = () => {
           color: '#2F5FFC',
         }}
         onClick={() => {
-          connect(false);
+          connectWallet();
         }}
       >
         <Icon>{plusIcon}</Icon>
