@@ -2,6 +2,7 @@ import { useUser } from '../../context/user';
 import { useMemo, useState } from 'react';
 import { useSlashAuth } from '../../../context/legacy-slashauth';
 import { ScaleLoader } from 'react-spinners';
+import { useCoreSlashAuth } from '../../context/core-slashauth';
 
 type TestUser = {
   name?: string;
@@ -16,7 +17,7 @@ type TestUser = {
 export const DropDown = () => {
   const user: TestUser = testUser.nameWalletSocial;
   const [isOpen, setIsOpen] = useState(false);
-  const context = useSlashAuth();
+  const context = useCoreSlashAuth();
   const {
     initialized,
     logout,
