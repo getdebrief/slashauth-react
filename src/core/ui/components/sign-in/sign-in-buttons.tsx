@@ -1,4 +1,3 @@
-import { MailIcon } from '@heroicons/react/outline';
 import { useMemo } from 'react';
 import {
   LoginMethod,
@@ -53,7 +52,7 @@ export const SignInButtons = ({ showAllWallets, onClick }: Props) => {
         <SignInWeb2Buttons onClick={onClick} />
       </div>
     );
+  } else {
+    return <SignInWeb2Buttons onClick={onClick} />;
   }
-
-  return <div />;
 };

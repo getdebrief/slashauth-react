@@ -103,7 +103,6 @@ export class SlashAuth {
   public isReady = () => this.#isReady;
 
   public async initialize() {
-    console.log('initializing');
     if (this.#isReady || !inBrowser()) {
       return Promise.resolve();
     }
@@ -151,7 +150,6 @@ export class SlashAuth {
       },
     };
 
-    console.log('about to mount component manager with: ', this.#modalConfig);
     if (SlashAuth.mountComponentManager) {
       this.#componentController = SlashAuth.mountComponentManager(
         this,

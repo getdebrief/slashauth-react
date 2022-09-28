@@ -222,7 +222,6 @@ const ComponentManagerComponent = (props: ComponentManagerComponentProps) => {
     };
   }, []);
 
-  console.log('manager state: ', managerState);
   const mountedSignInModal = (
     <AppearanceProvider
       signInModalStyle={
