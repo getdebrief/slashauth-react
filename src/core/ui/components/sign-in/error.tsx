@@ -73,7 +73,10 @@ export const SignInError = () => {
             }}
           >
             If you continue to have issues, please contact us at{' '}
-            <a href="mailto:support@slashauth.com">support@slashauth.com</a>.
+            <a style={{ color: '#577EFD' }} href="mailto:support@slashauth.com">
+              support@slashauth.com
+            </a>
+            .
           </p>
         </div>
       </div>

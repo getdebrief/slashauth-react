@@ -84,6 +84,7 @@ export const ModalContent = React.forwardRef<HTMLDivElement, Props>(
         ...(modalStyles.defaultModalBodyStyles ||
           DEFAULT_MODAL_CONTAINER_STYLES),
       };
+      console.log(modalStyles);
       if (modalStyles.backgroundColor) {
         resp.background = modalStyles.backgroundColor;
       }
@@ -99,6 +100,8 @@ export const ModalContent = React.forwardRef<HTMLDivElement, Props>(
       if (modalStyles.fontColor) {
         resp.color = modalStyles.fontColor;
       }
+
+      console.log(resp);
 
       return {
         ...resp,

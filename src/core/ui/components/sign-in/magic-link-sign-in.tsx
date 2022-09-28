@@ -8,8 +8,10 @@ import { LoadingModalContents } from './loading';
 import useIsMounted from '../../../../shared/hooks/use-is-mounted';
 import { useCoreClient } from '../../context/slashauth-client';
 import { useRouter } from '../../router/context';
+import { useCoreSlashAuth } from '../../context/core-slashauth';
 
 export const MagicLinkSignIn = () => {
+  const slashAuth = useCoreSlashAuth();
   const { navigate } = useRouter();
   const mounted = useIsMounted();
   const client = useCoreClient();
@@ -34,9 +36,9 @@ export const MagicLinkSignIn = () => {
       await client.magicLinkLogin({
         email,
       });
+      await slashAuth.checkLoginState();
       navigate('../success');
     } catch (err) {
-      console.error(err);
       if (mounted()) {
         setError(err.toString());
       }
@@ -45,7 +47,7 @@ export const MagicLinkSignIn = () => {
         setSubmitting(false);
       }
     }
-  }, [client, email, mounted, validateEmail]);
+  }, [client, email, mounted, navigate, slashAuth, validateEmail]);
 
   const contents = useMemo(() => {
     if (!submitting) {
@@ -68,7 +70,9 @@ export const MagicLinkSignIn = () => {
             style={{
               marginTop: '0.25rem',
               marginBottom: '1rem',
+              padding: '0 2px',
               width: '100%',
+              boxSizing: 'border-box',
             }}
           >
             <input
@@ -93,7 +97,7 @@ export const MagicLinkSignIn = () => {
         textContent={'Check your email and click the link to login'}
       />
     );
-  }, [email, error, submitting, validateEmail]);
+  }, [email, error, handleClick, submitting, validateEmail]);
 
   return (
     <Flow.Part part="emailLink">

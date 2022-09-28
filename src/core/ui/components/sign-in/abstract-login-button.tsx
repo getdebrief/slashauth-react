@@ -37,6 +37,7 @@ export const AbstractConnectorButton = ({
         fontSize: '12px',
         cursor: 'pointer',
         minHeight: '2.625rem',
+        color: appearance.modalStyle.fontColor,
         ...additionalStyles,
       }}
       onMouseEnter={() => setHover(true)}

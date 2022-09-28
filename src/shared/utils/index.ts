@@ -74,7 +74,7 @@ export const runLoginIframe = async (
 
       if (e.data.type === messageTypes.initialization) {
         // We want to send a message back to log the user in.
-        eventSource?.postMessage(
+        eventSource.postMessage(
           {
             type: messageTypes.messageTypeToSend,
             payload: {
@@ -86,6 +86,14 @@ export const runLoginIframe = async (
             targetOrigin: e.origin,
           }
         );
+        return;
+      }
+
+      if (
+        e.data.response?.success &&
+        e.data.response?.data?.complete === false
+      ) {
+        // We don't want to close because we'll still poll here.
         return;
       }
 

@@ -103,6 +103,7 @@ export class SlashAuth {
   public isReady = () => this.#isReady;
 
   public async initialize() {
+    console.log('initializing');
     if (this.#isReady || !inBrowser()) {
       return Promise.resolve();
     }
@@ -113,11 +114,6 @@ export class SlashAuth {
       this.#web3Manager.autoConnect(),
     ]);
 
-    console.log(
-      'is enabled? ',
-      this.#modalConfig.loginMethods.web2.magicLink?.enabled,
-      this.#modalConfig.loginMethods.web2
-    );
     // TODO: Fetch this from the appmodalconfig.
     this.#environment = {
       authSettings: {
@@ -155,14 +151,16 @@ export class SlashAuth {
       },
     };
 
+    console.log('about to mount component manager with: ', this.#modalConfig);
     if (SlashAuth.mountComponentManager) {
       this.#componentController = SlashAuth.mountComponentManager(
         this,
         this.#environment,
         {
-          style: this.#modalConfig,
-          loginMethods: this.#modalConfig.loginMethods,
-        } as SlashAuthOptions
+          componentSettings: {
+            signInModalStyle: this.#modalConfig.modalStyle,
+          },
+        }
       );
     }
 

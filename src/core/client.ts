@@ -796,8 +796,6 @@ export default class SlashAuthClient {
       email: options.email,
     });
 
-    console.log(authResult);
-
     if (authResult.state !== stateIn) {
       throw new Error('Invalid state');
     }
@@ -868,10 +866,6 @@ export default class SlashAuthClient {
       device_id: getDeviceID(),
     });
 
-    console.log({
-      authResult,
-      stateIn,
-    });
     if (authResult.state !== stateIn) {
       throw new Error('Invalid state');
     }
