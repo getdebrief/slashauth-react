@@ -18,13 +18,8 @@ export const DropDown = () => {
   const user: TestUser = testUser.nameWalletSocial;
   const [isOpen, setIsOpen] = useState(false);
   const context = useCoreSlashAuth();
-  const {
-    initialized,
-    logout,
-    loginNoRedirectNoPopup,
-    connect,
-    goToAccountPage,
-  } = context;
+  const { isReady, logout, loginNoRedirectNoPopup, connect, goToAccountPage } =
+    context;
   const [hash, hashDisplay] = useMemo(() => {
     if (user.wallet) {
       const hash: string = user.wallet.default.split(':')[1]; //undefined possible
@@ -116,7 +111,7 @@ export const DropDown = () => {
     </>
   );
 
-  if (!initialized) return <ScaleLoader height={35} width={4} />;
+  if (!isReady()) return <ScaleLoader height={35} width={4} />;
   const loggedInContent = (
     <>
       <Section style={{ borderTop: 'none' }}>{firstSection}</Section>
