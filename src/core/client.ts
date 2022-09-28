@@ -283,7 +283,7 @@ export default class SlashAuthClient {
     this.domainUrl = getDomain(this.options.domain);
     this.tokenIssuer = getTokenIssuer(this.options.issuer, this.domainUrl);
 
-    this.defaultScope = getUniqueScopes('openid offline_access wallet');
+    this.defaultScope = getUniqueScopes('openid offline_access');
 
     this.scope = ''; // getUniqueScopes(this.scope, 'offline_access');
 
