@@ -3,6 +3,7 @@ import { useMemo, useState } from 'react';
 import { useSlashAuth } from '../../../context/legacy-slashauth';
 import { ScaleLoader } from 'react-spinners';
 import { useCoreSlashAuth } from '../../context/core-slashauth';
+import { shortenEthAddress } from '../../../../shared/utils/eth';
 
 type TestUser = {
   name?: string;
@@ -15,18 +16,15 @@ type TestUser = {
   };
 };
 export const DropDown = () => {
-  const user: TestUser = testUser.emailOnly;
+  const user: TestUser = testUser.walletOnly;
   const [isOpen, setIsOpen] = useState(false);
   const context = useCoreSlashAuth();
   const { isReady, logout, openSignIn, connectWallet } = context;
-  const [hash, hashDisplay] = useMemo(() => {
+  const [wallet, walletDisplay] = useMemo(() => {
     if (user.wallet) {
-      const hash: string = user.wallet.default.split(':')[1]; //undefined possible
-      const hashDisplay =
-        hash.substring(0, 6) +
-        '...' +
-        hash.substring(hash.length - 4, hash.length);
-      return [hash, hashDisplay];
+      const address: string = user.wallet.default.split(':')[1]; //undefined possible
+      const walletDisplay = shortenEthAddress(address);
+      return [address, walletDisplay];
     }
     return [];
   }, [user.wallet]);
@@ -65,7 +63,7 @@ export const DropDown = () => {
   ).find((e) => !!user[e]);
   console.log('primaryId', primaryId);
   let hashDisplayElement: JSX.Element;
-  if (hashDisplay) {
+  if (walletDisplay) {
     hashDisplayElement = (
       <Row
         style={
@@ -76,11 +74,11 @@ export const DropDown = () => {
             : undefined
         }
       >
-        {hashDisplay}
+        {walletDisplay}
         <Icon
           style={{ marginLeft: 8, cursor: 'pointer' }}
           onClick={() => {
-            navigator.clipboard.writeText(hash);
+            navigator.clipboard.writeText(wallet);
           }}
         >
           {copyIcon}
@@ -185,7 +183,7 @@ export const DropDown = () => {
                 marginLeft: 10,
               }}
             >
-              {hashDisplay}
+              {walletDisplay}
             </div>
             <div
               style={{
