@@ -5,8 +5,8 @@ import {
   useSlashAuth,
 } from './core/context/legacy-slashauth';
 import { supportedFontFamilies } from './core/ui/fonts';
-import { AccountSettings } from './core/ui/components/drop-in/account-settings';
-import { DropDown } from './core/ui/components/drop-in/drop-down';
+import { AccountSettings } from './core/ui/components/account-settings';
+import { DropDown } from './core/ui/components/drop-down';
 
 SlashAuth.mountComponentManager = mountComponentManager;
 

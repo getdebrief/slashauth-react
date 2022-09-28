@@ -1,4 +1,4 @@
-import { useUser } from '../../context/user';
+import { useUser } from '../context/user';
 
 export const AccountSettings = () => {
   const user = useUser();
