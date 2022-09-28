@@ -118,20 +118,22 @@ export const DropDown = () => {
   const loggedInContent = (
     <>
       <Section style={{ borderTop: 'none' }}>{firstSection}</Section>
-      <Section>
-        <Row>
-          <Icon>{twitterIcon}</Icon>
-          {user.social.twitter}
-        </Row>
-        <Row
-          style={{
-            paddingTop: 8,
-          }}
-        >
-          <Icon>{googleIcon}</Icon>
-          {user.social.google}
-        </Row>
-      </Section>
+      {(user.social?.twitter || user.social?.google) && (
+        <Section>
+          <Row>
+            <Icon>{twitterIcon}</Icon>
+            {user.social?.twitter}
+          </Row>
+          <Row
+            style={{
+              paddingTop: 8,
+            }}
+          >
+            <Icon>{googleIcon}</Icon>
+            {user.social?.google}
+          </Row>
+        </Section>
+      )}
       <Section>
         <Row
           onClick={() => {
