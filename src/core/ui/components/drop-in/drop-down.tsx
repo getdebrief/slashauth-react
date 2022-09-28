@@ -18,8 +18,7 @@ export const DropDown = () => {
   const user: TestUser = testUser.emailOnly;
   const [isOpen, setIsOpen] = useState(false);
   const context = useCoreSlashAuth();
-  const { isReady, logout, openSignIn, connectWallet, goToAccountPage } =
-    context;
+  const { isReady, logout, openSignIn, connectWallet } = context;
   const [hash, hashDisplay] = useMemo(() => {
     if (user.wallet) {
       const hash: string = user.wallet.default.split(':')[1]; //undefined possible
@@ -134,7 +133,7 @@ export const DropDown = () => {
       <Section>
         <Row
           onClick={() => {
-            goToAccountPage();
+            console.log('manage account');
           }}
         >
           <Icon>{gearIcon}</Icon>
