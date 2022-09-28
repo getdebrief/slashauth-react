@@ -105,6 +105,10 @@ export interface LoginNoRedirectNoPopupOptions extends BaseLoginOptions {
   signature: string;
 }
 
+export interface MagicLinkLoginOptions extends BaseLoginOptions {
+  email: string;
+}
+
 export interface IdToken {
   __raw: string;
   name?: string;

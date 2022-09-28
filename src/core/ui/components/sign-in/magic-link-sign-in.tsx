@@ -1,37 +1,65 @@
-import { useCallback, useState } from 'react';
+import { useCallback, useMemo, useState } from 'react';
 import { validate } from 'email-validator';
 import styleModule from './magic-link-sign-in.module.css';
 import { Flow } from '../flow/flow';
 import { SignInCard } from './card';
 import { PrimaryButton } from '../primitives/button';
-import { useAppearance } from '../../context/appearance';
+import { LoadingModalContents } from './loading';
+import useIsMounted from '../../../../shared/hooks/use-is-mounted';
+import { useCoreClient } from '../../context/slashauth-client';
+import { useRouter } from '../../router/context';
 
 export const MagicLinkSignIn = () => {
-  const appearance = useAppearance();
+  const { navigate } = useRouter();
+  const mounted = useIsMounted();
+  const client = useCoreClient();
+  const [submitting, setSubmitting] = useState(false);
   const [email, setEmail] = useState('');
-  const [emailError, setEmailError] = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(null);
 
   const validateEmail = useCallback(() => {
     if (!validate(email)) {
-      setEmailError('Please enter a valid email address');
+      setError('Please enter a valid email address');
     } else {
-      setEmailError(null);
+      setError(null);
     }
   }, [email]);
 
-  return (
-    <Flow.Part part="emailLink">
-      <SignInCard showBackButton>
-        <div
-          style={{
-            width: '100%',
-            padding: '2rem 0',
-          }}
-        >
+  const handleClick = useCallback(async () => {
+    if (!validateEmail) {
+      return;
+    }
+    try {
+      setSubmitting(true);
+      await client.magicLinkLogin({
+        email,
+      });
+      navigate('../success');
+    } catch (err) {
+      console.error(err);
+      if (mounted()) {
+        setError(err.toString());
+      }
+    } finally {
+      if (mounted()) {
+        setSubmitting(false);
+      }
+    }
+  }, [client, email, mounted, validateEmail]);
+
+  const contents = useMemo(() => {
+    if (!submitting) {
+      return (
+        <>
           <h2
-            style={{ marginBottom: '1rem', fontSize: '16px', fontWeight: 500 }}
+            style={{
+              marginBottom: '2rem',
+              fontSize: '16px',
+              fontWeight: 500,
+              textAlign: 'center',
+            }}
           >
-            Enter your email below and we will email you a link to login.
+            Enter your email below and we will send you a link to login.
           </h2>
           <label htmlFor="email" style={{ fontSize: '14px', fontWeight: 700 }}>
             Email:
@@ -44,22 +72,39 @@ export const MagicLinkSignIn = () => {
             }}
           >
             <input
-              style={{
-                ...(emailError ? { border: '1px solid #FF4D4F' } : {}),
-              }}
               type="email"
               name="email"
               className={styleModule.input}
               onChange={(e) => setEmail(e.target.value)}
               value={email}
               onBlur={validateEmail}
-              onFocus={() => setEmailError(null)}
+              onFocus={() => setError(null)}
             />
           </div>
-          <PrimaryButton onClick={() => console.log('click')}>
+          <PrimaryButton onClick={() => handleClick()}>
             Send a magic link
           </PrimaryButton>
-          {emailError && <div className={styleModule.error}>{emailError}</div>}
+          {error && <div className={styleModule.error}>{error}</div>}
+        </>
+      );
+    }
+    return (
+      <LoadingModalContents
+        textContent={'Check your email and click the link to login'}
+      />
+    );
+  }, [email, error, submitting, validateEmail]);
+
+  return (
+    <Flow.Part part="emailLink">
+      <SignInCard showBackButton>
+        <div
+          style={{
+            width: '100%',
+            padding: '2rem 0',
+          }}
+        >
+          {contents}
         </div>
       </SignInCard>
     </Flow.Part>

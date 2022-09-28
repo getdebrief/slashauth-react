@@ -10,6 +10,7 @@ import {
   sha256,
   runWalletLoginIframe,
   runIframeWithType,
+  runMagicLinkLoginIframe,
 } from '../shared/utils';
 
 import { getUniqueScopes } from '../shared/scope';
@@ -60,6 +61,7 @@ import {
   GetAppConfigResponse,
   ExchangeTokenOptions,
   TokenEndpointResponse,
+  MagicLinkLoginOptions,
 } from '../shared/global';
 
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
@@ -767,6 +769,71 @@ export default class SlashAuthClient {
     this.processToken(exchangeTokenResult);
   }
 
+  public async magicLinkLogin(options: MagicLinkLoginOptions) {
+    const stateIn = encode(createRandomString(64));
+    const nonceIn = encode(createRandomString(64));
+    const code_verifier = createRandomString(64);
+    const code_challengeBuffer = await sha256(code_verifier);
+    const code_challenge = bufferToBase64UrlEncoded(code_challengeBuffer);
+
+    const params = {
+      client_id: this.options.clientID,
+      redirect_uri: window.location.href,
+      response_type: 'code id_token',
+      code_challenge: code_challenge,
+      code_challenge_method: 'S256',
+      state: stateIn,
+      nonce: nonceIn,
+      hiddenIframe: 'true',
+      response_mode: 'web_message',
+      scope: this.defaultScope,
+      prompt: 'consent',
+    };
+
+    const url = this._authorizeUrl(params);
+
+    const authResult = await runMagicLinkLoginIframe(url, this.domainUrl, {
+      email: options.email,
+    });
+
+    console.log(authResult);
+
+    if (authResult.state !== stateIn) {
+      throw new Error('Invalid state');
+    }
+
+    const tokenResult = await oauthToken({
+      audience: 'default',
+      scope: this.defaultScope,
+      baseUrl: this.domainUrl,
+      client_id: this.options.clientID,
+      code_verifier,
+      code: authResult.code,
+      grant_type: 'authorization_code',
+      redirect_uri: params.redirect_uri,
+      useFormData: true,
+      timeout: this.httpTimeoutMs,
+    });
+    const decodedToken = await this._verifyIdToken(
+      tokenResult.id_token,
+      nonceIn
+    );
+    const cacheEntry = {
+      ...tokenResult,
+      decodedToken,
+      scope: params.scope,
+      audience: 'default',
+      client_id: this.options.clientID,
+    };
+
+    await this.cacheManager.set(cacheEntry);
+
+    this.cookieStorage.save(this.isAuthenticatedCookieName, true, {
+      daysUntilExpire: this.sessionCheckExpiryDays,
+      cookieDomain: this.options.cookieDomain,
+    });
+  }
+
   /**
    *
    * @returns
@@ -801,6 +868,10 @@ export default class SlashAuthClient {
       device_id: getDeviceID(),
     });
 
+    console.log({
+      authResult,
+      stateIn,
+    });
     if (authResult.state !== stateIn) {
       throw new Error('Invalid state');
     }

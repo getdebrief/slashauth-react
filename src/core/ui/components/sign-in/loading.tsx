@@ -1,7 +1,11 @@
 import { ScaleLoader } from 'react-spinners';
 import { useAppearance } from '../../context/appearance';
 
-export const LoadingModalContents = () => {
+type Props = {
+  textContent?: string;
+};
+
+export const LoadingModalContents = ({ textContent }: Props) => {
   const appearance = useAppearance();
 
   return (
@@ -13,8 +17,21 @@ export const LoadingModalContents = () => {
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
+        flexDirection: 'column',
       }}
     >
+      {textContent ? (
+        <h2
+          style={{
+            marginBottom: '2rem',
+            fontSize: '16px',
+            fontWeight: 500,
+            textAlign: 'center',
+          }}
+        >
+          {textContent}
+        </h2>
+      ) : null}
       <ScaleLoader
         height={35}
         width={4}
