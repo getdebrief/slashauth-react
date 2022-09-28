@@ -15,11 +15,10 @@ type TestUser = {
   };
 };
 export const DropDown = () => {
-  const user: TestUser = testUser.nameWalletSocial;
+  const user: TestUser = testUser.loggedOut;
   const [isOpen, setIsOpen] = useState(false);
   const context = useCoreSlashAuth();
-  const { isReady, logout, loginNoRedirectNoPopup, connect, goToAccountPage } =
-    context;
+  const { isReady, logout, openSignIn, connect, goToAccountPage } = context;
   const [hash, hashDisplay] = useMemo(() => {
     if (user.wallet) {
       const hash: string = user.wallet.default.split(':')[1]; //undefined possible
@@ -45,7 +44,7 @@ export const DropDown = () => {
       <Section>
         <div
           onClick={() => {
-            loginNoRedirectNoPopup();
+            openSignIn({});
           }}
           style={{
             background: '#2F5FFC',
