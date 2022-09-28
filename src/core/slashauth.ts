@@ -316,7 +316,7 @@ export class SlashAuth {
         this.user.loggedIn &&
         this.user.loginMethod === LoginMethodType.Web3 &&
         (!this.manager.address ||
-          this.user.account.rawAddress?.toLowerCase() !==
+          this.user.account.email?.default?.toLowerCase() !==
             this.manager.address?.toLowerCase())
       ) {
         await this.logout();
