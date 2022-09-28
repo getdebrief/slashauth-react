@@ -14,8 +14,8 @@ type TestUser = {
   };
 };
 export const DropDown = () => {
-  const user: TestUser = testUser.walletAndSocial;
-  const [isOpen, setIsOpen] = useState(true);
+  const user: TestUser = testUser.nameWalletSocial;
+  const [isOpen, setIsOpen] = useState(false);
   const context = useSlashAuth();
   const {
     initialized,
@@ -57,6 +57,7 @@ export const DropDown = () => {
             padding: '6px 52px',
             fontWeight: 500,
             borderRadius: '10px',
+            cursor: 'pointer',
           }}
         >
           Login to continue
@@ -223,10 +224,16 @@ const testUser: { [k: string]: TestUser } = {
     email: 'Hailey@slashauth.com',
     wallet: undefined,
   },
-  walletAndSocial: {
+  walletSocial: {
+    loggedIn: true,
+    wallet: {
+      default: 'eth:0x6c713198b09add6ee54c535e4135860907afd4b4',
+    },
+    social: { google: 'haileymiller298@gmail.com', twitter: '@0xhaileym' },
+  },
+  nameWalletSocial: {
     name: 'Hailey Miller',
     loggedIn: true,
-    email: '',
     wallet: {
       default: 'eth:0x6c713198b09add6ee54c535e4135860907afd4b4',
     },
