@@ -4,7 +4,6 @@ import { useCoreSlashAuth } from '../../context/core-slashauth';
 import { shortenEthAddress } from '../../../../shared/utils/eth';
 import { profilePicturePlaceholder } from './profilePicturePlaceholder';
 import { chevronDown } from './chevronDown';
-import { googleIcon } from './googleIcon';
 import { twitterIcon } from './twitterIcon';
 import { copyIcon } from './copyIcon';
 import { plusIcon } from './plusIcon';
@@ -22,7 +21,7 @@ type TestUser = {
   };
 };
 export const DropDown = () => {
-  const user: TestUser = testUser.walletOnly;
+  const user: TestUser = testUser.walletSocial;
   const [isOpen, setIsOpen] = useState(false);
   const context = useCoreSlashAuth();
   const { isReady, logout, openSignIn, connectWallet } = context;
@@ -151,7 +150,13 @@ export const DropDown = () => {
               paddingTop: 8,
             }}
           >
-            <Icon>{googleIcon}</Icon>
+            <img
+              style={{
+                width: 15,
+                marginRight: 15,
+              }}
+              src={'https://cdn.cdnlogo.com/logos/g/35/google-icon.svg'}
+            />
             {user.social?.google}
           </Row>
         </Section>
