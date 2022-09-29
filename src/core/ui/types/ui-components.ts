@@ -50,5 +50,8 @@ export type SignInCtx = SignInProps & {
   componentName: 'SignIn';
   mode?: ComponentMode;
 };
+export type DropDownCtx = DropDownProps & {
+  componentName: 'DropDown';
+};
 
-export type AvailableComponentCtx = SignInCtx;
+export type AvailableComponentCtx = SignInCtx | DropDownCtx;
