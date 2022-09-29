@@ -235,13 +235,7 @@ export class SlashAuth {
       props: {},
     });
   };
-  public unmountSignIn = (node: HTMLDivElement) => {
-    this.assertComponentsReady(this.#componentController);
-    this.#componentController.unmountComponent({
-      node,
-    });
-  };
-  public unmountDropDown = (node: HTMLDivElement) => {
+  public unmountComponent = (node: HTMLDivElement) => {
     this.assertComponentsReady(this.#componentController);
     this.#componentController.unmountComponent({
       node,

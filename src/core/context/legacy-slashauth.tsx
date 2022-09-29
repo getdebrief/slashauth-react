@@ -354,7 +354,7 @@ export function LegacyProvider({ children }: _Props) {
       options: SignInOptions = {}
     ): Promise<UnmountCallback> => {
       const unmountCallback = () => {
-        slashAuth.unmountSignIn(node);
+        slashAuth.unmountComponent(node);
       };
       slashAuth.mountSignIn(node, options);
       return unmountCallback;
@@ -364,7 +364,7 @@ export function LegacyProvider({ children }: _Props) {
   const mountDropDown = useCallback(
     async (node: HTMLDivElement): Promise<UnmountCallback> => {
       const unmountCallback = () => {
-        slashAuth.unmountDropDown(node);
+        slashAuth.unmountComponent(node);
       };
       slashAuth.mountDropDown(node);
       return unmountCallback;
