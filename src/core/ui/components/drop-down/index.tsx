@@ -9,6 +9,11 @@ import { copyIcon } from './icons/copyIcon';
 import { plusIcon } from './icons/plusIcon';
 import { gearIcon } from './icons/gearIcon';
 import { logoutIcon } from './icons/logoutIcon';
+import { Content } from './content';
+import { Row } from './row';
+import { Section } from './section';
+import { Icon } from './icon';
+import { PrimaryID, primaryIdStyle } from './primaryID';
 
 type TestUser = {
   name?: string;
@@ -273,88 +278,3 @@ const testUser: { [k: string]: TestUser } = {
   },
 };
 const testCompany = 'Acme corp';
-
-const PrimaryID = ({ children }) => (
-  <div style={primaryIdStyle}>{children}</div>
-);
-const primaryIdStyle: React.CSSProperties = {
-  fontWeight: 600,
-  fontSize: '16px',
-  lineHeight: '20px',
-  textAlign: 'left',
-};
-
-const Icon = (
-  props_: React.DetailedHTMLProps<
-    React.HTMLAttributes<HTMLDivElement>,
-    HTMLDivElement
-  >
-) => {
-  const { style, ...props } = props_;
-  return (
-    <div
-      style={{
-        marginRight: 10,
-        display: 'flex',
-        alignItems: 'center',
-        ...style,
-      }}
-      {...props}
-    />
-  );
-};
-
-const Content = ({ children }) => (
-  <div
-    style={{
-      position: 'absolute',
-      right: 0,
-      background: 'white',
-      minWidth: 246,
-      boxShadow: '0px 2px 8px rgba(0, 0, 0, 0.15)',
-      borderRadius: '6px',
-      marginTop: 10,
-    }}
-  >
-    {children}
-  </div>
-);
-const Row = (
-  props_: React.DetailedHTMLProps<
-    React.HTMLAttributes<HTMLDivElement>,
-    HTMLDivElement
-  >
-) => {
-  const { style, onClick, ...props } = props_;
-  return (
-    <div
-      style={{
-        display: 'flex',
-        cursor: onClick ? 'pointer' : undefined,
-        ...style,
-      }}
-      onClick={onClick}
-      {...props}
-    />
-  );
-};
-const Section = (
-  props_: React.DetailedHTMLProps<
-    React.HTMLAttributes<HTMLDivElement>,
-    HTMLDivElement
-  >
-) => {
-  const { style, ...props } = props_;
-  return (
-    <div
-      style={{
-        fontSize: 12,
-        lineHeight: '20px',
-        borderTop: '1px solid #E7E9ED',
-        padding: 15,
-        ...style,
-      }}
-      {...props}
-    />
-  );
-};
