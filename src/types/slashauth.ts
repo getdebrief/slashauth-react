@@ -2,7 +2,6 @@ import { CoinbaseWalletSDKOptions } from '@coinbase/wallet-sdk/dist/CoinbaseWall
 import { IWalletConnectProviderOptions } from '@walletconnect/types';
 import { Chain, Client } from 'wagmi';
 
-// eslint-disable-next-line @typescript-eslint/no-empty-interface
 export interface SignInOptions {
   walletConnectOnly?: boolean;
   viewOnly?: boolean;
