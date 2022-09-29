@@ -85,7 +85,7 @@ interface HtmlNodeOptions {
   name: AvailableComponentNames;
   appearanceKey: Uncapitalize<AvailableComponentNames>;
   // TODO: Extend this for other drop in components.
-  props?: SignInProps;
+  props?: AvailableComponentProps;
 }
 
 interface ComponentManagerState {
