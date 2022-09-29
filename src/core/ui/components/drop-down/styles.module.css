@@ -17,3 +17,6 @@
 .profilePicture {
   display: flex;
 }
+.walletDisplay {
+  margin-left: 10px;
+}

@@ -201,13 +201,7 @@ export const DropDown = () => {
         </div>
         {user.wallet && (
           <>
-            <div
-              style={{
-                marginLeft: 10,
-              }}
-            >
-              {walletDisplay}
-            </div>
+            <div className={styles.walletDisplay}>{walletDisplay}</div>
             <div
               style={{
                 marginLeft: 14,
