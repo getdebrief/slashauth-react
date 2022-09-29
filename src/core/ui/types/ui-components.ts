@@ -41,7 +41,10 @@ export type SignInProps = {
   routing?: RoutingStrategy;
 } & RedirectOptions;
 
-export type AvailableComponentProps = SignInProps;
+// eslint-disable-next-line @typescript-eslint/ban-types
+export type DropDownProps = {};
+
+export type AvailableComponentProps = SignInProps | DropDownProps;
 
 export type SignInCtx = SignInProps & {
   componentName: 'SignIn';
