@@ -31,6 +31,8 @@ export const DropDown = () => {
     }
     return [];
   }, [user.wallet]);
+
+  // if a click occurs outside the element, close it
   const ref = useRef();
   useEffect(() => {
     const listener = (evt: MouseEvent) => {
