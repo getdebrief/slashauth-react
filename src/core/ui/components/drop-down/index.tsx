@@ -186,16 +186,7 @@ export const DropDown = () => {
   return (
     <div className={styles.dropDown} ref={ref}>
       <div
-        style={{
-          cursor: 'pointer',
-          display: 'flex',
-          alignItems: 'center',
-          fontWeight: 500,
-          fontSize: '16px',
-          lineHeight: '20px',
-          border: user.wallet ? '1px solid #E6E8EB' : undefined,
-          borderRadius: '22px',
-        }}
+        className={styles.badge + (user.wallet ? ' ' + styles.wallet : '')}
         onClick={() => {
           setIsOpen((b) => !b);
         }}
