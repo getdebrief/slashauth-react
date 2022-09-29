@@ -14,22 +14,13 @@ import { Row } from './row';
 import { Section } from './section';
 import { Icon } from './icon';
 import { PrimaryID, primaryIdStyle } from './primaryID';
+import { useUser } from '../../context/user';
 
-type TestUser = {
-  name?: string;
-  loggedIn: boolean;
-  wallet?: { default: string };
-  email?: string;
-  social?: {
-    google: string;
-    twitter: string;
-  };
-};
 export const DropDown = () => {
-  const user: TestUser = testUser.walletSocial;
+  const user = useUser();
   const [isOpen, setIsOpen] = useState(false);
   const context = useCoreSlashAuth();
-  const { isReady, logout, openSignIn, connectWallet } = context;
+  const { isReady, logout, openSignIn, connectWallet, appName } = context;
   const [wallet, walletDisplay] = useMemo(() => {
     if (user.wallet) {
       const address = user.wallet.default.split(':')[1];
@@ -68,7 +59,7 @@ export const DropDown = () => {
           <div
             style={{ textAlign: 'left', fontSize: '14px', lineHeight: '20px' }}
           >
-            Login to <strong>{testCompany}</strong> to view account settings
+            Login to <strong>{appName}</strong> to view account settings
           </div>
         </Row>
       </Section>
@@ -144,28 +135,28 @@ export const DropDown = () => {
   const loggedInContent = (
     <>
       <Section style={{ borderTop: 'none' }}>{firstSection}</Section>
-      {(user.social?.twitter || user.social?.google) && (
-        <Section>
-          <Row>
-            <Icon>{twitterIcon}</Icon>
-            {user.social?.twitter}
-          </Row>
-          <Row
-            style={{
-              paddingTop: 8,
-            }}
-          >
-            <img
-              style={{
-                width: 15,
-                marginRight: 15,
-              }}
-              src={'https://cdn.cdnlogo.com/logos/g/35/google-icon.svg'}
-            />
-            {user.social?.google}
-          </Row>
-        </Section>
-      )}
+      {/*{(user.social?.twitter || user.social?.google) && (*/}
+      {/*  <Section>*/}
+      {/*    <Row>*/}
+      {/*      <Icon>{twitterIcon}</Icon>*/}
+      {/*      {user.social?.twitter}*/}
+      {/*    </Row>*/}
+      {/*    <Row*/}
+      {/*      style={{*/}
+      {/*        paddingTop: 8,*/}
+      {/*      }}*/}
+      {/*    >*/}
+      {/*      <img*/}
+      {/*        style={{*/}
+      {/*          width: 15,*/}
+      {/*          marginRight: 15,*/}
+      {/*        }}*/}
+      {/*        src={'https://cdn.cdnlogo.com/logos/g/35/google-icon.svg'}*/}
+      {/*      />*/}
+      {/*      {user.social?.google}*/}
+      {/*    </Row>*/}
+      {/*  </Section>*/}
+      {/*)}*/}
       <Section>
         <Row
           onClick={() => {
@@ -246,35 +237,3 @@ export const DropDown = () => {
     </div>
   );
 };
-const testUser: { [k: string]: TestUser } = {
-  walletOnly: {
-    loggedIn: true,
-    wallet: {
-      default: 'eth:0x6c713198b09add6ee54c535e4135860907afd4b4',
-    },
-  },
-  loggedOut: {
-    loggedIn: false,
-  },
-  emailOnly: {
-    loggedIn: true,
-    email: 'Hailey@slashauth.com',
-    wallet: undefined,
-  },
-  walletSocial: {
-    loggedIn: true,
-    wallet: {
-      default: 'eth:0x6c713198b09add6ee54c535e4135860907afd4b4',
-    },
-    social: { google: 'haileymiller298@gmail.com', twitter: '@0xhaileym' },
-  },
-  nameWalletSocial: {
-    name: 'Hailey Miller',
-    loggedIn: true,
-    wallet: {
-      default: 'eth:0x6c713198b09add6ee54c535e4135860907afd4b4',
-    },
-    social: { google: 'haileymiller298@gmail.com', twitter: '@0xhaileym' },
-  },
-};
-const testCompany = 'Acme corp';
