@@ -28,9 +28,11 @@ export const DropDown = () => {
   const { isReady, logout, openSignIn, connectWallet } = context;
   const [wallet, walletDisplay] = useMemo(() => {
     if (user.wallet) {
-      const address: string = user.wallet.default.split(':')[1]; //undefined possible
-      const walletDisplay = shortenEthAddress(address);
-      return [address, walletDisplay];
+      const address = user.wallet.default.split(':')[1];
+      if (address) {
+        const walletDisplay = shortenEthAddress(address);
+        return [address, walletDisplay];
+      }
     }
     return [];
   }, [user.wallet]);
