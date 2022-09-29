@@ -37,6 +37,7 @@ type AuthFunctions = {
 
 type UIFunctions = {
   mountSignIn: (node: HTMLDivElement, options: SignInOptions) => void;
+  mountDropDown: (node: HTMLDivElement) => void;
   updateAppearanceOverride: (overrides?: SlashAuthStyle) => void;
 };
 
@@ -270,6 +271,7 @@ const emptyContext = {
   getIdTokenClaims: uninitializedStub,
   checkSession: uninitializedStub,
   mountSignIn: uninitializedStub,
+  mountDropDown: uninitializedStub,
   updateAppearanceOverride: uninitializedStub,
   connectedWallet: null,
   ethereum: null,
@@ -359,6 +361,16 @@ export function LegacyProvider({ children }: _Props) {
     },
     [slashAuth]
   );
+  const mountDropDown = useCallback(
+    async (node: HTMLDivElement): Promise<UnmountCallback> => {
+      const unmountCallback = () => {
+        slashAuth.unmountDropDown(node);
+      };
+      slashAuth.mountDropDown(node);
+      return unmountCallback;
+    },
+    [slashAuth]
+  );
 
   const updateAppearanceOverride = useCallback(
     (overrides?: SlashAuthStyle) => {
@@ -379,6 +391,7 @@ export function LegacyProvider({ children }: _Props) {
     getIdTokenClaims,
     checkSession,
     mountSignIn,
+    mountDropDown,
     updateAppearanceOverride,
   });
 
