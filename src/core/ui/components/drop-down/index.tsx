@@ -15,6 +15,7 @@ import { Section } from './section';
 import { Icon } from './icon';
 import { PrimaryID, primaryIdStyle } from './primaryID';
 import { useUser } from '../../context/user';
+import styles from './styles.module.css';
 
 export const DropDown = () => {
   const user = useUser();
@@ -183,13 +184,7 @@ export const DropDown = () => {
     </>
   );
   return (
-    <div
-      style={{
-        position: 'relative',
-        color: '#374151',
-      }}
-      ref={ref}
-    >
+    <div className={styles.dropDown} ref={ref}>
       <div
         style={{
           cursor: 'pointer',

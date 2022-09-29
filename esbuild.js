@@ -25,6 +25,7 @@ esbuild.build({
   external: ['react', 'react-dom', 'wagmi', 'ethers', '@wagmi/core'],
   platform: 'browser',
   plugins: [
+    cssModulesPlugin(),
     NodeModulesPolyfillPlugin(),
     NodeGlobalPolyfillPlugin({
       process: true,
