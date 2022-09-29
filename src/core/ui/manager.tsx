@@ -21,6 +21,7 @@ import {
   AvailableComponentProps,
   SignInProps,
 } from './types/ui-components';
+import { DropDown } from './components/drop-down';
 
 // TODO: We need to handle the ability to bundle both react-17 and react-18 here.
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -74,6 +75,7 @@ const componentController: ComponentControls = {
 
 const AvailableComponents = {
   SignIn,
+  DropDown,
 };
 
 type AvailableComponentNames = keyof typeof AvailableComponents;
