@@ -2,13 +2,13 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 import { ScaleLoader } from 'react-spinners';
 import { useCoreSlashAuth } from '../../context/core-slashauth';
 import { shortenEthAddress } from '../../../../shared/utils/eth';
-import { profilePicturePlaceholder } from './profilePicturePlaceholder';
-import { chevronDown } from './chevronDown';
-import { twitterIcon } from './twitterIcon';
-import { copyIcon } from './copyIcon';
-import { plusIcon } from './plusIcon';
-import { gearIcon } from './gearIcon';
-import { logoutIcon } from './logoutIcon';
+import { profilePicturePlaceholder } from './icons/profilePicturePlaceholder';
+import { chevronDown } from './icons/chevronDown';
+import { twitterIcon } from './icons/twitterIcon';
+import { copyIcon } from './icons/copyIcon';
+import { plusIcon } from './icons/plusIcon';
+import { gearIcon } from './icons/gearIcon';
+import { logoutIcon } from './icons/logoutIcon';
 
 type TestUser = {
   name?: string;
