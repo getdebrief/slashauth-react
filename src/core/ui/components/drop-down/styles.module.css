@@ -1,16 +1,19 @@
 .dropDown {
-    position: relative;
-    color: #374151;
+  position: relative;
+  color: #374151;
 }
 .badge {
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    font-weight: 500;
-    font-size: 16px;
-    line-height: 20px;
-    border-radius: 22px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  font-weight: 500;
+  font-size: 16px;
+  line-height: 20px;
+  border-radius: 22px;
 }
 .badge.wallet {
-    border: 1px solid #E6E8EB;
+  border: 1px solid #e6e8eb;
+}
+.profilePicture {
+  display: flex;
 }

@@ -192,9 +192,9 @@ export const DropDown = () => {
         }}
       >
         <div
+          className={styles.profilePicture}
           style={{
             margin: user.wallet ? 3 : undefined,
-            display: 'flex',
           }}
         >
           {profilePicturePlaceholder}
