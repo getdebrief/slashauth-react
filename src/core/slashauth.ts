@@ -226,7 +226,7 @@ export class SlashAuth {
       props: options,
     });
   };
-  public mountDropdown = (
+  public mountDropDown = (
     node: HTMLDivElement,
     options: SignInOptions = {}
   ) => {
@@ -239,6 +239,12 @@ export class SlashAuth {
     });
   };
   public unmountSignIn = (node: HTMLDivElement) => {
+    this.assertComponentsReady(this.#componentController);
+    this.#componentController.unmountComponent({
+      node,
+    });
+  };
+  public unmountDropDown = (node: HTMLDivElement) => {
     this.assertComponentsReady(this.#componentController);
     this.#componentController.unmountComponent({
       node,
