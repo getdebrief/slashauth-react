@@ -1,6 +1,8 @@
 .dropDown {
   position: relative;
   color: #374151;
+  width: fit-content;
+  float: right;
 }
 .badge {
   cursor: pointer;
