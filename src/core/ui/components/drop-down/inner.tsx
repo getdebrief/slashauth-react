@@ -180,7 +180,7 @@ export const Inner = ({ context }: { context: SlashAuth }) => {
     </>
   );
   return (
-    <div className={styles.dropDown} ref={ref}>
+    <div className={styles.dropDown} ref={ref} data-testid={'DropDown'}>
       <div
         className={styles.badge + (user.wallet ? ' ' + styles.wallet : '')}
         onClick={() => {
