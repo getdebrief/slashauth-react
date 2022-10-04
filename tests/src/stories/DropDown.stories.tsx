@@ -15,7 +15,7 @@ export const Primary = () => {
     if (ref.current) {
       mountDropDown(ref.current);
     }
-  }, []);
+  }, [mountDropDown]);
   return <div ref={ref} />;
 };
 Primary.play = async ({ canvasElement }: { canvasElement: HTMLElement }) => {
