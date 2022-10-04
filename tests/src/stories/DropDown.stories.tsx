@@ -1,6 +1,7 @@
 import React, { useEffect, useRef } from 'react';
 import { useSlashAuth } from '@slashauth/slashauth-react';
 import { userEvent, within } from '@storybook/testing-library';
+import { expect } from '@storybook/jest';
 
 export default {
   title: 'DropDown',
