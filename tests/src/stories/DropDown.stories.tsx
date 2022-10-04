@@ -24,4 +24,6 @@ Primary.play = async ({ canvasElement }: { canvasElement: HTMLElement }) => {
   const badge = canvas.getByTestId('DropDownBadge');
   await userEvent.click(badge);
   expect(canvas.getByText('Login to continue')).toBeInTheDocument();
+  await userEvent.click(badge);
+  expect(canvas.queryByText('Login to continue')).toBeNull();
 };
