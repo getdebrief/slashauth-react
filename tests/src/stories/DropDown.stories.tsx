@@ -20,14 +20,8 @@ export const Primary = () => {
 };
 Primary.play = async ({ canvasElement }: { canvasElement: HTMLElement }) => {
   const canvas = within(canvasElement);
-
   await canvas.findByTestId('DropDown');
-
-  await userEvent.click(canvas.getByTestId('DropDown'));
-
-  expect(
-    canvas.getByText(
-      'Everything is perfect. Your account is ready and we should probably get you started!'
-    )
-  ).toBeInTheDocument();
+  const badge = canvas.getByTestId('DropDownBadge');
+  await userEvent.click(badge);
+  expect(canvas.getByText('Login to continue')).toBeInTheDocument();
 };

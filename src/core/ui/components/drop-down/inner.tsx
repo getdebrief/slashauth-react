@@ -186,6 +186,7 @@ export const Inner = ({ context }: { context: SlashAuth }) => {
         onClick={() => {
           setIsOpen((b) => !b);
         }}
+        data-testid={'DropDownBadge'}
       >
         <div
           className={styles.profilePicture}
