@@ -16,6 +16,7 @@ import { SlashAuthWalletContext } from './wallet';
 type SlashAuthContextWrapperProps = {
   slashAuth: SlashAuth;
   children: React.ReactNode;
+  testUser?: User;
 };
 
 type CoreSlashAuthContextProviderState = {
@@ -57,7 +58,9 @@ export function SlashAuthUIProvider(
       <CoreClientContext.Provider value={clientCtx}>
         <DeviceContext.Provider value={deviceCtx}>
           <SlashAuthWalletContext.Provider value={walletCtx}>
-            <SlashAuthUserContext.Provider value={slashAuth.user}>
+            <SlashAuthUserContext.Provider
+              value={props.testUser || slashAuth.user}
+            >
               {props.children}
             </SlashAuthUserContext.Provider>
           </SlashAuthWalletContext.Provider>
