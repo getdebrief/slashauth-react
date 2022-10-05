@@ -9,9 +9,11 @@ import { useRouter } from '../../router/context';
 import { Flow } from '../flow/flow';
 import { PrimaryButton, SecondaryButton } from '../primitives/button';
 import { SignInCard } from './card';
+import { useSignInContext } from './context';
 import { LoadingModalContents } from './loading';
 
 const _SignNonce = () => {
+  const { connectAccounts } = useSignInContext();
   const [fetchedNonce, setFetchedNonce] = useState<string | null>(null);
   const slashAuth = useCoreSlashAuth();
   const { deviceID } = useDeviceContext();
@@ -53,6 +55,7 @@ const _SignNonce = () => {
           await client.walletLoginInPage({
             address,
             signature: signature,
+            connectAccounts,
           });
           slashAuth.checkLoginState();
         } catch (err) {
@@ -72,6 +75,7 @@ const _SignNonce = () => {
   }, [
     address,
     client,
+    connectAccounts,
     fetchedNonce,
     loggingIn,
     navigate,

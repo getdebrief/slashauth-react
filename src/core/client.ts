@@ -78,10 +78,12 @@ import {
   getAppConfig,
   exchangeToken,
   oauthToken,
+  logoutAPICall,
 } from './api';
 import { ObjectMap } from '../shared/utils/object';
 import { createRandomString } from '../shared/utils/string';
 import { encodeCaseSensitiveClientID } from '../shared/utils/id';
+import { SessionManager } from './session';
 
 // type GetTokenSilentlyResult = TokenEndpointResponse & {
 //   decodedToken: ReturnType<typeof verifyIdToken>;
@@ -185,6 +187,7 @@ export default class SlashAuthClient {
   private readonly defaultScope: string;
   private readonly scope: string;
   private readonly cookieStorage: ClientStorage;
+  private readonly sessionManager: SessionManager;
   private readonly sessionCheckExpiryDays: number;
   private readonly orgHintCookieName: string;
   private readonly isAuthenticatedCookieName: string;
@@ -285,9 +288,15 @@ export default class SlashAuthClient {
 
     this.defaultScope = getUniqueScopes('openid offline_access');
 
-    this.scope = ''; // getUniqueScopes(this.scope, 'offline_access');
+    this.scope = ''; //getUniqueScopes(this.scope, 'offline_access');
 
     this.customOptions = getCustomInitialOptions(options);
+
+    this.sessionManager = new SessionManager(this.options.domain);
+  }
+
+  public async initialize() {
+    await this.sessionManager.initialize();
   }
 
   private _url(path: string) {
@@ -301,41 +310,8 @@ export default class SlashAuthClient {
     return url.toString();
   }
 
-  private _getParams(
-    authorizeOptions: BaseLoginOptions,
-    state: string,
-    nonce: string,
-    code_challenge: string,
-    redirect_uri: string
-  ): AuthorizeOptions {
-    // These options should be excluded from the authorize URL,
-    // as they're options for the client and not for the IdP.
-    // ** IMPORTANT ** If adding a new client option, include it in this destructure list.
-    const { slashAuthClient, cacheLocation, domain, leeway, ...loginOptions } =
-      this.options;
-
-    return {
-      ...loginOptions,
-      ...authorizeOptions,
-      scope: getUniqueScopes(
-        this.defaultScope,
-        this.scope,
-        // authorizeOptions.scope
-        ''
-      ),
-      response_type: 'code',
-      response_mode: 'query',
-      state,
-      nonce,
-      // redirect_uri: redirect_uri || this.options.redirect_uri,
-      redirect_uri: redirect_uri,
-      code_challenge,
-      code_challenge_method: 'S256',
-    };
-  }
-
   private _authorizeUrl(authorizeOptions: AuthorizeOptions) {
-    return this._url(`/oidc/auth?${createQueryParams(authorizeOptions)}`);
+    return this._url(`/auth?${createQueryParams(authorizeOptions)}`);
   }
 
   private async _verifyIdToken(
@@ -604,7 +580,6 @@ export default class SlashAuthClient {
         const authResult = await this._getTokenUsingRefreshToken({
           audience: getTokenOptions.audience || 'default',
           baseUrl: getDomain(this.domainUrl),
-          device_id: getDeviceID(),
         });
 
         await this.cacheManager.set({
@@ -776,6 +751,22 @@ export default class SlashAuthClient {
     const code_challengeBuffer = await sha256(code_verifier);
     const code_challenge = bufferToBase64UrlEncoded(code_challengeBuffer);
 
+    const hints = {};
+
+    if (options.connectAccounts) {
+      const tokens = (await this.getTokenSilently({
+        detailedResponse: true,
+      })) as GetTokenSilentlyVerboseResponse;
+
+      if (tokens) {
+        hints['id_token_hint'] = tokens.id_token;
+        hints['login_hint'] = options.email;
+        hints['merge'] = true;
+      }
+    }
+
+    const session = await this.sessionManager.getSession();
+
     const params = {
       client_id: this.options.clientID,
       redirect_uri: window.location.href,
@@ -788,6 +779,8 @@ export default class SlashAuthClient {
       response_mode: 'web_message',
       scope: this.defaultScope,
       prompt: 'consent',
+      session_id: session.id,
+      ...hints,
     };
 
     const url = this._authorizeUrl(params);
@@ -809,7 +802,7 @@ export default class SlashAuthClient {
       code: authResult.code,
       grant_type: 'authorization_code',
       redirect_uri: params.redirect_uri,
-      useFormData: true,
+      useFormData: false,
       timeout: this.httpTimeoutMs,
     });
     const decodedToken = await this._verifyIdToken(
@@ -843,6 +836,24 @@ export default class SlashAuthClient {
     const code_challengeBuffer = await sha256(code_verifier);
     const code_challenge = bufferToBase64UrlEncoded(code_challengeBuffer);
 
+    const hints = {};
+
+    if (options.connectAccounts) {
+      const tokens = (await this.getTokenSilently({
+        detailedResponse: true,
+      })) as GetTokenSilentlyVerboseResponse;
+
+      console.log(tokens);
+
+      if (tokens) {
+        hints['id_token_hint'] = tokens.id_token;
+        hints['login_hint'] = options.address;
+        hints['merge'] = true;
+      }
+    }
+
+    const session = await this.sessionManager.getSession();
+
     const params = {
       client_id: this.options.clientID,
       redirect_uri: window.location.href,
@@ -856,6 +867,8 @@ export default class SlashAuthClient {
       scope: this.defaultScope,
       prompt: 'consent',
       wallet_address: options.address,
+      session_id: session.id,
+      ...hints,
     };
 
     const url = this._authorizeUrl(params);
@@ -879,7 +892,7 @@ export default class SlashAuthClient {
       code: authResult.code,
       grant_type: 'authorization_code',
       redirect_uri: params.redirect_uri,
-      useFormData: true,
+      useFormData: false,
       timeout: this.httpTimeoutMs,
     });
     const decodedToken = await this._verifyIdToken(
@@ -962,7 +975,7 @@ export default class SlashAuthClient {
 
     const { ...logoutOptions } = options;
     const url = this._url(
-      `/oidc/session/end?${createQueryParams({
+      `/auth/logout?${createQueryParams({
         ...logoutOptions,
         logout: true,
       })}`
@@ -976,7 +989,7 @@ export default class SlashAuthClient {
    * slashauth.logout();
    * ```
    *
-   * Clears the application session and performs a redirect to `/v2/logout`, using
+   * Clears the application session and performs a redirect to `/auth/logout`, using
    * the parameters provided as arguments, to clear the Slashauth session.
    *
    * **Note:** If you are using a custom cache, and specifying `localOnly: true`, and you want to perform actions or read state from the SDK immediately after logout, you should `await` the result of calling `logout`.
@@ -991,16 +1004,16 @@ export default class SlashAuthClient {
   public async logout(options: LogoutOptions = {}): Promise<void> {
     const { localOnly, ...logoutOptions } = options;
 
-    const postCacheClear = async (refreshToken: string | null) => {
+    const postCacheClear = async (accessToken: string | null) => {
       this.cookieStorage.remove(this.orgHintCookieName);
       this.cookieStorage.remove(this.isAuthenticatedCookieName);
 
-      if (localOnly) {
+      if (localOnly || !accessToken) {
         return Promise.resolve();
       }
       const url = this.buildLogoutUrl(logoutOptions);
 
-      await runIframeWithType(url, this.domainUrl, 5, 'logout_response');
+      await logoutAPICall(url, accessToken);
     };
 
     if (this.options.cache) {
@@ -1041,26 +1054,35 @@ export default class SlashAuthClient {
       redirect_uri: window.location.href,
     };
 
-    const tokenResult = await oauthToken({
-      ...params,
-      audience: 'default',
-      grant_type: 'refresh_token',
-      scpoe: this.defaultScope,
-      baseUrl: this.domainUrl,
-      timeout: this.httpTimeoutMs,
-      slashAuthClient: DEFAULT_SLASHAUTH_CLIENT,
-      useFormData: true,
-    });
+    try {
+      const tokenResult = await oauthToken({
+        ...params,
+        audience: 'default',
+        grant_type: 'refresh_token',
+        scpoe: this.defaultScope,
+        baseUrl: this.domainUrl,
+        timeout: this.httpTimeoutMs,
+        slashAuthClient: DEFAULT_SLASHAUTH_CLIENT,
+        useFormData: false,
+      });
+      const decodedToken = await this._verifyIdToken(tokenResult.id_token);
 
-    const decodedToken = await this._verifyIdToken(tokenResult.id_token);
-
-    return {
-      ...tokenResult,
-      decodedToken,
-      scope: this.defaultScope,
-      audience: options.audience || 'default',
-      client_id: this.options.clientID,
-    };
+      return {
+        ...tokenResult,
+        decodedToken,
+        scope: this.defaultScope,
+        audience: options.audience || 'default',
+        client_id: this.options.clientID,
+      };
+    } catch (err) {
+      console.log('in refresh token catch and err:', JSON.stringify(err));
+      if ([401, 403].includes(err.status_code)) {
+        this.logout({
+          localOnly: true,
+        });
+      }
+      throw err;
+    }
   }
 
   private async _getEntryFromCache({

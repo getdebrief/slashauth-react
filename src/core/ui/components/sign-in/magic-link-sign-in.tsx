@@ -9,8 +9,10 @@ import useIsMounted from '../../../../shared/hooks/use-is-mounted';
 import { useCoreClient } from '../../context/slashauth-client';
 import { useRouter } from '../../router/context';
 import { useCoreSlashAuth } from '../../context/core-slashauth';
+import { useSignInContext } from './context';
 
 export const MagicLinkSignIn = () => {
+  const { connectAccounts } = useSignInContext();
   const slashAuth = useCoreSlashAuth();
   const { navigate } = useRouter();
   const mounted = useIsMounted();
@@ -35,6 +37,7 @@ export const MagicLinkSignIn = () => {
       setSubmitting(true);
       await client.magicLinkLogin({
         email,
+        connectAccounts,
       });
       await slashAuth.checkLoginState();
       navigate('../success');
@@ -47,7 +50,15 @@ export const MagicLinkSignIn = () => {
         setSubmitting(false);
       }
     }
-  }, [client, email, mounted, navigate, slashAuth, validateEmail]);
+  }, [
+    client,
+    connectAccounts,
+    email,
+    mounted,
+    navigate,
+    slashAuth,
+    validateEmail,
+  ]);
 
   const contents = useMemo(() => {
     if (!submitting) {

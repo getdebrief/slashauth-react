@@ -33,6 +33,8 @@ export type SignInProps = {
 
   walletConnectOnly?: boolean;
   walletConnectTransparent?: boolean;
+
+  connectAccounts?: boolean;
   /*
    * Root URL where the component is mounted on, eg: '/sign in'
    */

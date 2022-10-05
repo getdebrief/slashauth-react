@@ -4,7 +4,6 @@ import { useEnvironment } from '../../context/environment';
 import { LoginMethodsProvider } from '../../context/login-methods';
 import { useUser } from '../../context/user';
 import { Web3LoginStateProvider } from '../../context/web3-signin';
-import { useRouter } from '../../router/context';
 import { Route } from '../../router/route';
 import { Switch } from '../../router/switch';
 import { SignInProps } from '../../types/ui-components';
@@ -20,7 +19,7 @@ import { SignInSuccess } from './success';
 function SignInRoutes(): JSX.Element {
   const environment = useEnvironment();
   const user = useUser();
-  const { viewOnly, walletConnectOnly } = useSignInContext();
+  const { viewOnly, walletConnectOnly, connectAccounts } = useSignInContext();
   const slashAuth = useCoreSlashAuth();
 
   if (viewOnly) {
@@ -51,7 +50,7 @@ function SignInRoutes(): JSX.Element {
         ]}
       >
         <Flow.Root flow="sign-in">
-          {user.loggedIn ? (
+          {user.loggedIn && !connectAccounts ? (
             <SignInSuccess />
           ) : (
             <Switch>

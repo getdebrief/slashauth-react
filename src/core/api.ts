@@ -21,10 +21,11 @@ import {
 import { getJSON, switchFetch } from './http';
 import { createQueryParams } from '../shared/utils';
 
-export async function logout(url: string) {
+export async function logoutAPICall(url: string, accessToken: string) {
   return await switchFetch(url, 'default', '', {
     method: 'GET',
     headers: {
+      Authorization: `Bearer ${accessToken}`,
       'X-SlashAuth-Client': btoa(JSON.stringify(DEFAULT_SLASHAUTH_CLIENT)),
     },
   });
@@ -239,7 +240,7 @@ export async function oauthToken(
     : JSON.stringify(options);
 
   return await getJSON<TokenEndpointResponse>(
-    `${baseUrl}/oidc/token`,
+    `${baseUrl}/auth/token`,
     timeout,
     audience || 'default',
     scope,

@@ -11,6 +11,7 @@ import {
 import { inBrowser } from '../shared/utils/browser';
 import { ConnectOptions, SignInOptions } from '../types/slashauth';
 import SlashAuthClient from './client';
+import { SessionManager } from './session';
 import {
   LoginMethod,
   LoginMethodType,
@@ -108,6 +109,7 @@ export class SlashAuth {
     }
     this.#web3Manager.onEvent(this.#handleWeb3Event.bind(this));
     await Promise.all([
+      this.#client.initialize(),
       this.fetchAppModalConfig(),
       this.checkLoginState(),
       this.#web3Manager.autoConnect(),

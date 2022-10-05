@@ -14,6 +14,7 @@ const dofetch = async (fetchUrl: string, fetchOptions: FetchOptions) => {
 
   return {
     ok: response.ok,
+    status: response.status,
     json: await response.json(),
   };
 };
@@ -143,6 +144,7 @@ export async function getJSON<T>(
   const {
     json: { error, error_description, ...data },
     ok,
+    status,
   } = response;
 
   if (!ok) {
@@ -153,7 +155,7 @@ export async function getJSON<T>(
       throw new MfaRequiredError(error, errorMessage, data.mfa_token);
     }
 
-    throw new GenericError(error || 'request_error', errorMessage);
+    throw new GenericError(error || 'request_error', errorMessage, status);
   }
 
   return data;

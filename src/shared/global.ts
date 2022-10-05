@@ -97,6 +97,8 @@ export interface LoginNoRedirectNoPopupOptions extends BaseLoginOptions {
   address: string;
 
   signature: string;
+
+  connectAccounts?: boolean;
 }
 
 export interface MagicLinkLoginOptions extends BaseLoginOptions {
@@ -236,7 +238,6 @@ export interface TokenEndpointOptions {
 export interface RefreshTokenOptions {
   baseUrl: string;
   audience?: string;
-  device_id: string;
 }
 
 export type TokenEndpointResponse = {
@@ -263,9 +264,12 @@ export interface AuthorizeOptions extends BaseLoginOptions {
   nonce: string;
   state: string;
   scope: string;
+  session_id: string;
   code_challenge: string;
   code_challenge_method: string;
   wallet_address?: string;
+  id_token_hint?: string;
+  login_hint?: string;
 }
 
 export interface GetAccountOptions {

@@ -114,7 +114,11 @@ export const runLoginIframe = async (
           })
         );
       } else {
-        res(e.data.response);
+        if (e.data.response.data !== undefined) {
+          res(e.data.response.data);
+        } else {
+          res(e.data.response);
+        }
       }
 
       clearTimeout(timeoutSetTimeoutId);
