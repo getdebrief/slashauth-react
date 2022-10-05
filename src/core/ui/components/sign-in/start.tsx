@@ -20,7 +20,7 @@ type Props = {
 
 const _SignInStart = ({ showAllWallets, showBackButton }: Props) => {
   const { viewOnly, walletConnectOnly } = useSignInContext();
-  const { navigate } = useRouter();
+  const { navigate, fullPath } = useRouter();
   const web3LoginState = useWeb3LoginState();
   const { loginMethods, setSelectedLoginMethod } = useLoginMethods();
 
@@ -52,7 +52,10 @@ const _SignInStart = ({ showAllWallets, showBackButton }: Props) => {
           if (walletConnectOnly) {
             navigate('./success');
           } else {
-            navigate('./sign-nonce');
+            const location = fullPath.endsWith('/all-wallets')
+              ? '../sign-nonce'
+              : './sign-nonce';
+            await navigate(location);
           }
         } else {
           // Handle web2 login here.
@@ -63,12 +66,13 @@ const _SignInStart = ({ showAllWallets, showBackButton }: Props) => {
       }
     },
     [
+      fullPath,
       loginMethods,
       navigate,
       setSelectedLoginMethod,
       viewOnly,
       walletConnectOnly,
-      web3LoginState.web3Manager,
+      web3LoginState,
     ]
   );
 

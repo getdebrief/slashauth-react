@@ -843,8 +843,6 @@ export default class SlashAuthClient {
         detailedResponse: true,
       })) as GetTokenSilentlyVerboseResponse;
 
-      console.log(tokens);
-
       if (tokens) {
         hints['id_token_hint'] = tokens.id_token;
         hints['login_hint'] = options.address;
@@ -1075,7 +1073,6 @@ export default class SlashAuthClient {
         client_id: this.options.clientID,
       };
     } catch (err) {
-      console.log('in refresh token catch and err:', JSON.stringify(err));
       if ([401, 403].includes(err.status_code)) {
         this.logout({
           localOnly: true,

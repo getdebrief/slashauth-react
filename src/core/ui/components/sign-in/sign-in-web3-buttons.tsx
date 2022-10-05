@@ -24,10 +24,11 @@ export const SignInWeb3Buttons = ({ showMoreAfter, onClick }: Props) => {
   }, [enabledLoginMethods.loginMethods]);
 
   const loginMethodsToShow = useMemo(() => {
-    if (showMoreAfter > 0 && showMoreAfter < web3LoginMethods.length) {
-      return web3LoginMethods.slice(0, showMoreAfter);
+    const filteredMethods = web3LoginMethods.filter((m) => m.ready);
+    if (showMoreAfter > 0 && showMoreAfter < filteredMethods.length) {
+      return filteredMethods.slice(0, showMoreAfter);
     }
-    return web3LoginMethods;
+    return filteredMethods;
   }, [showMoreAfter, web3LoginMethods]);
 
   return (
