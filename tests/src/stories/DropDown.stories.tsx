@@ -27,7 +27,7 @@ Primary.play = async ({ canvasElement }: { canvasElement: HTMLElement }) => {
   await userEvent.click(badge);
   expect(canvas.queryByText('Login to continue')).toBeNull();
 };
-export type TestUser = {
+type TestUser = {
   name?: string;
   loggedIn: boolean;
   wallet?: { default: string };
@@ -37,7 +37,7 @@ export type TestUser = {
     twitter: string;
   };
 };
-export const testUser: { [k: string]: TestUser } = {
+const testUser: { [k: string]: TestUser } = {
   walletOnly: {
     loggedIn: true,
     wallet: {
@@ -68,4 +68,4 @@ export const testUser: { [k: string]: TestUser } = {
     social: { google: 'haileymiller298@gmail.com', twitter: '@0xhaileym' },
   },
 };
-export const testCompany = 'Acme corp';
+const testCompany = 'Acme corp';
