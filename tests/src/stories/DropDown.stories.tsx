@@ -13,7 +13,7 @@ export const Primary = () => {
   const ref = useRef(null);
   useEffect(() => {
     if (ref.current) {
-      mountDropDown(ref.current);
+      mountDropDown(ref.current, { loggedIn: true } as any);
     }
   }, [mountDropDown]);
   return <div ref={ref} />;
