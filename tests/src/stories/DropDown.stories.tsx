@@ -67,7 +67,8 @@ const open = async function (canvasElement: HTMLElement) {
   await canvas.findByTestId('DropDown');
   const badge = canvas.getByTestId('DropDownBadge');
   await userEvent.click(badge);
-  return { canvas, badge };
+  const content = within(canvas.getByTestId('Content'));
+  return { canvas, badge, content };
 };
 LoggedOut.play = async ({ canvasElement }: { canvasElement: HTMLElement }) => {
   const { canvas, badge } = await open(canvasElement);
@@ -80,8 +81,7 @@ WalletOnly.args = {
   user: testUser.walletOnly,
 };
 WalletOnly.play = async ({ canvasElement }: { canvasElement: HTMLElement }) => {
-  const { canvas, badge } = await open(canvasElement);
-  const content = within(canvas.getByTestId('Content'));
+  const { content } = await open(canvasElement);
   expect(content.queryByText('0x6c71…d4b4')).toBeTruthy();
   expect(content.queryByText('Manage account')).toBeTruthy();
   expect(content.queryByText('Sign out')).toBeTruthy();
@@ -89,6 +89,10 @@ WalletOnly.play = async ({ canvasElement }: { canvasElement: HTMLElement }) => {
 export const EmailOnly = Template.bind({});
 EmailOnly.args = {
   user: testUser.emailOnly,
+};
+EmailOnly.play = async ({ canvasElement }: { canvasElement: HTMLElement }) => {
+  const { content } = await open(canvasElement);
+  expect(content.queryByText('Hailey@slashauth.com')).toBeTruthy();
 };
 export const WalletAndSocial = Template.bind({});
 WalletAndSocial.args = {
