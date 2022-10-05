@@ -18,14 +18,14 @@ type TestUser = {
   };
 };
 const testUser: { [k: string]: TestUser } = {
+  loggedOut: {
+    loggedIn: false,
+  },
   walletOnly: {
     loggedIn: true,
     wallet: {
       default: 'eth:0x6c713198b09add6ee54c535e4135860907afd4b4',
     },
-  },
-  loggedOut: {
-    loggedIn: false,
   },
   emailOnly: {
     loggedIn: true,
@@ -61,8 +61,8 @@ export const Template: ComponentStory<any> = (args: { user: TestUser }) => {
   }, [args.user, mountDropDown]);
   return <div ref={ref} />;
 };
-export const Primary = Template.bind({});
-Primary.play = async ({ canvasElement }: { canvasElement: HTMLElement }) => {
+export const LoggedOut = Template.bind({});
+LoggedOut.play = async ({ canvasElement }: { canvasElement: HTMLElement }) => {
   const canvas = within(canvasElement);
   await canvas.findByTestId('DropDown');
   const badge = canvas.getByTestId('DropDownBadge');
@@ -71,7 +71,11 @@ Primary.play = async ({ canvasElement }: { canvasElement: HTMLElement }) => {
   await userEvent.click(badge);
   expect(canvas.queryByText('Login to continue')).toBeNull();
 };
-export const LoggedIn = Template.bind({});
-LoggedIn.args = {
+export const WalletOnly = Template.bind({});
+WalletOnly.args = {
   user: testUser.walletOnly,
+};
+export const EmailOnly = Template.bind({});
+EmailOnly.args = {
+  user: testUser.emailOnly,
 };
