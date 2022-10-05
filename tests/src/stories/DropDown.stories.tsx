@@ -79,3 +79,11 @@ export const EmailOnly = Template.bind({});
 EmailOnly.args = {
   user: testUser.emailOnly,
 };
+export const WalletAndSocial = Template.bind({});
+WalletAndSocial.args = {
+  user: testUser.walletSocial,
+};
+export const NameWalletAndSocial = Template.bind({});
+NameWalletAndSocial.args = {
+  user: testUser.nameWalletSocial,
+};
