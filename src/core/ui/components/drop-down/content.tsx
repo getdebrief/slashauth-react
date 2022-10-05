@@ -9,6 +9,7 @@ export const Content = ({ children }) => (
       borderRadius: '6px',
       marginTop: 10,
     }}
+    data-testid={'Content'}
   >
     {children}
   </div>

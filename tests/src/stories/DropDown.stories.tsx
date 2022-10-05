@@ -62,11 +62,15 @@ export const Template: ComponentStory<any> = (args: { user: TestUser }) => {
   return <div ref={ref} />;
 };
 export const LoggedOut = Template.bind({});
-LoggedOut.play = async ({ canvasElement }: { canvasElement: HTMLElement }) => {
+const open = async function (canvasElement: HTMLElement) {
   const canvas = within(canvasElement);
   await canvas.findByTestId('DropDown');
   const badge = canvas.getByTestId('DropDownBadge');
   await userEvent.click(badge);
+  return { canvas, badge };
+};
+LoggedOut.play = async ({ canvasElement }: { canvasElement: HTMLElement }) => {
+  const { canvas, badge } = await open(canvasElement);
   expect(canvas.getByText('Login to continue')).toBeInTheDocument();
   await userEvent.click(badge);
   expect(canvas.queryByText('Login to continue')).toBeNull();
@@ -74,6 +78,13 @@ LoggedOut.play = async ({ canvasElement }: { canvasElement: HTMLElement }) => {
 export const WalletOnly = Template.bind({});
 WalletOnly.args = {
   user: testUser.walletOnly,
+};
+WalletOnly.play = async ({ canvasElement }: { canvasElement: HTMLElement }) => {
+  const { canvas, badge } = await open(canvasElement);
+  const content = within(canvas.getByTestId('Content'));
+  expect(content.queryByText('0x6c71…d4b4')).toBeTruthy();
+  expect(content.queryByText('Manage account')).toBeTruthy();
+  expect(content.queryByText('Sign out')).toBeTruthy();
 };
 export const EmailOnly = Template.bind({});
 EmailOnly.args = {
