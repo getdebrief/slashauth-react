@@ -134,6 +134,7 @@ ConnectWallet.play = async ({
 }: {
   canvasElement: HTMLElement;
 }) => {
+  connectWallet.mockClear();
   const { canvas } = await open(canvasElement);
   expect(connectWallet.mock.calls.length).toBe(0);
   await userEvent.click(canvas.getByText('Connect web3 wallet'));
