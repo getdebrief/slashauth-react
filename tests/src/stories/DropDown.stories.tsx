@@ -50,7 +50,7 @@ const testUser: { [k: string]: TestUser } = {
 };
 const testCompany = 'Acme corp';
 
-export const Template: ComponentStory<any> = (args: { user: TestUser }) => {
+const Template: ComponentStory<any> = (args: { user: TestUser }) => {
   const context = useSlashAuth();
   const { mountDropDown } = context;
   const ref = useRef(null);
@@ -69,6 +69,9 @@ export const Template: ComponentStory<any> = (args: { user: TestUser }) => {
   return <div ref={ref} />;
 };
 export const LoggedOut = Template.bind({});
+LoggedOut.args = {
+  user: testUser.loggedOut,
+};
 const open = async function (canvasElement: HTMLElement) {
   const canvas = within(canvasElement);
   await canvas.findByTestId('DropDown');
