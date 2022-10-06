@@ -57,10 +57,7 @@ const defaultContext: Partial<SlashAuth> = {
   connectWallet: async () => null,
   appName: testCompany,
 };
-const Template: ComponentStory<any> = (args: {
-  user: TestUser;
-  openSignIn: () => void;
-}) => {
+const Template: ComponentStory<any> = (args: Partial<SlashAuth>) => {
   const context = useSlashAuth();
   const { mountDropDown } = context;
   const ref = useRef(null);
