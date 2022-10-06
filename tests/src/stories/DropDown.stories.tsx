@@ -1,7 +1,7 @@
 import React, { useEffect, useRef } from 'react';
 import { useSlashAuth } from '@slashauth/slashauth-react';
 import { userEvent, within } from '@storybook/testing-library';
-import { expect } from '@storybook/jest';
+import { expect, jest } from '@storybook/jest';
 import { ComponentStory } from '@storybook/react';
 
 export default {
@@ -50,7 +50,10 @@ const testUser: { [k: string]: TestUser } = {
 };
 const testCompany = 'Acme corp';
 
-const Template: ComponentStory<any> = (args: { user: TestUser }) => {
+const Template: ComponentStory<any> = (args: {
+  user: TestUser;
+  openSignIn: () => void;
+}) => {
   const context = useSlashAuth();
   const { mountDropDown } = context;
   const ref = useRef(null);
@@ -59,7 +62,7 @@ const Template: ComponentStory<any> = (args: { user: TestUser }) => {
       mountDropDown(ref.current, {
         isReady: () => true,
         logout: () => true,
-        openSignIn: () => true,
+        openSignIn: args.openSignIn || (() => true),
         connectWallet: () => true,
         appName: testCompany,
         user: args.user,
@@ -85,6 +88,18 @@ LoggedOut.play = async ({ canvasElement }: { canvasElement: HTMLElement }) => {
   expect(canvas.getByText('Login to continue')).toBeInTheDocument();
   await userEvent.click(badge);
   expect(canvas.queryByText('Login to continue')).toBeNull();
+};
+const openSignIn = jest.fn();
+export const LogIn = Template.bind({});
+LogIn.args = {
+  user: testUser.loggedOut,
+  openSignIn,
+};
+LogIn.play = async ({ canvasElement }: { canvasElement: HTMLElement }) => {
+  const { canvas } = await open(canvasElement);
+  expect(openSignIn.mock.calls.length).toBe(0);
+  await userEvent.click(canvas.getByText('Login to continue'));
+  expect(openSignIn.mock.calls.length).toBe(1);
 };
 export const WalletOnly = Template.bind({});
 WalletOnly.args = {
