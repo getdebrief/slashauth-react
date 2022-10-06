@@ -39,7 +39,7 @@ type AuthFunctions = {
 
 type UIFunctions = {
   mountSignIn: (node: HTMLDivElement, options: SignInOptions) => void;
-  mountDropDown: (node: HTMLDivElement, testUser?: User) => void;
+  mountDropDown: (node: HTMLDivElement, testContext?: SlashAuth) => void;
   updateAppearanceOverride: (overrides?: SlashAuthStyle) => void;
 };
 
@@ -374,11 +374,14 @@ export function LegacyProvider({ children }: _Props) {
     [slashAuth]
   );
   const mountDropDown = useCallback(
-    async (node: HTMLDivElement, testUser?: User): Promise<UnmountCallback> => {
+    async (
+      node: HTMLDivElement,
+      testContext?: SlashAuth
+    ): Promise<UnmountCallback> => {
       const unmountCallback = () => {
         slashAuth.unmountComponent(node);
       };
-      slashAuth.mountDropDown(node, testUser);
+      slashAuth.mountDropDown(node, testContext);
       return unmountCallback;
     },
     [slashAuth]

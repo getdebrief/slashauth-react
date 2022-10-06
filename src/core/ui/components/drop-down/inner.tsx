@@ -14,17 +14,10 @@ import { Icon } from './icon';
 import { PrimaryID, primaryIdStyle } from './primaryID';
 import styles from './styles.module.css';
 import { SlashAuth } from '../../../slashauth';
-import { User } from '../../../user';
 
-export const Inner = ({
-  context,
-  user,
-}: {
-  context: SlashAuth;
-  user: User;
-}) => {
+export const Inner = ({ context }: { context: SlashAuth }) => {
   const [isOpen, setIsOpen] = useState(false);
-  const { isReady, logout, openSignIn, connectWallet, appName } = context;
+  const { isReady, logout, openSignIn, connectWallet, appName, user } = context;
   const [wallet, walletDisplay] = useMemo(() => {
     if (user.wallet) {
       const address = user.wallet.default.split(':')[1];

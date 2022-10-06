@@ -56,7 +56,9 @@ export const Template: ComponentStory<any> = (args: { user: TestUser }) => {
   const ref = useRef(null);
   useEffect(() => {
     if (ref.current) {
-      mountDropDown(ref.current, args.user as any);
+      mountDropDown(ref.current, {
+        user: args.user,
+      } as any);
     }
   }, [args.user, mountDropDown]);
   return <div ref={ref} />;
