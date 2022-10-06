@@ -133,7 +133,7 @@ function App() {
   });
   useEffect(() => {
     if (ref.current) mountDropDown(ref.current);
-  }, []);
+  }, [mountDropDown]);
 
   return (
     <div className="App">
