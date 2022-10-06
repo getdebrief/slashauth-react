@@ -1,10 +1,20 @@
-import React, { useMemo } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { addFontFamily, isFamilySupported } from '../../fonts';
 import { IModalContainerStyles, ModalStyles } from '../../types/modal';
 
 type Props = {
   modalStyles: ModalStyles;
   children: React.ReactNode;
+};
+
+const MAX_HEIGHT_PX = 600;
+
+const baseModalContainerStyles = {
+  width: '366px',
+  height: `${MAX_HEIGHT_PX}px`,
+  transition: 'max-height 0.2s ease-in-out',
+  WebkitTransition: 'max-height 0.2s ease-in-out',
+  overflow: 'hidden',
 };
 
 export const DEFAULT_MODAL_CONTAINER_STYLES: IModalContainerStyles = {
@@ -24,16 +34,50 @@ export const DEFAULT_MODAL_CONTAINER_STYLES: IModalContainerStyles = {
 
 export const ModalContent = React.forwardRef<HTMLDivElement, Props>(
   ({ modalStyles, children }: Props, ref) => {
-    const modalContentsStyle: React.CSSProperties = {
-      width: '336px',
-      height: '446px',
-      flexGrow: 1,
-      display: 'flex',
-      flexDirection: 'column',
-      paddingTop: '2rem',
-      paddingLeft: '1rem',
-      paddingRight: '1rem',
-    };
+    const [baseModalStyles, setBaseModalStyles] = useState({
+      ...baseModalContainerStyles,
+    });
+
+    const [modalContentsStyle, setModalContentStyle] =
+      useState<React.CSSProperties>({
+        flexGrow: 1,
+        display: 'flex',
+        flexDirection: 'column',
+        paddingTop: '3rem',
+        paddingLeft: '2rem',
+        paddingRight: '2rem',
+      });
+
+    const footerRef = useRef<HTMLDivElement>();
+    const bodyRef = useRef<HTMLDivElement>();
+    const modalRef = useRef<HTMLDivElement>();
+    const observerRef = useRef<ResizeObserver>(
+      new ResizeObserver(() => {
+        if (bodyRef.current && footerRef.current) {
+          const totalHeight =
+            bodyRef.current.scrollHeight + footerRef.current.scrollHeight;
+          setBaseModalStyles((curr) => ({
+            ...curr,
+            maxHeight: `${Math.min(totalHeight, MAX_HEIGHT_PX)}px`,
+          }));
+        }
+      })
+    );
+
+    useEffect(() => {
+      const observer = observerRef.current;
+      let unobserveElement: HTMLDivElement | null = null;
+      if (bodyRef.current) {
+        observerRef.current.observe(bodyRef.current);
+        unobserveElement = modalRef.current;
+      }
+
+      return () => {
+        if (unobserveElement) {
+          observer.unobserve(unobserveElement);
+        }
+      };
+    }, []);
 
     const wrapperStyles = useMemo(() => {
       const resp: React.CSSProperties = {
@@ -56,8 +100,18 @@ export const ModalContent = React.forwardRef<HTMLDivElement, Props>(
         resp.color = modalStyles.fontColor;
       }
 
-      return resp;
-    }, [modalStyles]);
+      return {
+        ...resp,
+        ...baseModalStyles,
+      };
+    }, [
+      baseModalStyles,
+      modalStyles.backgroundColor,
+      modalStyles.borderRadius,
+      modalStyles.defaultModalBodyStyles,
+      modalStyles.fontColor,
+      modalStyles.fontFamily,
+    ]);
 
     const bodyStyles = useMemo(() => {
       const resp: React.CSSProperties = {
@@ -79,7 +133,14 @@ export const ModalContent = React.forwardRef<HTMLDivElement, Props>(
     return (
       <div
         style={wrapperStyles}
-        ref={ref}
+        ref={(node) => {
+          modalRef.current = node;
+          if (typeof ref === 'function') {
+            ref(node);
+          } else if (ref) {
+            ref.current = node;
+          }
+        }}
         aria-modal="true"
         role="dialog"
         onClick={(e) => {
@@ -88,6 +149,7 @@ export const ModalContent = React.forwardRef<HTMLDivElement, Props>(
       >
         <div
           className="slashauth-modal-body"
+          ref={bodyRef}
           style={{
             ...modalContentsStyle,
           }}
@@ -95,16 +157,16 @@ export const ModalContent = React.forwardRef<HTMLDivElement, Props>(
           <div style={bodyStyles}>{children}</div>
         </div>
         <div
+          ref={footerRef}
           style={{
             flexShrink: 0,
             display: 'flex',
             flexDirection: 'row',
             justifyContent: 'center',
             alignItems: 'center',
-            borderTop: '1px solid #e6e6e6',
             width: '100%',
-            paddingBottom: '1rem',
-            paddingTop: '1rem',
+            paddingBottom: '3rem',
+            paddingTop: '1.5rem',
           }}
         >
           <span style={{ fontSize: '12px', color: '#9B9B9B' }}>

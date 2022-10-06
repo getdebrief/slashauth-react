@@ -1,6 +1,7 @@
 import { ProviderOptions } from '../types/slashauth';
 import { ICache } from './cache';
 import { verify as verifyIdToken } from './jwt';
+import { SlashAuthLoginMethodConfig } from './types';
 import { ObjectMap } from './utils/object';
 
 export const CONNECT_MODAL_ID = 'SLASHAUTH_CONNECT_MODAL_ID';
@@ -19,16 +20,10 @@ export class Account {
     default?: string;
     allWallets?: string[];
   };
-
-  get rawAddress(): string | undefined {
-    if (this.wallet?.default) {
-      if (this.wallet.default.indexOf(':') !== -1) {
-        return this.wallet.default.split(':')[1];
-      }
-      return this.wallet.default;
-    }
-    return undefined;
-  }
+  email?: {
+    default?: string;
+    allEmails?: string[];
+  };
 }
 
 // eslint-disable-next-line @typescript-eslint/no-empty-interface
@@ -102,6 +97,12 @@ export interface LoginNoRedirectNoPopupOptions extends BaseLoginOptions {
   address: string;
 
   signature: string;
+
+  connectAccounts?: boolean;
+}
+
+export interface MagicLinkLoginOptions extends BaseLoginOptions {
+  email: string;
 }
 
 export interface IdToken {
@@ -207,6 +208,7 @@ export interface GetAppConfigResponse {
     hoverButtonBackgroundColor?: string;
     iconURL?: string;
   };
+  loginMethods: SlashAuthLoginMethodConfig;
 }
 
 export interface LoginWithSignedNonceResponse {
@@ -236,7 +238,6 @@ export interface TokenEndpointOptions {
 export interface RefreshTokenOptions {
   baseUrl: string;
   audience?: string;
-  device_id: string;
 }
 
 export type TokenEndpointResponse = {
@@ -263,9 +264,12 @@ export interface AuthorizeOptions extends BaseLoginOptions {
   nonce: string;
   state: string;
   scope: string;
+  session_id: string;
   code_challenge: string;
   code_challenge_method: string;
   wallet_address?: string;
+  id_token_hint?: string;
+  login_hint?: string;
 }
 
 export interface GetAccountOptions {

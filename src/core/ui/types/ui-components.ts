@@ -1,4 +1,4 @@
-import { LoginMethod } from '../context/login-methods';
+import { SlashAuthLoginMethodConfig } from '../../../shared/types';
 
 export const CLASS_PREFIX = 's8-';
 
@@ -30,9 +30,15 @@ export type RedirectOptions = {
 
 export type SignInProps = {
   viewOnly?: boolean;
+  appOverride?: {
+    name?: string;
+  };
+  loginMethodConfigOverride?: SlashAuthLoginMethodConfig;
 
   walletConnectOnly?: boolean;
   walletConnectTransparent?: boolean;
+
+  connectAccounts?: boolean;
   /*
    * Root URL where the component is mounted on, eg: '/sign in'
    */

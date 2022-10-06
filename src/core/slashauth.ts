@@ -2,6 +2,7 @@ import { errorInitializeFailed } from '../shared/errors/slashauth-errors';
 import { LogoutOptions, SlashAuthClientOptions } from '../shared/global';
 import {
   SlashAuthListenerPayload,
+  SlashAuthLoginMethodConfig,
   SlashAuthModalStyle,
   SlashAuthOptions,
   SlashAuthStyle,
@@ -10,7 +11,12 @@ import {
 import { inBrowser } from '../shared/utils/browser';
 import { ConnectOptions, SignInOptions } from '../types/slashauth';
 import SlashAuthClient from './client';
-import { LoginMethodType } from './ui/context/login-methods';
+import { SessionManager } from './session';
+import {
+  LoginMethod,
+  LoginMethodType,
+  Web3LoginMethod,
+} from './ui/context/login-methods';
 import {
   ComponentControls,
   mountComponentManager,
@@ -26,6 +32,7 @@ interface AppModalConfig {
   name?: string;
   description?: string;
   modalStyle: SlashAuthModalStyle;
+  loginMethods: SlashAuthLoginMethodConfig;
 }
 
 export type Listener = (payload: SlashAuthListenerPayload) => void;
@@ -102,6 +109,7 @@ export class SlashAuth {
     }
     this.#web3Manager.onEvent(this.#handleWeb3Event.bind(this));
     await Promise.all([
+      this.#client.initialize(),
       this.fetchAppModalConfig(),
       this.checkLoginState(),
       this.#web3Manager.autoConnect(),
@@ -110,16 +118,37 @@ export class SlashAuth {
     // TODO: Fetch this from the appmodalconfig.
     this.#environment = {
       authSettings: {
-        availableWeb3LoginMethods: this.#web3Manager.connectors.map(
-          (connector) => ({
-            id: connector.id,
-            name: connector.name,
-            type: 'web3',
-            chain: 'eth',
-            ready: connector.ready,
+        availableWeb2LoginMethods: this.#getWeb2LoginMethods(),
+        availableWeb3LoginMethods: this.#web3Manager.connectors
+          .map((connector) => {
+            if (this.#modalConfig.loginMethods.web3.eth) {
+              switch (connector.id) {
+                case 'metaMask':
+                  if (
+                    !this.#modalConfig.loginMethods.web3.eth.metamask.enabled
+                  ) {
+                    return null;
+                  }
+                  break;
+                default:
+                  if (
+                    this.#modalConfig.loginMethods.web3.eth[connector.id] &&
+                    !this.#modalConfig.loginMethods.web3.eth[connector.id]
+                      .enabled
+                  ) {
+                    return null;
+                  }
+              }
+            }
+            return {
+              id: connector.id,
+              name: connector.name,
+              type: 'web3',
+              chain: 'eth',
+              ready: connector.ready,
+            };
           })
-        ),
-        isMagicLinkEnabled: true,
+          .filter((connector) => connector !== null) as Web3LoginMethod[],
       },
     };
 
@@ -128,8 +157,10 @@ export class SlashAuth {
         this,
         this.#environment,
         {
-          style: this.#modalConfig,
-        } as SlashAuthOptions
+          componentSettings: {
+            signInModalStyle: this.#modalConfig.modalStyle,
+          },
+        }
       );
     }
 
@@ -208,6 +239,7 @@ export class SlashAuth {
 
   public logout = async (options?: LogoutOptions) => {
     this.#client.logout(options);
+    this.#web3Manager.disconnect();
     this.#user.setLoggedOut();
     this.#emitAll();
   };
@@ -297,7 +329,7 @@ export class SlashAuth {
         this.user.loggedIn &&
         this.user.loginMethod === LoginMethodType.Web3 &&
         (!this.manager.address ||
-          this.user.account.rawAddress?.toLowerCase() !==
+          this.user.account.email?.default?.toLowerCase() !==
             this.manager.address?.toLowerCase())
       ) {
         await this.logout();
@@ -307,26 +339,18 @@ export class SlashAuth {
     this.#emitAll();
   };
 
-  // #initializeWeb3Manager = async (options: ProviderOptions) => {
-  //   const extractedOptions = {
-  //     ...options,
-  //   };
-
-  //   if (!options.infura && options.walletconnect?.infuraId) {
-  //     extractedOptions.infura = {
-  //       apiKey: options.walletconnect.infuraId,
-  //     };
-  //   }
-
-  //   if (!options.appName && options.coinbasewallet?.appName) {
-  //     extractedOptions.appName = options.coinbasewallet.appName;
-  //   }
-
-  //   this.#web3Manager = new Web3Manager({
-  //     appName: extractedOptions.appName,
-  //     alchemy: extractedOptions?.alchemy,
-  //     infura: extractedOptions?.infura,
-  //     publicConf: extractedOptions?.publicConf,
-  //   });
-  // };
+  #getWeb2LoginMethods = (): LoginMethod[] => {
+    const resp: LoginMethod[] = [];
+    if (this.#modalConfig.loginMethods.web2.enabled) {
+      if (this.#modalConfig.loginMethods.web2.magicLink?.enabled) {
+        resp.push({
+          id: 'magic-link',
+          type: LoginMethodType.MagicLink,
+          name: 'Magic Link',
+          ready: true,
+        });
+      }
+    }
+    return resp;
+  };
 }

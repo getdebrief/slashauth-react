@@ -24,6 +24,7 @@ esbuild.build({
   watch: argv.indexOf('--watch') !== -1,
   external: ['react', 'react-dom', 'wagmi', 'ethers', '@wagmi/core'],
   platform: 'browser',
+  loader: { '.svg': 'dataurl' },
   plugins: [
     cssModulesPlugin(),
     NodeModulesPolyfillPlugin(),
@@ -42,6 +43,7 @@ esbuild.build({
   target: 'es2020',
   format: 'cjs',
   watch: argv.indexOf('--watch') !== -1,
+  loader: { '.svg': 'dataurl' },
   outfile: './dist/index.cjs.js',
   outbase: './src',
   treeShaking: true,

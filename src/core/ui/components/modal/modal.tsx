@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 
 import { useSafeLayoutEffect } from '../../../../shared/hooks';
 import { useAppearance } from '../../context/appearance';
@@ -18,6 +18,7 @@ export const Modal = (props: ModalProps) => {
     defaultOpen: true,
     autoUpdate: false,
   });
+
   const { disableScroll, enableScroll } = useScrollLock(document.body);
 
   const appearance = useAppearance();

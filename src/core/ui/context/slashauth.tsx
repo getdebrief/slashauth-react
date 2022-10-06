@@ -9,6 +9,7 @@ import { SlashAuth } from '../../slashauth';
 import { User } from '../../user';
 import { CoreSlashAuthContext } from './core-slashauth';
 import { DeviceContext } from './device-id';
+import { InteractionContext } from './interaction';
 import { CoreClientContext } from './slashauth-client';
 import { SlashAuthUserContext } from './user';
 import { SlashAuthWalletContext } from './wallet';
@@ -29,6 +30,8 @@ export function SlashAuthUIProvider(
 ): JSX.Element | null {
   const slashAuth = props.slashAuth;
 
+  const [processing, setProcessing] = React.useState(false);
+
   const [state, setState] = React.useState<CoreSlashAuthContextProviderState>({
     client: slashAuth.client,
     user: slashAuth.user,
@@ -42,6 +45,11 @@ export function SlashAuthUIProvider(
   const deviceCtx = React.useMemo(() => ({ value: { deviceID } }), [deviceID]);
 
   const walletCtx = React.useMemo(() => ({ ...state.wallet }), [state.wallet]);
+
+  const interactionCtx = React.useMemo(
+    () => ({ processing, setProcessing }),
+    [processing]
+  );
 
   useEffect(() => {
     const listener = (payload: SlashAuthListenerPayload) => {
@@ -58,7 +66,9 @@ export function SlashAuthUIProvider(
         <DeviceContext.Provider value={deviceCtx}>
           <SlashAuthWalletContext.Provider value={walletCtx}>
             <SlashAuthUserContext.Provider value={slashAuth.user}>
-              {props.children}
+              <InteractionContext.Provider value={interactionCtx}>
+                {props.children}
+              </InteractionContext.Provider>
             </SlashAuthUserContext.Provider>
           </SlashAuthWalletContext.Provider>
         </DeviceContext.Provider>

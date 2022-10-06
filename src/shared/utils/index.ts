@@ -23,12 +23,16 @@ type WalletLoginPayload = {
   device_id: string;
 };
 
+type MagicLinkLoginPayload = {
+  email: string;
+};
+
 export const runLoginIframe = async (
   authorizeUrl: string,
   eventOrigin: string,
-  method: 'wallet',
+  method: 'wallet' | 'magicLink',
   messageTypes: MessageTypes,
-  payload: WalletLoginPayload,
+  payload: WalletLoginPayload | MagicLinkLoginPayload,
   timeoutInSeconds: number = DEFAULT_AUTHORIZE_TIMEOUT_IN_SECONDS
 ): Promise<AuthenticationResult> => {
   return new Promise<AuthenticationResult>((res, rej) => {
@@ -70,7 +74,7 @@ export const runLoginIframe = async (
 
       if (e.data.type === messageTypes.initialization) {
         // We want to send a message back to log the user in.
-        eventSource?.postMessage(
+        eventSource.postMessage(
           {
             type: messageTypes.messageTypeToSend,
             payload: {
@@ -82,6 +86,14 @@ export const runLoginIframe = async (
             targetOrigin: e.origin,
           }
         );
+        return;
+      }
+
+      if (
+        e.data.response?.success &&
+        e.data.response?.data?.complete === false
+      ) {
+        // We don't want to close because we'll still poll here.
         return;
       }
 
@@ -102,7 +114,11 @@ export const runLoginIframe = async (
           })
         );
       } else {
-        res(e.data.response);
+        if (e.data.response.data !== undefined) {
+          res(e.data.response.data);
+        } else {
+          res(e.data.response);
+        }
       }
 
       clearTimeout(timeoutSetTimeoutId);
@@ -129,6 +145,26 @@ export const runWalletLoginIframe = async (
     authorizeUrl,
     eventOrigin,
     'wallet',
+    {
+      initialization: 'login_initialized',
+      messageTypeToSend: 'login',
+      responseTypes: ['login_response', 'authorization_response'],
+    },
+    payload,
+    timeoutInSeconds
+  );
+};
+
+export const runMagicLinkLoginIframe = async (
+  authorizeUrl: string,
+  eventOrigin: string,
+  payload: MagicLinkLoginPayload,
+  timeoutInSeconds: number = 60 * 10
+) => {
+  return runLoginIframe(
+    authorizeUrl,
+    eventOrigin,
+    'magicLink',
     {
       initialization: 'login_initialized',
       messageTypeToSend: 'login',
@@ -334,7 +370,8 @@ const urlEncodeB64 = (input: string) => {
 // https://stackoverflow.com/questions/30106476/
 const decodeB64 = (input: string) =>
   decodeURIComponent(
-    atob(input)
+    Buffer.from(input, 'base64')
+      .toString('ascii')
       .split('')
       .map((c) => {
         return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);

@@ -1,17 +1,28 @@
 import { withCardStateProvider } from '../../context/card';
 import { Flow } from '../flow/flow';
-import { SignInWeb3Buttons } from './sign-in-web3-buttons';
 import { SignInCard } from './card';
 import { useSignInContext } from './context';
 import { useCallback, useEffect, useState } from 'react';
 import { useRouter } from '../../router/context';
 import { useWeb3LoginState } from '../../context/web3-signin';
 import { LoadingModalContents } from './loading';
-import { useLoginMethods } from '../../context/login-methods';
+import {
+  LoginMethod,
+  LoginMethodType,
+  useLoginMethods,
+} from '../../context/login-methods';
+import { SignInButtons } from './sign-in-buttons';
+import { useInteraction } from '../../context/interaction';
 
-const _SignInStart = () => {
+type Props = {
+  showAllWallets?: boolean;
+  showBackButton?: boolean;
+};
+
+const _SignInStart = ({ showAllWallets, showBackButton }: Props) => {
+  const { setProcessing } = useInteraction();
   const { viewOnly, walletConnectOnly } = useSignInContext();
-  const { navigate } = useRouter();
+  const { navigate, fullPath } = useRouter();
   const web3LoginState = useWeb3LoginState();
   const { loginMethods, setSelectedLoginMethod } = useLoginMethods();
 
@@ -26,27 +37,49 @@ const _SignInStart = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const handleConnectWalletClick = useCallback(
-    async (id: string) => {
+  const handleLoginButtonClick = useCallback(
+    async (loginMethod: LoginMethod) => {
       if (viewOnly) {
         return;
       }
       try {
-        setSelectedLoginMethod(loginMethods.find((m) => m.id === id));
+        setSelectedLoginMethod(
+          loginMethods.find((m) => m.id === loginMethod.id)
+        );
         setConnecting(true);
-        await web3LoginState.web3Manager.connectToConnectorWithID(id);
-        if (walletConnectOnly) {
-          navigate('./success');
+        if (loginMethod.type === LoginMethodType.Web3) {
+          try {
+            setProcessing(true);
+            await web3LoginState.web3Manager.connectToConnectorWithID(
+              loginMethod.id
+            );
+          } catch (err) {
+            // If we caught an error, we should reset the state?
+            return;
+          } finally {
+            setProcessing(false);
+          }
+          if (walletConnectOnly) {
+            navigate('./success');
+          } else {
+            const location = fullPath.endsWith('/all-wallets')
+              ? '../sign-nonce'
+              : './sign-nonce';
+            await navigate(location);
+          }
         } else {
-          navigate('./sign-nonce');
+          // Handle web2 login here.
+          navigate('./magic-link');
         }
       } finally {
         setConnecting(false);
       }
     },
     [
+      fullPath,
       loginMethods,
       navigate,
+      setProcessing,
       setSelectedLoginMethod,
       viewOnly,
       walletConnectOnly,
@@ -56,7 +89,7 @@ const _SignInStart = () => {
 
   return (
     <Flow.Part part="start">
-      <SignInCard>
+      <SignInCard showBackButton={showBackButton}>
         {isConnecting ? (
           <LoadingModalContents />
         ) : (
@@ -83,11 +116,12 @@ const _SignInStart = () => {
                     textAlign: 'start',
                   }}
                 >
-                  Connect your wallet:
+                  {walletConnectOnly ? 'Continue' : 'Sign in'} with:
                 </p>
               </div>
-              <SignInWeb3Buttons
-                onConnectWalletClick={handleConnectWalletClick}
+              <SignInButtons
+                onClick={handleLoginButtonClick}
+                showAllWallets={showAllWallets}
               />
             </div>
           </div>
