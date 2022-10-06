@@ -50,6 +50,13 @@ const testUser: { [k: string]: TestUser } = {
 };
 const testCompany = 'Acme corp';
 
+const defaultContext = {
+  isReady: () => true,
+  logout: () => true,
+  openSignIn: () => true,
+  connectWallet: () => true,
+  appName: testCompany,
+};
 const Template: ComponentStory<any> = (args: {
   user: TestUser;
   openSignIn: () => void;
@@ -60,12 +67,8 @@ const Template: ComponentStory<any> = (args: {
   useEffect(() => {
     if (ref.current) {
       mountDropDown(ref.current, {
-        isReady: () => true,
-        logout: () => true,
-        openSignIn: args.openSignIn || (() => true),
-        connectWallet: () => true,
-        appName: testCompany,
-        user: args.user,
+        ...defaultContext,
+        ...args,
       } as any);
     }
   }, [args.user, mountDropDown]);
@@ -118,6 +121,22 @@ EmailOnly.args = {
 EmailOnly.play = async ({ canvasElement }: { canvasElement: HTMLElement }) => {
   const { content } = await open(canvasElement);
   expect(content.queryByText('Hailey@slashauth.com')).toBeTruthy();
+};
+const connectWallet = jest.fn();
+export const ConnectWallet = Template.bind({});
+ConnectWallet.args = {
+  user: testUser.emailOnly,
+  connectWallet,
+};
+ConnectWallet.play = async ({
+  canvasElement,
+}: {
+  canvasElement: HTMLElement;
+}) => {
+  const { canvas } = await open(canvasElement);
+  expect(connectWallet.mock.calls.length).toBe(0);
+  await userEvent.click(canvas.getByText('Connect web3 wallet'));
+  expect(connectWallet.mock.calls.length).toBe(1);
 };
 export const WalletAndSocial = Template.bind({});
 WalletAndSocial.args = {
