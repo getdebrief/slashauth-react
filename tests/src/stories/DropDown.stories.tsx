@@ -71,7 +71,7 @@ const Template: ComponentStory<any> = (args: {
         ...args,
       } as any);
     }
-  }, [args, args.user, mountDropDown]);
+  }, []);
   return <div ref={ref} />;
 };
 export const LoggedOut = Template.bind({});
