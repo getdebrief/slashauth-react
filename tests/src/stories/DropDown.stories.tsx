@@ -147,3 +147,16 @@ export const NameWalletAndSocial = Template.bind({});
 NameWalletAndSocial.args = {
   user: testUser.nameWalletSocial,
 };
+const logout = jest.fn();
+export const Logout = Template.bind({});
+Logout.args = {
+  user: testUser.emailOnly,
+  logout,
+};
+Logout.play = async ({ canvasElement }: { canvasElement: HTMLElement }) => {
+  logout.mockClear();
+  const { canvas } = await open(canvasElement);
+  expect(logout.mock.calls.length).toBe(0);
+  await userEvent.click(canvas.getByText('Sign out'));
+  expect(logout.mock.calls.length).toBe(1);
+};
