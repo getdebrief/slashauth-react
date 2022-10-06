@@ -99,6 +99,7 @@ LogIn.args = {
   openSignIn,
 };
 LogIn.play = async ({ canvasElement }: { canvasElement: HTMLElement }) => {
+  openSignIn.mockClear();
   const { canvas } = await open(canvasElement);
   expect(openSignIn.mock.calls.length).toBe(0);
   await userEvent.click(canvas.getByText('Login to continue'));
