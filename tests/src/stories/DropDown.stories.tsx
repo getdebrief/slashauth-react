@@ -139,14 +139,14 @@ ConnectWallet.play = async ({
   await userEvent.click(canvas.getByText('Connect web3 wallet'));
   expect(connectWallet.mock.calls.length).toBe(1);
 };
-export const WalletAndSocial = Template.bind({});
-WalletAndSocial.args = {
-  user: testUser.walletSocial,
-};
-export const NameWalletAndSocial = Template.bind({});
-NameWalletAndSocial.args = {
-  user: testUser.nameWalletSocial,
-};
+// export const WalletAndSocial = Template.bind({});
+// WalletAndSocial.args = {
+//   user: testUser.walletSocial,
+// };
+// export const NameWalletAndSocial = Template.bind({});
+// NameWalletAndSocial.args = {
+//   user: testUser.nameWalletSocial,
+// };
 const logout = jest.fn();
 export const Logout = Template.bind({});
 Logout.args = {
