@@ -370,7 +370,8 @@ const urlEncodeB64 = (input: string) => {
 // https://stackoverflow.com/questions/30106476/
 const decodeB64 = (input: string) =>
   decodeURIComponent(
-    atob(input)
+    Buffer.from(input, 'base64')
+      .toString('ascii')
       .split('')
       .map((c) => {
         return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
