@@ -3,6 +3,7 @@ import { useMemo } from 'react';
 import { useAppearance } from '../../context/appearance';
 import { useCoreSlashAuth } from '../../context/core-slashauth';
 import { useRouter } from '../../router/context';
+import { useSignInContext } from './context';
 
 type Props = {
   showBackButton?: boolean;
@@ -13,6 +14,7 @@ const DARK_SLASHAUTH_ICON =
   'https://d1l2xccggl7xwv.cloudfront.net/icons/slashauth-dark.png';
 
 export const SignInCard = ({ showBackButton, children }: Props) => {
+  const { viewOnly, appOverride } = useSignInContext();
   const slashAuth = useCoreSlashAuth();
   const { modalStyle } = useAppearance();
   const { navigate } = useRouter();
@@ -30,6 +32,14 @@ export const SignInCard = ({ showBackButton, children }: Props) => {
         return 'center';
     }
   }, [modalStyle.alignItems]);
+
+  const appName = useMemo(() => {
+    if (viewOnly && appOverride?.name) {
+      return appOverride.name;
+    }
+
+    return slashAuth.appName || 'Unnamed App';
+  }, [appOverride?.name, slashAuth.appName, viewOnly]);
 
   return (
     <>
@@ -70,9 +80,7 @@ export const SignInCard = ({ showBackButton, children }: Props) => {
         }}
       />
       <div style={{ marginTop: '1rem', textAlign: headerTextAlign }}>
-        <div style={{ fontSize: '24px', fontWeight: 700 }}>
-          {slashAuth.appName || 'Unnamed App'}
-        </div>
+        <div style={{ fontSize: '24px', fontWeight: 700 }}>{appName}</div>
       </div>
       {children}
     </>

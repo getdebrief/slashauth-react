@@ -1,12 +1,17 @@
 import { CoinbaseWalletSDKOptions } from '@coinbase/wallet-sdk/dist/CoinbaseWalletSDK';
 import { IWalletConnectProviderOptions } from '@walletconnect/types';
 import { Chain } from 'wagmi';
+import { SlashAuthLoginMethodConfig } from '../shared/types';
 
 // eslint-disable-next-line @typescript-eslint/no-empty-interface
 export interface SignInOptions {
   walletConnectOnly?: boolean;
   viewOnly?: boolean;
   connectAccounts?: boolean;
+  appOverride?: {
+    name?: string;
+  };
+  loginMethodConfigOverride?: SlashAuthLoginMethodConfig;
 }
 
 export interface ConnectOptions {
