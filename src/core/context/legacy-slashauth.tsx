@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { useClient, useConnect, useDisconnect, WagmiConfig } from 'wagmi';
 import {
   Account,
@@ -27,6 +27,8 @@ type AuthFunctions = {
   loginNoRedirectNoPopup: (
     options?: LoginNoRedirectNoPopupOptions
   ) => Promise<void>;
+
+  openSignIn: (options?: SignInOptions) => Promise<void>;
 
   logout: (options?: LogoutOptions) => Promise<void> | void;
 
@@ -201,6 +203,7 @@ export function SlashAuthProvider(
 export function _SlashAuthProvider(
   props: SlashAuthProviderOptions
 ): JSX.Element | null {
+  const creating = useRef(false);
   const [slashAuth, setSlashAuth] = useState<SlashAuth | null>(null);
   const [initialized, setInitialized] = useState(false);
   const [, setIsReady] = useState(false);
@@ -213,8 +216,9 @@ export function _SlashAuthProvider(
   }
 
   useEffect(() => {
-    if (!slashAuth && clientID && web3Manager) {
-      const slashAuth = new SlashAuth(web3Manager, {
+    if (!creating.current && !slashAuth && clientID && web3Manager) {
+      creating.current = true;
+      const sa = new SlashAuth(web3Manager, {
         ...validOpts,
         domain: domain || 'https://slashauth.com',
         clientID: clientID,
@@ -223,7 +227,7 @@ export function _SlashAuthProvider(
           version: '',
         },
       });
-      setSlashAuth(slashAuth);
+      setSlashAuth(sa);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [clientID, domain, slashAuth, validOpts, web3Manager]);
@@ -266,6 +270,7 @@ const emptyContext = {
   getRoleMetadata: uninitializedStub,
   getAccessTokenSilently: uninitializedStub,
   loginNoRedirectNoPopup: uninitializedStub,
+  openSignIn: uninitializedStub,
   logout: uninitializedStub,
   getIdTokenClaims: uninitializedStub,
   checkSession: uninitializedStub,
@@ -323,7 +328,14 @@ export function LegacyProvider({ children }: _Props) {
 
   const loginNoRedirectNoPopup = useCallback(
     async (options?: LoginNoRedirectNoPopupOptions): Promise<void> => {
-      return slashAuth.openSignInSync({});
+      return slashAuth.openSignInSync();
+    },
+    [slashAuth]
+  );
+
+  const openSignIn = useCallback(
+    async (options?: SignInOptions): Promise<void> => {
+      return slashAuth.openSignIn(options);
     },
     [slashAuth]
   );
@@ -380,6 +392,7 @@ export function LegacyProvider({ children }: _Props) {
     checkSession,
     mountSignIn,
     updateAppearanceOverride,
+    openSignIn,
   });
 
   useEffect(() => {

@@ -1,5 +1,3 @@
-import { LoginMethod } from '../context/login-methods';
-
 export const CLASS_PREFIX = 's8-';
 
 type ComponentMode = 'modal' | 'mounted';
@@ -33,6 +31,8 @@ export type SignInProps = {
 
   walletConnectOnly?: boolean;
   walletConnectTransparent?: boolean;
+
+  connectAccounts?: boolean;
   /*
    * Root URL where the component is mounted on, eg: '/sign in'
    */

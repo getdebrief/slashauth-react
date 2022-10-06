@@ -14,11 +14,11 @@ export type LoginMethod = {
   ready: boolean;
   name: string;
   id: string;
-  type: string;
+  type: LoginMethodType;
 };
 
 export type Web3LoginMethod = LoginMethod & {
-  type: 'web3';
+  type: LoginMethodType.Web3;
   chain: string;
 };
 

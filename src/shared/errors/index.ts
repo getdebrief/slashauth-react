@@ -8,7 +8,11 @@
  */
 export class GenericError extends Error {
   /* istanbul ignore next */
-  constructor(public error: string, public error_description: string) {
+  constructor(
+    public error: string,
+    public error_description: string,
+    public status_code?: number
+  ) {
     super(error_description);
     Object.setPrototypeOf(this, GenericError.prototype);
   }

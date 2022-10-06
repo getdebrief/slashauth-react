@@ -1,19 +1,21 @@
+import { ArrowLeftIcon } from '@heroicons/react/outline';
 import { useMemo } from 'react';
 import { useAppearance } from '../../context/appearance';
 import { useCoreSlashAuth } from '../../context/core-slashauth';
-import { useSignInContext } from './context';
+import { useRouter } from '../../router/context';
 
 type Props = {
+  showBackButton?: boolean;
   children: React.ReactNode;
 };
 
 const DARK_SLASHAUTH_ICON =
   'https://d1l2xccggl7xwv.cloudfront.net/icons/slashauth-dark.png';
 
-export const SignInCard = ({ children }: Props) => {
+export const SignInCard = ({ showBackButton, children }: Props) => {
   const slashAuth = useCoreSlashAuth();
   const { modalStyle } = useAppearance();
-  const { walletConnectOnly } = useSignInContext();
+  const { navigate } = useRouter();
 
   const headerTextAlign = useMemo(() => {
     switch (modalStyle.alignItems) {
@@ -31,6 +33,31 @@ export const SignInCard = ({ children }: Props) => {
 
   return (
     <>
+      {showBackButton && (
+        <button
+          style={{
+            backgroundColor: 'transparent',
+            color: '#2F5FFC',
+            border: 'none',
+            position: 'absolute',
+            left: '2rem',
+            top: '3rem',
+            cursor: 'pointer',
+            display: 'inline-flex',
+            alignItems: 'center',
+          }}
+          onClick={(e) => {
+            e.stopPropagation();
+            e.preventDefault();
+            navigate('../');
+          }}
+        >
+          <ArrowLeftIcon
+            style={{ width: '12px', height: '12px', marginRight: '2px' }}
+          />
+          Back
+        </button>
+      )}
       <img
         src={modalStyle.iconURL || DARK_SLASHAUTH_ICON}
         alt="Logo"
@@ -44,10 +71,6 @@ export const SignInCard = ({ children }: Props) => {
       />
       <div style={{ marginTop: '1rem', textAlign: headerTextAlign }}>
         <div style={{ fontSize: '24px', fontWeight: 700 }}>
-          {walletConnectOnly ? 'Connect Wallet' : 'Login'}
-        </div>
-        <div style={{ fontSize: '16px', fontWeight: 500 }}>
-          {' '}
           {slashAuth.appName || 'Unnamed App'}
         </div>
       </div>
