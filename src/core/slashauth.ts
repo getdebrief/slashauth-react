@@ -226,14 +226,13 @@ export class SlashAuth {
       props: options,
     });
   };
-  public mountDropDown = (node: HTMLDivElement, testUser?: User) => {
+  public mountDropDown = (node: HTMLDivElement) => {
     this.assertComponentsReady(this.#componentController);
     this.#componentController.mountComponent({
       name: 'DropDown',
       appearanceKey: 'dropDown',
       node,
       props: {},
-      testUser,
     });
   };
   public unmountComponent = (node: HTMLDivElement) => {
