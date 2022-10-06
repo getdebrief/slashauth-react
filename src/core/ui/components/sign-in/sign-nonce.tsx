@@ -13,6 +13,7 @@ import { useSignInContext } from './context';
 import { LoadingModalContents } from './loading';
 
 const _SignNonce = () => {
+  console.log('sign nonce');
   const { connectAccounts } = useSignInContext();
   const [fetchedNonce, setFetchedNonce] = useState<string | null>(null);
   const slashAuth = useCoreSlashAuth();

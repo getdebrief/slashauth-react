@@ -12,6 +12,7 @@ import {
   useLoginMethods,
 } from '../../context/login-methods';
 import { SignInButtons } from './sign-in-buttons';
+import { useInteraction } from '../../context/interaction';
 
 type Props = {
   showAllWallets?: boolean;
@@ -19,6 +20,7 @@ type Props = {
 };
 
 const _SignInStart = ({ showAllWallets, showBackButton }: Props) => {
+  const { setProcessing } = useInteraction();
   const { viewOnly, walletConnectOnly } = useSignInContext();
   const { navigate, fullPath } = useRouter();
   const web3LoginState = useWeb3LoginState();
@@ -46,9 +48,17 @@ const _SignInStart = ({ showAllWallets, showBackButton }: Props) => {
         );
         setConnecting(true);
         if (loginMethod.type === LoginMethodType.Web3) {
-          await web3LoginState.web3Manager.connectToConnectorWithID(
-            loginMethod.id
-          );
+          try {
+            setProcessing(true);
+            await web3LoginState.web3Manager.connectToConnectorWithID(
+              loginMethod.id
+            );
+          } catch (err) {
+            // If we caught an error, we should reset the state?
+            return;
+          } finally {
+            setProcessing(false);
+          }
           if (walletConnectOnly) {
             navigate('./success');
           } else {
@@ -69,10 +79,11 @@ const _SignInStart = ({ showAllWallets, showBackButton }: Props) => {
       fullPath,
       loginMethods,
       navigate,
+      setProcessing,
       setSelectedLoginMethod,
       viewOnly,
       walletConnectOnly,
-      web3LoginState,
+      web3LoginState.web3Manager,
     ]
   );
 

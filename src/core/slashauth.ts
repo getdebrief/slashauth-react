@@ -239,6 +239,7 @@ export class SlashAuth {
 
   public logout = async (options?: LogoutOptions) => {
     this.#client.logout(options);
+    this.#web3Manager.disconnect();
     this.#user.setLoggedOut();
     this.#emitAll();
   };
@@ -271,6 +272,7 @@ export class SlashAuth {
   };
 
   public closeSignIn = () => {
+    console.trace('closing sign in');
     this.assertComponentsReady(this.#componentController);
     this.#componentController?.closeModal(ModalType.SignIn);
   };

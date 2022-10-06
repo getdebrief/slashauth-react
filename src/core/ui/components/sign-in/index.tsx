@@ -7,6 +7,7 @@ import { Web3LoginStateProvider } from '../../context/web3-signin';
 import { Route } from '../../router/route';
 import { Switch } from '../../router/switch';
 import { SignInProps } from '../../types/ui-components';
+import { ErrorBoundary } from '../error-boundary';
 import { Flow } from '../flow/flow';
 import { ModalContent } from '../modal/modal-content';
 import { ComponentContext, useSignInContext } from './context';

@@ -18,6 +18,7 @@ export const Modal = (props: ModalProps) => {
     defaultOpen: true,
     autoUpdate: false,
   });
+
   const { disableScroll, enableScroll } = useScrollLock(document.body);
 
   const appearance = useAppearance();
