@@ -1,5 +1,5 @@
 import React, { useEffect, useRef } from 'react';
-import { useSlashAuth } from '@slashauth/slashauth-react';
+import { useSlashAuth, SlashAuth } from '@slashauth/slashauth-react';
 import { userEvent, within } from '@storybook/testing-library';
 import { expect, jest } from '@storybook/jest';
 import { ComponentStory } from '@storybook/react';
@@ -50,11 +50,11 @@ const testUser: { [k: string]: TestUser } = {
 };
 const testCompany = 'Acme corp';
 
-const defaultContext = {
+const defaultContext: Partial<SlashAuth> = {
   isReady: () => true,
-  logout: () => true,
-  openSignIn: () => true,
-  connectWallet: () => true,
+  logout: async () => {},
+  openSignIn: async () => {},
+  connectWallet: async () => null,
   appName: testCompany,
 };
 const Template: ComponentStory<any> = (args: {
@@ -71,7 +71,7 @@ const Template: ComponentStory<any> = (args: {
         ...args,
       } as any);
     }
-  }, [args.user, mountDropDown]);
+  }, [args, args.user, mountDropDown]);
   return <div ref={ref} />;
 };
 export const LoggedOut = Template.bind({});
