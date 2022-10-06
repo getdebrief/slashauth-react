@@ -272,7 +272,6 @@ export class SlashAuth {
   };
 
   public closeSignIn = () => {
-    console.trace('closing sign in');
     this.assertComponentsReady(this.#componentController);
     this.#componentController?.closeModal(ModalType.SignIn);
   };
@@ -344,27 +343,4 @@ export class SlashAuth {
     }
     return resp;
   };
-
-  // #initializeWeb3Manager = async (options: ProviderOptions) => {
-  //   const extractedOptions = {
-  //     ...options,
-  //   };
-
-  //   if (!options.infura && options.walletconnect?.infuraId) {
-  //     extractedOptions.infura = {
-  //       apiKey: options.walletconnect.infuraId,
-  //     };
-  //   }
-
-  //   if (!options.appName && options.coinbasewallet?.appName) {
-  //     extractedOptions.appName = options.coinbasewallet.appName;
-  //   }
-
-  //   this.#web3Manager = new Web3Manager({
-  //     appName: extractedOptions.appName,
-  //     alchemy: extractedOptions?.alchemy,
-  //     infura: extractedOptions?.infura,
-  //     publicConf: extractedOptions?.publicConf,
-  //   });
-  // };
 }

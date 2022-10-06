@@ -10,7 +10,6 @@ import {
   LogoutOptions,
 } from '../../shared/global';
 import { SlashAuthStyle } from '../../shared/types';
-import { inBrowser } from '../../shared/utils/browser';
 import { ObjectMap } from '../../shared/utils/object';
 import { uninitializedStub } from '../../shared/utils/stub';
 import { ProviderOptions, SignInOptions } from '../../types/slashauth';

@@ -15,6 +15,10 @@ export const SignInWeb2Buttons = ({ onClick }: Props) => {
     ) as unknown as LoginMethod[];
   }, [enabledLoginMethods.loginMethods]);
 
+  if (web2LoginMethods.length === 0) {
+    return <div />;
+  }
+
   if (web2LoginMethods.length === 1) {
     // We need to return the long button here, and smaller buttons below.
     return (
