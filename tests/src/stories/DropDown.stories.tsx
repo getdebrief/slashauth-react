@@ -81,9 +81,9 @@ LoggedOut.args = {
 const open = async function (canvasElement: HTMLElement) {
   const canvas = within(canvasElement);
   await canvas.findByTestId('DropDown');
-  const badge = canvas.getByTestId('DropDownBadge');
+  const badge = await canvas.findByTestId('DropDownBadge');
   await userEvent.click(badge);
-  const content = within(canvas.getByTestId('Content'));
+  const content = within(await canvas.findByTestId('Content'));
   return { canvas, badge, content };
 };
 LoggedOut.play = async ({ canvasElement }: { canvasElement: HTMLElement }) => {
