@@ -57,6 +57,11 @@ export const Template: ComponentStory<any> = (args: { user: TestUser }) => {
   useEffect(() => {
     if (ref.current) {
       mountDropDown(ref.current, {
+        isReady: () => true,
+        logout: () => true,
+        openSignIn: () => true,
+        connectWallet: () => true,
+        appName: testCompany,
         user: args.user,
       } as any);
     }
