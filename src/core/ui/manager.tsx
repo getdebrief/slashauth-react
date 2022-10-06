@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React from 'react';
 import ReactDOM from 'react-dom';
 import { PRESERVED_QUERYSTRING_PARAMS } from '../../shared/constants';
 import { useSafeLayoutEffect } from '../../shared/hooks';
@@ -22,7 +22,6 @@ import {
   SignInProps,
 } from './types/ui-components';
 import { DropDown } from './components/drop-down';
-import { User } from '../user';
 
 // TODO: We need to handle the ability to bundle both react-17 and react-18 here.
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -47,7 +46,6 @@ export interface ComponentControls {
     name: AvailableComponentNames;
     node: HTMLDivElement;
     props: AvailableComponentProps;
-    testUser?: User;
   }) => void;
   unmountComponent: (params: { node: HTMLDivElement }) => void;
   openModal: <T extends ModalType>(
@@ -140,14 +138,12 @@ const ComponentManagerComponent = (props: ComponentManagerComponentProps) => {
       listeners: [],
     }
   );
-  const [testUser, setTestUser] = useState<User>();
 
   const { signInModal, nodes } = managerState;
 
   useSafeLayoutEffect(() => {
     componentController.mountComponent = (params) => {
-      const { node, name, props, appearanceKey, testUser } = params;
-      setTestUser(testUser);
+      const { node, name, props, appearanceKey } = params;
       ensureDomElementExists(node);
       setManagerState((curr) => {
         curr.nodes.set(node, {
@@ -253,7 +249,7 @@ const ComponentManagerComponent = (props: ComponentManagerComponentProps) => {
   );
 
   return (
-    <SlashAuthUIProvider slashAuth={props.slashAuth} testUser={testUser}>
+    <SlashAuthUIProvider slashAuth={props.slashAuth}>
       <EnvironmentProvider value={props.environment}>
         {[...nodes].map(([node, component]) => {
           return (
