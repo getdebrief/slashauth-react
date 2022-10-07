@@ -1,7 +1,7 @@
 import { useEffect, useRef } from 'react';
 import { useCoreSlashAuth } from '../../context/core-slashauth';
 
-export const DropdownComponent = () => {
+export const SlashAuthUserDropdownComponent = () => {
   const ref = useRef<HTMLDivElement>(null);
   const slashAuth = useCoreSlashAuth();
 

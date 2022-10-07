@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
+import { GenericError } from '../../../../shared/errors';
 import { shortenEthAddress } from '../../../../shared/utils/eth';
 import { withCardStateProvider } from '../../context/card';
 import { useCoreSlashAuth } from '../../context/core-slashauth';
@@ -69,8 +70,9 @@ const _SignNonce = () => {
           });
           slashAuth.checkLoginState();
         } catch (err) {
-          console.error('Failed to login: ', err);
-          navigate('../error');
+          navigate(
+            `../error?error=${err.error}&error_description=${err.error_description}`
+          );
           return;
         } finally {
           setLoginWithAPIActive(false);

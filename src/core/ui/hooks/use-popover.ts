@@ -8,7 +8,6 @@ import {
   UseFloatingProps,
 } from '@floating-ui/react-dom-interactions';
 import React from 'react';
-import { useFlowMetadata } from '../context/flow';
 import { useInteraction } from '../context/interaction';
 
 type UsePopoverProps = {

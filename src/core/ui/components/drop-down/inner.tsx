@@ -44,15 +44,17 @@ export const Inner = ({ context }: Props) => {
   const { isReady, logout, openSignIn, appName, user } = context;
 
   const [loggedInCopyText, loggedInButtonDisplay] = useMemo(() => {
-    if (user?.wallet) {
-      const address = user.wallet;
+    const loginType = user.loginType;
+    const loginIdentifier = user.loginIdentifier;
+    if (loginType === LoginMethodType.Web3 && loginIdentifier) {
+      const address = loginIdentifier;
       if (address) {
         const walletDisplay = shortenEthAddress(address);
         return [address, walletDisplay];
       }
     }
-    if (user?.email) {
-      const emailParts = user.email.split('@');
+    if (loginType === LoginMethodType.MagicLink && loginIdentifier) {
+      const emailParts = loginIdentifier.split('@');
       if (emailParts.length === 1) {
         // There is `@` in the email so we can't shorten it.
         return [user.email, user.email];
@@ -64,7 +66,7 @@ export const Inner = ({ context }: Props) => {
       return [user.email, `${prefix}@${emailParts[1]}`];
     }
     return ['SlashAuth User', 'SlashAuth User'];
-  }, [user?.email, user?.wallet]);
+  }, [user]);
 
   // if a click occurs outside the element, close it
   const ref = useRef();
@@ -141,7 +143,7 @@ export const Inner = ({ context }: Props) => {
           <div
             className={styles.connectedAccountRow}
             onClick={() =>
-              !user.email && handleConnectClick([LoginMethodType.Web3])
+              !user.wallet && handleConnectClick([LoginMethodType.Web3])
             }
           >
             <Icon style={{ height: '20px', width: '20px' }}>{EthLogo}</Icon>
@@ -231,7 +233,12 @@ export const Inner = ({ context }: Props) => {
         )}
       </Section>
     );
-  }, [authSettings.availableWeb2LoginMethods, handleConnectClick, user]);
+  }, [
+    authSettings.availableWeb2LoginMethods,
+    authSettings.availableWeb3LoginMethods.length,
+    handleConnectClick,
+    user,
+  ]);
 
   const loggedOutContent = (
     <div style={{ padding: '0px 15px 15px 15px' }}>

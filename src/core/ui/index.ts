@@ -1,1 +1,1 @@
-export { DropdownComponent } from './components/drop-down/mountable';
+export { SlashAuthUserDropdownComponent } from './components/drop-down/mountable';

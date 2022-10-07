@@ -1,6 +1,8 @@
+import React from 'react';
+
 type Props = {
   children: React.ReactNode;
-  onClick: () => void;
+  onClick: (e: React.MouseEvent) => void;
 };
 
 export const ModalBackdrop = ({ children, onClick }: Props) => {

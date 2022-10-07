@@ -236,7 +236,11 @@ export class SlashAuth {
   };
 
   public logout = async (options?: LogoutOptions) => {
-    this.#client.logout(options);
+    this.#client.logout(options).then(() => {
+      if (typeof window !== 'undefined') {
+        window.location.href = '/';
+      }
+    });
     this.#web3Manager.disconnect();
     this.#user.setLoggedOut();
     this.#emitAll();

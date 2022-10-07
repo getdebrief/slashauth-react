@@ -7,6 +7,7 @@ import {
 import { useRouter } from '../../router/context';
 import { WalletConnectorButton } from './web3-login-button';
 import { AbstractConnectorButton } from './abstract-login-button';
+import { PlusIcon } from '@heroicons/react/outline';
 
 type Props = {
   showMoreAfter: number;
@@ -44,6 +45,9 @@ export const SignInWeb3Buttons = ({ showMoreAfter, onClick }: Props) => {
       })}
       {showMoreAfter > 0 && showMoreAfter < web3LoginMethods.length && (
         <AbstractConnectorButton onClick={() => navigate('./all-wallets')}>
+          <PlusIcon
+            style={{ width: '24px', height: '24px', marginRight: '1rem' }}
+          />
           Show more wallets
         </AbstractConnectorButton>
       )}

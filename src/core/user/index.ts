@@ -46,6 +46,35 @@ export class User {
     return this.#idTokenClaims?.email;
   }
 
+  public get loginType(): LoginMethodType | undefined {
+    if (!this.loggedIn) {
+      return undefined;
+    }
+
+    const loginMethods = this.loginMethods;
+    // This shouldn't happen but let's not crap out.
+    if (loginMethods.length === 0) {
+      return undefined;
+    }
+
+    return loginMethods[0];
+  }
+
+  public get loginIdentifier(): string | undefined {
+    switch (this.loginType) {
+      case LoginMethodType.Web3:
+        return this.wallet;
+      case LoginMethodType.MagicLink:
+        return this.email;
+      case LoginMethodType.FederatedGoogle:
+        return this.socials?.google?.email || this.email || this.wallet;
+      case LoginMethodType.FederatedTwitter:
+        return this.socials?.twitter?.handle || this.email || this.wallet;
+      default:
+        return this.wallet || this.email;
+    }
+  }
+
   public get socials() {
     return this.#idTokenClaims?.socials;
   }

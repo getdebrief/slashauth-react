@@ -45,8 +45,8 @@ export const Modal = (props: ModalProps) => {
     <BasicPortal>
       <ModalBackdrop
         aria-hidden
-        onClick={() => {
-          handleClose();
+        onClick={(e) => {
+          e.stopPropagation();
         }}
       >
         <ModalContent ref={floating} modalStyles={appearance.modalStyle}>
