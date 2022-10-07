@@ -21,6 +21,7 @@ import { MailIcon } from '@heroicons/react/outline';
 import { LoginMethodType } from '../../context/login-methods';
 import { useEnvironment } from '../../context/environment';
 import { User } from '../../../user';
+import { EthLogo } from '../icon/ethereum-eth-logo';
 
 const MANAGE_ACCOUNT_ENABLED = false;
 
@@ -136,6 +137,26 @@ export const Inner = ({ context }: Props) => {
             Connected Accounts:
           </span>
         </div>
+        {authSettings.availableWeb3LoginMethods.length > 0 && (
+          <div
+            className={styles.connectedAccountRow}
+            onClick={() =>
+              !user.email && handleConnectClick([LoginMethodType.Web3])
+            }
+          >
+            <Icon style={{ height: '20px', width: '20px' }}>{EthLogo}</Icon>
+            <span
+              className={classNames(
+                styles.connectedAccount,
+                !user.wallet && styles.action
+              )}
+            >
+              {user.wallet
+                ? shortenEthAddress(user.wallet)
+                : '+ Connect Wallet'}
+            </span>
+          </div>
+        )}
         {!!web2LoginMethods.find(
           (lm) => lm.type === LoginMethodType.MagicLink
         ) && (
