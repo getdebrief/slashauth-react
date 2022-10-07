@@ -7,40 +7,62 @@ import { ComponentStory } from '@storybook/react';
 export default {
   title: 'DropDown',
 };
-type TestUser = {
-  name?: string;
-  loggedIn: boolean;
-  wallet?: string;
-  email?: string;
-  social?: {
-    google: string;
-    twitter: string;
-  };
-};
+type User = InstanceType<typeof SlashAuth>['user'];
+type TestUser = Pick<
+  User,
+  'loggedIn' | 'loginType' | 'loginIdentifier' | 'wallet'
+>;
+enum LoginMethodType {
+  Web3 = 'web3',
+  MagicLink = 'magic-link',
+  FederatedGoogle = 'federated-google',
+  FederatedDiscord = 'federated-discord',
+  FederatedTwitter = 'federated-twitter',
+  Unknown = 'unknown',
+}
+// type TestUser = {
+//   name?: string;
+//   loggedIn: boolean;
+//   loginType: ;
+//   loginIdentifier: string | undefined;
+//   wallet?: string;
+//   email?: string;
+//   social?: {
+//     google: string;
+//     twitter: string;
+//   };
+// };
 const testUser: { [k: string]: TestUser } = {
   loggedOut: {
     loggedIn: false,
+    loginType: undefined,
+    loginIdentifier: undefined,
+    wallet: undefined,
   },
   walletOnly: {
     loggedIn: true,
+    loginType: LoginMethodType.Web3,
+    loginIdentifier: 'eth:0x6c713198b09add6ee54c535e4135860907afd4b4',
     wallet: 'eth:0x6c713198b09add6ee54c535e4135860907afd4b4',
   },
   emailOnly: {
     loggedIn: true,
-    email: 'Hailey@slashauth.com',
+    loginType: LoginMethodType.MagicLink,
+    loginIdentifier: 'Hailey@slashauth.com',
     wallet: undefined,
   },
-  walletSocial: {
-    loggedIn: true,
-    wallet: 'eth:0x6c713198b09add6ee54c535e4135860907afd4b4',
-    social: { google: 'haileymiller298@gmail.com', twitter: '@0xhaileym' },
-  },
-  nameWalletSocial: {
-    name: 'Hailey Miller',
-    loggedIn: true,
-    wallet: 'eth:0x6c713198b09add6ee54c535e4135860907afd4b4',
-    social: { google: 'haileymiller298@gmail.com', twitter: '@0xhaileym' },
-  },
+  // walletSocial: {
+  //   loggedIn: true,
+  //   wallet: 'eth:0x6c713198b09add6ee54c535e4135860907afd4b4',
+  //   loginIdentifier: 'Hailey@slashauth.com',
+  //   social: { google: 'haileymiller298@gmail.com', twitter: '@0xhaileym' },
+  // },
+  // nameWalletSocial: {
+  //   name: 'Hailey Miller',
+  //   loggedIn: true,
+  //   wallet: 'eth:0x6c713198b09add6ee54c535e4135860907afd4b4',
+  //   social: { google: 'haileymiller298@gmail.com', twitter: '@0xhaileym' },
+  // },
 };
 const testCompany = 'Acme corp';
 
