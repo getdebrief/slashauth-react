@@ -2,7 +2,7 @@ import { withCardStateProvider } from '../../context/card';
 import { Flow } from '../flow/flow';
 import { SignInCard } from './card';
 import { useSignInContext } from './context';
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useRouter } from '../../router/context';
 import { useWeb3LoginState } from '../../context/web3-signin';
 import { LoadingModalContents } from './loading';
@@ -21,7 +21,7 @@ type Props = {
 
 const _SignInStart = ({ showAllWallets, showBackButton }: Props) => {
   const { setProcessing } = useInteraction();
-  const { viewOnly, walletConnectOnly } = useSignInContext();
+  const { viewOnly, walletConnectOnly, connectAccounts } = useSignInContext();
   const { navigate, fullPath } = useRouter();
   const web3LoginState = useWeb3LoginState();
   const { loginMethods, setSelectedLoginMethod } = useLoginMethods();
@@ -36,6 +36,16 @@ const _SignInStart = ({ showAllWallets, showBackButton }: Props) => {
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  const headerText = useMemo(() => {
+    if (walletConnectOnly) {
+      return 'Continue with:';
+    }
+    if (connectAccounts) {
+      return 'Connect accounts with:';
+    }
+    return 'Sign in with:';
+  }, [connectAccounts, walletConnectOnly]);
 
   const handleLoginButtonClick = useCallback(
     async (loginMethod: LoginMethod) => {
@@ -116,7 +126,7 @@ const _SignInStart = ({ showAllWallets, showBackButton }: Props) => {
                     textAlign: 'start',
                   }}
                 >
-                  {walletConnectOnly ? 'Continue' : 'Sign in'} with:
+                  {headerText}
                 </p>
               </div>
               <SignInButtons

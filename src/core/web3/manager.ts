@@ -224,16 +224,16 @@ export class Web3Manager {
 
     this.#connectors = [
       new MetaMaskConnector({ chains }),
-      new CoinbaseWalletConnector({
-        chains,
-        options: {
-          appName,
-        },
-      }),
       new WalletConnectConnector({
         chains,
         options: {
           qrcode: true,
+        },
+      }),
+      new CoinbaseWalletConnector({
+        chains,
+        options: {
+          appName,
         },
       }),
       new InjectedConnector({

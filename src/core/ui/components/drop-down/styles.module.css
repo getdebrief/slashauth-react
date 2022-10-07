@@ -1,0 +1,72 @@
+.dropDown {
+  position: relative;
+  color: #374151;
+  width: fit-content;
+  float: right;
+}
+.badge {
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  font-weight: 500;
+  font-size: 16px;
+  line-height: 20px;
+  border-radius: 22px;
+}
+.badge.wallet {
+  background-color: white;
+  border: 1px solid #e6e8eb;
+}
+.profilePicture {
+  display: flex;
+}
+.walletDisplay {
+  margin-left: 10px;
+}
+.chevronDown {
+  display: flex;
+  margin-left: 14px;
+  margin-right: 13px;
+}
+
+.content {
+  position: absolute;
+  right: 0;
+  background: white;
+  min-width: 246px;
+  box-shadow: 0px 2px 8px rgba(0, 0, 0, 0.15);
+  border-radius: 6px;
+  margin-top: 10px;
+}
+
+.dropDownSection {
+  font-size: 12px;
+  line-height: 20px;
+  border-top: 1px solid #e7e9ed;
+}
+
+.dropDownRow {
+  display: flex;
+  padding: 15px;
+}
+
+.dropDownRow.clickable:hover {
+  background-color: #f5f6f7;
+}
+
+.connectedAccountRow {
+  display: flex;
+  align-items: center;
+  padding: 8px 15px;
+}
+
+.connectedAccount {
+  align-items: center;
+  font-size: 12px;
+  line-height: 20px;
+}
+
+.connectedAccount.action {
+  color: blue;
+  cursor: pointer;
+}

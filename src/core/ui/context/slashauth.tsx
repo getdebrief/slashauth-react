@@ -53,7 +53,11 @@ export function SlashAuthUIProvider(
 
   useEffect(() => {
     const listener = (payload: SlashAuthListenerPayload) => {
-      setState((s) => ({ ...s, wallet: payload.web3, user: payload.user }));
+      setState((s) => ({
+        ...s,
+        wallet: payload.web3,
+        user: User.copyObject(payload.user),
+      }));
     };
     const unsubscribe = slashAuth.addListener(listener);
     return unsubscribe;
@@ -65,7 +69,7 @@ export function SlashAuthUIProvider(
       <CoreClientContext.Provider value={clientCtx}>
         <DeviceContext.Provider value={deviceCtx}>
           <SlashAuthWalletContext.Provider value={walletCtx}>
-            <SlashAuthUserContext.Provider value={slashAuth.user}>
+            <SlashAuthUserContext.Provider value={state.user}>
               <InteractionContext.Provider value={interactionCtx}>
                 {props.children}
               </InteractionContext.Provider>

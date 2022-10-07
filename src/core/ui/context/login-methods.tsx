@@ -8,6 +8,8 @@ export enum LoginMethodType {
   MagicLink = 'magic-link',
   FederatedGoogle = 'federated-google',
   FederatedDiscord = 'federated-discord',
+  FederatedTwitter = 'federated-twitter',
+  Unknown = 'unknown',
 }
 
 export type LoginMethod = {

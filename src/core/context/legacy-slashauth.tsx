@@ -17,6 +17,7 @@ import { SlashAuth } from '../slashauth';
 import { useCoreSlashAuth } from '../ui/context/core-slashauth';
 import { SlashAuthUIProvider } from '../ui/context/slashauth';
 import { SlashAuthWagmiProvider, useWeb3Manager } from './wagmi-provider';
+import { User } from '../user';
 
 type AuthFunctions = {
   getAccessTokenSilently: (
@@ -38,6 +39,7 @@ type AuthFunctions = {
 
 type UIFunctions = {
   mountSignIn: (node: HTMLDivElement, options: SignInOptions) => void;
+  mountDropDown: (node: HTMLDivElement, testContext?: SlashAuth) => void;
   updateAppearanceOverride: (overrides?: SlashAuthStyle) => void;
 };
 
@@ -274,6 +276,7 @@ const emptyContext = {
   getIdTokenClaims: uninitializedStub,
   checkSession: uninitializedStub,
   mountSignIn: uninitializedStub,
+  mountDropDown: uninitializedStub,
   updateAppearanceOverride: uninitializedStub,
   connectedWallet: null,
   ethereum: null,
@@ -363,9 +366,22 @@ export function LegacyProvider({ children }: _Props) {
       options: SignInOptions = {}
     ): Promise<UnmountCallback> => {
       const unmountCallback = () => {
-        slashAuth.unmountSignIn(node);
+        slashAuth.unmountComponent(node);
       };
       slashAuth.mountSignIn(node, options);
+      return unmountCallback;
+    },
+    [slashAuth]
+  );
+  const mountDropDown = useCallback(
+    async (
+      node: HTMLDivElement,
+      testContext?: SlashAuth
+    ): Promise<UnmountCallback> => {
+      const unmountCallback = () => {
+        slashAuth.unmountComponent(node);
+      };
+      slashAuth.mountDropDown(node, testContext);
       return unmountCallback;
     },
     [slashAuth]
@@ -390,6 +406,7 @@ export function LegacyProvider({ children }: _Props) {
     getIdTokenClaims,
     checkSession,
     mountSignIn,
+    mountDropDown,
     updateAppearanceOverride,
     openSignIn,
   });

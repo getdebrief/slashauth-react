@@ -1,4 +1,5 @@
 import { SlashAuthLoginMethodConfig } from '../../../shared/types';
+import { LoginMethodType } from '../context/login-methods';
 
 export const CLASS_PREFIX = 's8-';
 
@@ -39,6 +40,8 @@ export type SignInProps = {
   walletConnectTransparent?: boolean;
 
   connectAccounts?: boolean;
+  excludeLoginMethodTypes?: LoginMethodType[];
+  includeLoginMethodTypes?: LoginMethodType[];
   /*
    * Root URL where the component is mounted on, eg: '/sign in'
    */
@@ -47,11 +50,17 @@ export type SignInProps = {
   routing?: RoutingStrategy;
 } & RedirectOptions;
 
-export type AvailableComponentProps = SignInProps;
+// eslint-disable-next-line @typescript-eslint/ban-types
+export type DropDownProps = {};
+
+export type AvailableComponentProps = SignInProps | DropDownProps;
 
 export type SignInCtx = SignInProps & {
   componentName: 'SignIn';
   mode?: ComponentMode;
 };
+export type DropDownCtx = DropDownProps & {
+  componentName: 'DropDown';
+};
 
-export type AvailableComponentCtx = SignInCtx;
+export type AvailableComponentCtx = SignInCtx | DropDownCtx;

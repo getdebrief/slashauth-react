@@ -105,6 +105,15 @@ export interface MagicLinkLoginOptions extends BaseLoginOptions {
   email: string;
 }
 
+export interface IdTokenSocials {
+  google?: {
+    email: string;
+  };
+  twitter?: {
+    handle: string;
+  };
+}
+
 export interface IdToken {
   __raw: string;
   name?: string;
@@ -116,7 +125,6 @@ export interface IdToken {
   profile?: string;
   picture?: string;
   website?: string;
-  email?: string;
   email_verified?: boolean;
   gender?: string;
   birthdate?: string;
@@ -138,11 +146,21 @@ export interface IdToken {
   at_hash?: string;
   c_hash?: string;
   acr?: string;
-  amr?: string;
+  amr?: string[];
   sub_jwk?: string;
   cnf?: string;
   sid?: string;
   org_id?: string;
+  socials?: IdTokenSocials;
+
+  wallet?: {
+    default: string;
+    allWallets: string[];
+  };
+  email?: {
+    default: string;
+    allEmails: string[];
+  };
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   [key: string]: any;
 }

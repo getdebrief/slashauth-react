@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
+import { GenericError } from '../../../../shared/errors';
 import { shortenEthAddress } from '../../../../shared/utils/eth';
 import { withCardStateProvider } from '../../context/card';
 import { useCoreSlashAuth } from '../../context/core-slashauth';
@@ -20,6 +21,8 @@ const _SignNonce = () => {
   const client = useCoreClient();
   const { address, web3Manager } = useWeb3LoginState();
   const { navigate } = useRouter();
+
+  const [fetchingNonce, setFetchingNonce] = useState(false);
   const [loggingIn, setLoggingIn] = useState(false);
   const [loginWithAPIActive, setLoginWithAPIActive] = useState(false);
 
@@ -28,10 +31,18 @@ const _SignNonce = () => {
   }, [address, deviceID]);
 
   const handleFetchNonce = useCallback(async () => {
-    const nonceToSign = await client.getNonceToSign({ address, deviceID });
-    setFetchedNonce(nonceToSign);
-    return nonceToSign;
-  }, [address, client, deviceID]);
+    if (fetchingNonce || !address || !deviceID || !client) {
+      return;
+    }
+    setFetchingNonce(true);
+    try {
+      const nonceToSign = await client.getNonceToSign({ address, deviceID });
+      setFetchedNonce(nonceToSign);
+      return nonceToSign;
+    } finally {
+      setFetchingNonce(false);
+    }
+  }, [address, client, deviceID, fetchingNonce]);
 
   const signNonceAndLogin = useCallback(async () => {
     if (loggingIn) {
@@ -59,8 +70,9 @@ const _SignNonce = () => {
           });
           slashAuth.checkLoginState();
         } catch (err) {
-          console.error('Failed to login: ', err);
-          navigate('../error');
+          navigate(
+            `../error?error=${err.error}&error_description=${err.error_description}`
+          );
           return;
         } finally {
           setLoginWithAPIActive(false);
@@ -84,6 +96,9 @@ const _SignNonce = () => {
   ]);
 
   const contents = useMemo(() => {
+    if (!fetchedNonce && (fetchingNonce || !address || !deviceID)) {
+      return <LoadingModalContents />;
+    }
     if (!fetchedNonce) {
       handleFetchNonce();
       return <LoadingModalContents />;

@@ -1,4 +1,4 @@
-import { useCallback, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { validate } from 'email-validator';
 import styleModule from './magic-link-sign-in.module.css';
 import { Flow } from '../flow/flow';
@@ -10,8 +10,10 @@ import { useCoreClient } from '../../context/slashauth-client';
 import { useRouter } from '../../router/context';
 import { useCoreSlashAuth } from '../../context/core-slashauth';
 import { useSignInContext } from './context';
+import { useInteraction } from '../../context/interaction';
 
 export const MagicLinkSignIn = () => {
+  const { setProcessing } = useInteraction();
   const { connectAccounts } = useSignInContext();
   const slashAuth = useCoreSlashAuth();
   const { navigate } = useRouter();
@@ -60,6 +62,19 @@ export const MagicLinkSignIn = () => {
     validateEmail,
   ]);
 
+  useEffect(() => {
+    if (submitting) {
+      setProcessing(true);
+
+      return () => {
+        setProcessing(false);
+      };
+    }
+    if (!submitting) {
+      setProcessing(false);
+    }
+  }, [setProcessing, submitting]);
+
   const contents = useMemo(() => {
     if (!submitting) {
       return (
@@ -94,6 +109,11 @@ export const MagicLinkSignIn = () => {
               value={email}
               onBlur={validateEmail}
               onFocus={() => setError(null)}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter' || e.key === 'Return') {
+                  handleClick();
+                }
+              }}
             />
           </div>
           <PrimaryButton onClick={() => handleClick()}>
