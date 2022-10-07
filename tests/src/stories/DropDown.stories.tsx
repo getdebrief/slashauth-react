@@ -124,8 +124,7 @@ WalletOnly.args = {
 WalletOnly.play = async ({ canvasElement }: { canvasElement: HTMLElement }) => {
   const { content, badge } = await open(canvasElement);
   expect(within(badge).queryByText('0x6c71…d4b4')).toBeTruthy();
-  expect(content.queryByText('0x6c71…d4b4')).toBeTruthy();
-  expect(content.queryByText('Manage account')).toBeTruthy();
+  expect(content.queryAllByText('0x6c71…d4b4')[0]).toBeTruthy();
   expect(content.queryByText('Sign out')).toBeTruthy();
 };
 export const EmailOnly = Template.bind({});
