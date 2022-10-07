@@ -4,14 +4,12 @@ import {
   SlashAuthListenerPayload,
   SlashAuthLoginMethodConfig,
   SlashAuthModalStyle,
-  SlashAuthOptions,
   SlashAuthStyle,
   SlashAuthWeb3ListenerPayload,
 } from '../shared/types';
 import { inBrowser } from '../shared/utils/browser';
 import { ConnectOptions, SignInOptions } from '../types/slashauth';
 import SlashAuthClient from './client';
-import { SessionManager } from './session';
 import {
   LoginMethod,
   LoginMethodType,
@@ -230,7 +228,7 @@ export class SlashAuth {
     if (isLoggedIn) {
       const account = await this.#client.getAccount();
       const tokenClaims = await this.#client.getIdTokenClaims();
-      this.#user.setLoggedInState(tokenClaims, account, LoginMethodType.Web3);
+      this.#user.setLoggedInState(tokenClaims, account);
       this.#emitAll();
     } else {
       this.#user.setLoggedOut();
@@ -276,7 +274,7 @@ export class SlashAuth {
     });
   };
 
-  public openSignIn = (options: SignInOptions) => {
+  public openSignIn = (options?: SignInOptions) => {
     this.assertComponentsReady(this.#componentController);
     this.#componentController?.openModal(ModalType.SignIn, options || {});
   };
@@ -327,9 +325,9 @@ export class SlashAuth {
     if (event === 'disconnect' || event === 'accountChange') {
       if (
         this.user.loggedIn &&
-        this.user.loginMethod === LoginMethodType.Web3 &&
+        this.user.loginMethods?.includes(LoginMethodType.Web3) &&
         (!this.manager.address ||
-          this.user.account.email?.default?.toLowerCase() !==
+          this.user.wallet?.toLowerCase() !==
             this.manager.address?.toLowerCase())
       ) {
         await this.logout();

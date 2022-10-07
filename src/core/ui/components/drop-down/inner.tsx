@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { ScaleLoader } from 'react-spinners';
 import { shortenEthAddress } from '../../../../shared/utils/eth';
 import { profilePicturePlaceholder } from './icons/profilePicturePlaceholder';
@@ -6,28 +6,64 @@ import { chevronDown } from './icons/chevronDown';
 import { copyIcon } from './icons/copyIcon';
 import { plusIcon } from './icons/plusIcon';
 import { gearIcon } from './icons/gearIcon';
+import { CheckMarkIcon } from '../icon/check_mark';
 import { logoutIcon } from './icons/logoutIcon';
 import { Content } from './content';
 import { Row } from './row';
 import { Section } from './section';
 import { Icon } from './icon';
-import { PrimaryID, primaryIdStyle } from './primaryID';
+import { primaryIdStyle } from './primaryID';
 import styles from './styles.module.css';
 import { SlashAuth } from '../../../slashauth';
+import { classNames } from '../../../../shared/utils/classnames';
+import { twitterIcon } from './icons/twitterIcon';
+import { MailIcon } from '@heroicons/react/outline';
+import { LoginMethodType } from '../../context/login-methods';
+import { useEnvironment } from '../../context/environment';
+import { User } from '../../../user';
 
-export const Inner = ({ context }: { context: SlashAuth }) => {
+const MANAGE_ACCOUNT_ENABLED = false;
+
+type Context = Pick<
+  SlashAuth,
+  'openSignIn' | 'logout' | 'isReady' | 'connectWallet'
+> & {
+  appName: string;
+  user: User;
+};
+
+type Props = {
+  context: Context;
+};
+
+export const Inner = ({ context }: Props) => {
+  const { authSettings } = useEnvironment();
+  const [copySuccess, setCopySuccess] = useState(false);
   const [isOpen, setIsOpen] = useState(false);
-  const { isReady, logout, openSignIn, connectWallet, appName, user } = context;
-  const [wallet, walletDisplay] = useMemo(() => {
-    if (user.wallet) {
-      const address = user.wallet.default.split(':')[1];
+  const { isReady, logout, openSignIn, appName, user } = context;
+
+  const [loggedInCopyText, loggedInButtonDisplay] = useMemo(() => {
+    if (user?.wallet) {
+      const address = user.wallet;
       if (address) {
         const walletDisplay = shortenEthAddress(address);
         return [address, walletDisplay];
       }
     }
-    return [];
-  }, [user.wallet]);
+    if (user?.email) {
+      const emailParts = user.email.split('@');
+      if (emailParts.length === 1) {
+        // There is `@` in the email so we can't shorten it.
+        return [user.email, user.email];
+      }
+      let prefix = emailParts[0];
+      if (prefix.length > 6) {
+        prefix = `${prefix.slice(0, 3)}...${prefix.slice(-3)}`;
+      }
+      return [user.email, `${prefix}@${emailParts[1]}`];
+    }
+    return ['SlashAuth User', 'SlashAuth User'];
+  }, [user?.email, user?.wallet]);
 
   // if a click occurs outside the element, close it
   const ref = useRef();
@@ -51,12 +87,141 @@ export const Inner = ({ context }: { context: SlashAuth }) => {
     };
   }, []);
 
+  const handleConnectClick = useCallback(
+    (includeMethodTypes: LoginMethodType[]) => {
+      openSignIn({
+        connectAccounts: true,
+        includeLoginMethodTypes: includeMethodTypes,
+      });
+      return;
+    },
+    [openSignIn]
+  );
+
+  const manageAccountSection = useMemo(() => {
+    if (MANAGE_ACCOUNT_ENABLED) {
+      return (
+        <Section>
+          <Row
+            onClick={() => {
+              console.log('manage account');
+            }}
+          >
+            <Icon>{gearIcon}</Icon>
+            Manage account
+          </Row>
+        </Section>
+      );
+    }
+    return <div />;
+  }, []);
+
+  const connectionsSection = useMemo(() => {
+    const web2LoginMethods = authSettings.availableWeb2LoginMethods;
+
+    if (!web2LoginMethods) {
+      return <div />;
+    }
+
+    return (
+      <Section>
+        <div
+          style={{
+            padding: '4px 15px',
+            display: 'flex',
+            alignItems: 'flex-start',
+          }}
+        >
+          <span style={{ fontSize: '12px', fontWeight: 700 }}>
+            Connected Accounts:
+          </span>
+        </div>
+        {!!web2LoginMethods.find(
+          (lm) => lm.type === LoginMethodType.MagicLink
+        ) && (
+          <div
+            className={styles.connectedAccountRow}
+            onClick={() =>
+              !user.email && handleConnectClick([LoginMethodType.MagicLink])
+            }
+          >
+            <Icon style={{ height: '20px', width: '20px' }}>
+              <MailIcon style={{ width: 18, height: 18, color: '#B6BCC8' }} />
+            </Icon>
+            <span
+              className={classNames(
+                styles.connectedAccount,
+                !user.email && styles.action
+              )}
+            >
+              {user.email || '+ Connect Email'}
+            </span>
+          </div>
+        )}
+        {!!web2LoginMethods.find(
+          (lm) => lm.type === LoginMethodType.FederatedTwitter
+        ) && (
+          <div
+            className={styles.connectedAccountRow}
+            onClick={() =>
+              !user.socials?.twitter &&
+              handleConnectClick([LoginMethodType.FederatedTwitter])
+            }
+          >
+            <Icon style={{ height: '20px', width: '20px' }}>{twitterIcon}</Icon>
+            <span
+              className={classNames(
+                styles.connectedAccount,
+                !user.socials?.twitter.handle && styles.action
+              )}
+            >
+              {user.socials?.twitter.handle || '+ Connect Twitter'}
+            </span>
+          </div>
+        )}
+        {!!web2LoginMethods.find(
+          (lm) => lm.type === LoginMethodType.FederatedGoogle
+        ) && (
+          <div
+            className={styles.connectedAccountRow}
+            onClick={() =>
+              !user.socials?.google &&
+              handleConnectClick([LoginMethodType.FederatedGoogle])
+            }
+          >
+            <Icon style={{ height: '20px', width: '20px' }}>
+              <img
+                style={{
+                  width: 15,
+                }}
+                alt="google icon"
+                src={'https://cdn.cdnlogo.com/logos/g/35/google-icon.svg'}
+              />
+            </Icon>
+            <span
+              className={classNames(
+                styles.connectedAccount,
+                !user.socials?.google.email && styles.action
+              )}
+            >
+              {user.socials?.google.email || '+ Connect Google Account'}
+            </span>
+          </div>
+        )}
+      </Section>
+    );
+  }, [authSettings.availableWeb2LoginMethods, handleConnectClick, user]);
+
   const loggedOutContent = (
-    <>
+    <div style={{ padding: '0px 15px 15px 15px' }}>
       <Section>
         <Row>
           <div
-            style={{ textAlign: 'left', fontSize: '14px', lineHeight: '20px' }}
+            style={{
+              textAlign: 'left',
+              fontSize: '14px',
+              lineHeight: '20px',
+            }}
           >
             Login to <strong>{appName}</strong> to view account settings
           </div>
@@ -66,6 +231,7 @@ export const Inner = ({ context }: { context: SlashAuth }) => {
         <div
           onClick={() => {
             openSignIn({});
+            setIsOpen(false);
           }}
           style={{
             background: '#2F5FFC',
@@ -79,93 +245,78 @@ export const Inner = ({ context }: { context: SlashAuth }) => {
           Login to continue
         </div>
       </Section>
-    </>
+    </div>
   );
-  const primaryId: 'name' | 'wallet' | 'email' = (
-    ['name', 'wallet', 'email'] as const
-  ).find((e) => !!user[e]);
-  let hashDisplayElement: JSX.Element;
-  if (walletDisplay) {
-    hashDisplayElement = (
-      <Row
-        style={
-          primaryId === 'wallet'
-            ? {
-                ...primaryIdStyle,
-              }
-            : undefined
-        }
-      >
-        {walletDisplay}
-        <Icon
-          style={{ marginLeft: 8, cursor: 'pointer' }}
-          onClick={() => {
-            navigator.clipboard.writeText(wallet);
-          }}
-        >
-          {copyIcon}
-        </Icon>
-      </Row>
-    );
-  } else {
-    hashDisplayElement = (
+
+  const loggedInHeaderContent = useMemo(() => {
+    const connectWeb3WalletCTA = (
       <Row
         style={{
-          paddingTop: 8,
           color: '#2F5FFC',
         }}
         onClick={() => {
-          connectWallet();
+          openSignIn({
+            connectAccounts: true,
+            includeLoginMethodTypes: [LoginMethodType.Web3],
+          });
         }}
       >
         <Icon>{plusIcon}</Icon>
         Connect web3 wallet
       </Row>
     );
-  }
-  const firstSection = (
-    <>
-      {primaryId !== 'wallet' && <PrimaryID>{user[primaryId]}</PrimaryID>}
-      {hashDisplayElement}
-    </>
-  );
+
+    let hashDisplayElement: JSX.Element;
+    if (user.loggedIn) {
+      hashDisplayElement = (
+        <>
+          <Row
+            style={{
+              display: 'flex',
+              flexDirection: 'column',
+              ...primaryIdStyle,
+            }}
+          >
+            <div
+              style={{
+                fontSize: '12px',
+                lineHeight: '16px',
+                fontWeight: 700,
+                width: '100%',
+                marginBottom: '6px',
+              }}
+            >
+              {user.displayName || 'Logged in as:'}
+            </div>
+            <div style={{ display: 'flex', alignItems: 'center' }}>
+              {loggedInButtonDisplay}
+              <Icon
+                style={{ marginLeft: 8, cursor: 'pointer' }}
+                onClick={() => {
+                  navigator.clipboard.writeText(loggedInCopyText);
+                  setCopySuccess(true);
+                  setTimeout(() => setCopySuccess(false), 2000);
+                }}
+              >
+                {copySuccess ? CheckMarkIcon : copyIcon}
+              </Icon>
+            </div>
+          </Row>
+          {!user.wallet && connectWeb3WalletCTA}
+        </>
+      );
+    } else {
+      hashDisplayElement = connectWeb3WalletCTA;
+    }
+    return hashDisplayElement;
+  }, [copySuccess, loggedInButtonDisplay, loggedInCopyText, openSignIn, user]);
 
   if (!isReady()) return <ScaleLoader height={35} width={4} />;
   const loggedInContent = (
     <>
-      <Section style={{ borderTop: 'none' }}>{firstSection}</Section>
-      {/*{(user.social?.twitter || user.social?.google) && (*/}
-      {/*  <Section>*/}
-      {/*    <Row>*/}
-      {/*      <Icon>{twitterIcon}</Icon>*/}
-      {/*      {user.social?.twitter}*/}
-      {/*    </Row>*/}
-      {/*    <Row*/}
-      {/*      style={{*/}
-      {/*        paddingTop: 8,*/}
-      {/*      }}*/}
-      {/*    >*/}
-      {/*      <img*/}
-      {/*        style={{*/}
-      {/*          width: 15,*/}
-      {/*          marginRight: 15,*/}
-      {/*        }}*/}
-      {/*        src={'https://cdn.cdnlogo.com/logos/g/35/google-icon.svg'}*/}
-      {/*      />*/}
-      {/*      {user.social?.google}*/}
-      {/*    </Row>*/}
-      {/*  </Section>*/}
-      {/*)}*/}
-      <Section>
-        <Row
-          onClick={() => {
-            console.log('manage account');
-          }}
-        >
-          <Icon>{gearIcon}</Icon>
-          Manage account
-        </Row>
-      </Section>
+      <Section style={{ borderTop: 'none' }}>{loggedInHeaderContent}</Section>
+      {connectionsSection}
+      {manageAccountSection}
       <Section>
         <Row
           onClick={() => {
@@ -182,7 +333,7 @@ export const Inner = ({ context }: { context: SlashAuth }) => {
   return (
     <div className={styles.dropDown} ref={ref} data-testid={'DropDown'}>
       <div
-        className={styles.badge + (user.wallet ? ' ' + styles.wallet : '')}
+        className={classNames(styles.badge, user.loggedIn && styles.wallet)}
         onClick={() => {
           setIsOpen((b) => !b);
         }}
@@ -191,14 +342,14 @@ export const Inner = ({ context }: { context: SlashAuth }) => {
         <div
           className={styles.profilePicture}
           style={{
-            margin: user.wallet ? 3 : undefined,
+            margin: user.loggedIn ? 3 : undefined,
           }}
         >
           {profilePicturePlaceholder}
         </div>
-        {user.wallet && (
+        {user.loggedIn && (
           <>
-            <div className={styles.walletDisplay}>{walletDisplay}</div>
+            <div className={styles.walletDisplay}>{loggedInButtonDisplay}</div>
             <div className={styles.chevronDown}>{chevronDown}</div>
           </>
         )}

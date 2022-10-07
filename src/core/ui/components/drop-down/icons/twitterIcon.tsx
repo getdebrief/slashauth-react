@@ -1,8 +1,8 @@
 export const twitterIcon = (
   <svg
-    width="16"
-    height="13"
-    viewBox="0 0 16 13"
+    width="20"
+    height="16"
+    viewBox="0 0 20 16"
     fill="none"
     xmlns="http://www.w3.org/2000/svg"
   >

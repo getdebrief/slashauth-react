@@ -2,7 +2,6 @@ import { useUser } from '../context/user';
 
 export const AccountSettings = () => {
   const user = useUser();
-  console.log('user', user);
   return (
     <div>
       <Header>Account Settings</Header>

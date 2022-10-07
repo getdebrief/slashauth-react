@@ -10,6 +10,7 @@ import { useCoreClient } from '../../context/slashauth-client';
 import { useRouter } from '../../router/context';
 import { useCoreSlashAuth } from '../../context/core-slashauth';
 import { useSignInContext } from './context';
+import { LoginMethodType } from '../../context/login-methods';
 
 export const MagicLinkSignIn = () => {
   const { connectAccounts } = useSignInContext();

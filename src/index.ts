@@ -11,6 +11,8 @@ SlashAuth.mountComponentManager = mountComponentManager;
 
 export { useNetwork, useAccount } from './core/hooks';
 
+export * from './core/ui';
+
 export {
   Account,
   SlashAuth,

@@ -1,4 +1,5 @@
 import { SlashAuthLoginMethodConfig } from '../../../shared/types';
+import { LoginMethodType } from '../context/login-methods';
 
 export const CLASS_PREFIX = 's8-';
 
@@ -39,6 +40,8 @@ export type SignInProps = {
   walletConnectTransparent?: boolean;
 
   connectAccounts?: boolean;
+  excludeLoginMethodTypes?: LoginMethodType[];
+  includeLoginMethodTypes?: LoginMethodType[];
   /*
    * Root URL where the component is mounted on, eg: '/sign in'
    */

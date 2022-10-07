@@ -1,3 +1,6 @@
+import { classNames } from '../../../../shared/utils/classnames';
+import styles from './styles.module.css';
+
 export const Row = (
   props_: React.DetailedHTMLProps<
     React.HTMLAttributes<HTMLDivElement>,
@@ -7,8 +10,8 @@ export const Row = (
   const { style, onClick, ...props } = props_;
   return (
     <div
+      className={classNames(styles.dropDownRow, onClick && styles.clickable)}
       style={{
-        display: 'flex',
         cursor: onClick ? 'pointer' : undefined,
         ...style,
       }}
