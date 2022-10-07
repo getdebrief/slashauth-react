@@ -39,7 +39,7 @@ export class User {
   }
 
   public get email() {
-    return this.#idTokenClaims?.email.default;
+    return this.#idTokenClaims?.email?.default;
   }
 
   public get rawEmail() {
