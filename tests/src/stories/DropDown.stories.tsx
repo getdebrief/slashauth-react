@@ -57,10 +57,7 @@ const defaultContext: Partial<SlashAuth> = {
   connectWallet: async () => null,
   appName: testCompany,
 };
-const Template: ComponentStory<any> = (args: {
-  user: TestUser;
-  openSignIn: () => void;
-}) => {
+const Template: ComponentStory<any> = (args: Partial<SlashAuth>) => {
   const context = useSlashAuth();
   const { mountDropDown } = context;
   const ref = useRef(null);
@@ -71,7 +68,7 @@ const Template: ComponentStory<any> = (args: {
         ...args,
       } as any);
     }
-  }, [args, args.user, mountDropDown]);
+  }, []);
   return <div ref={ref} />;
 };
 export const LoggedOut = Template.bind({});
@@ -80,7 +77,6 @@ LoggedOut.args = {
 };
 const open = async function (canvasElement: HTMLElement) {
   const canvas = within(canvasElement);
-  await canvas.findByTestId('DropDown');
   const badge = await canvas.findByTestId('DropDownBadge');
   await userEvent.click(badge);
   const content = within(await canvas.findByTestId('Content'));
@@ -110,7 +106,8 @@ WalletOnly.args = {
   user: testUser.walletOnly,
 };
 WalletOnly.play = async ({ canvasElement }: { canvasElement: HTMLElement }) => {
-  const { content } = await open(canvasElement);
+  const { content, badge } = await open(canvasElement);
+  expect(within(badge).queryByText('0x6c71…d4b4')).toBeTruthy();
   expect(content.queryByText('0x6c71…d4b4')).toBeTruthy();
   expect(content.queryByText('Manage account')).toBeTruthy();
   expect(content.queryByText('Sign out')).toBeTruthy();
@@ -140,11 +137,24 @@ ConnectWallet.play = async ({
   await userEvent.click(canvas.getByText('Connect web3 wallet'));
   expect(connectWallet.mock.calls.length).toBe(1);
 };
-export const WalletAndSocial = Template.bind({});
-WalletAndSocial.args = {
-  user: testUser.walletSocial,
+// export const WalletAndSocial = Template.bind({});
+// WalletAndSocial.args = {
+//   user: testUser.walletSocial,
+// };
+// export const NameWalletAndSocial = Template.bind({});
+// NameWalletAndSocial.args = {
+//   user: testUser.nameWalletSocial,
+// };
+const logout = jest.fn();
+export const Logout = Template.bind({});
+Logout.args = {
+  user: testUser.emailOnly,
+  logout,
 };
-export const NameWalletAndSocial = Template.bind({});
-NameWalletAndSocial.args = {
-  user: testUser.nameWalletSocial,
+Logout.play = async ({ canvasElement }: { canvasElement: HTMLElement }) => {
+  logout.mockClear();
+  const { canvas } = await open(canvasElement);
+  expect(logout.mock.calls.length).toBe(0);
+  await userEvent.click(canvas.getByText('Sign out'));
+  expect(logout.mock.calls.length).toBe(1);
 };
