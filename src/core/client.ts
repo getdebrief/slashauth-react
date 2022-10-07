@@ -458,11 +458,10 @@ export default class SlashAuthClient {
     }
 
     try {
-      await this.getTokenSilently(options);
+      return !!(await this.getTokenSilently(options));
     } catch (error) {
       return false;
     }
-    return true;
   }
 
   /**

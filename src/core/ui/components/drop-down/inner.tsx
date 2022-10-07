@@ -4,7 +4,6 @@ import { shortenEthAddress } from '../../../../shared/utils/eth';
 import { profilePicturePlaceholder } from './icons/profilePicturePlaceholder';
 import { chevronDown } from './icons/chevronDown';
 import { copyIcon } from './icons/copyIcon';
-import { plusIcon } from './icons/plusIcon';
 import { gearIcon } from './icons/gearIcon';
 import { CheckMarkIcon } from '../icon/check_mark';
 import { logoutIcon } from './icons/logoutIcon';
@@ -277,24 +276,7 @@ export const Inner = ({ context }: Props) => {
   );
 
   const loggedInHeaderContent = useMemo(() => {
-    const connectWeb3WalletCTA = (
-      <Row
-        style={{
-          color: '#2F5FFC',
-        }}
-        onClick={() => {
-          openSignIn({
-            connectAccounts: true,
-            includeLoginMethodTypes: [LoginMethodType.Web3],
-          });
-        }}
-      >
-        <Icon>{plusIcon}</Icon>
-        Connect web3 wallet
-      </Row>
-    );
-
-    let hashDisplayElement: JSX.Element;
+    let hashDisplayElement: JSX.Element = <div />;
     if (user.loggedIn) {
       hashDisplayElement = (
         <>
@@ -330,14 +312,11 @@ export const Inner = ({ context }: Props) => {
               </Icon>
             </div>
           </Row>
-          {!user.wallet && connectWeb3WalletCTA}
         </>
       );
-    } else {
-      hashDisplayElement = connectWeb3WalletCTA;
     }
     return hashDisplayElement;
-  }, [copySuccess, loggedInButtonDisplay, loggedInCopyText, openSignIn, user]);
+  }, [copySuccess, loggedInButtonDisplay, loggedInCopyText, user]);
 
   if (!isReady()) return <ScaleLoader height={35} width={4} />;
   const loggedInContent = (
