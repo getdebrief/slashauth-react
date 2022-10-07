@@ -42,8 +42,8 @@ const testUser: { [k: string]: TestUser } = {
   walletOnly: {
     loggedIn: true,
     loginType: LoginMethodType.Web3,
-    loginIdentifier: 'eth:0x6c713198b09add6ee54c535e4135860907afd4b4',
-    wallet: 'eth:0x6c713198b09add6ee54c535e4135860907afd4b4',
+    loginIdentifier: '0x6c713198b09add6ee54c535e4135860907afd4b4',
+    wallet: '0x6c713198b09add6ee54c535e4135860907afd4b4',
   },
   emailOnly: {
     loggedIn: true,
