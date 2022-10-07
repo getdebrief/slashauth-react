@@ -140,7 +140,7 @@ const connectWallet = jest.fn();
 export const ConnectWallet = Template.bind({});
 ConnectWallet.args = {
   user: testUser.emailOnly,
-  connectWallet,
+  openSignIn: connectWallet,
 };
 ConnectWallet.play = async ({
   canvasElement,
