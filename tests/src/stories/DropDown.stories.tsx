@@ -10,7 +10,7 @@ export default {
 type TestUser = {
   name?: string;
   loggedIn: boolean;
-  wallet?: { default: string };
+  wallet?: string;
   email?: string;
   social?: {
     google: string;
@@ -23,9 +23,7 @@ const testUser: { [k: string]: TestUser } = {
   },
   walletOnly: {
     loggedIn: true,
-    wallet: {
-      default: 'eth:0x6c713198b09add6ee54c535e4135860907afd4b4',
-    },
+    wallet: 'eth:0x6c713198b09add6ee54c535e4135860907afd4b4',
   },
   emailOnly: {
     loggedIn: true,
@@ -34,17 +32,13 @@ const testUser: { [k: string]: TestUser } = {
   },
   walletSocial: {
     loggedIn: true,
-    wallet: {
-      default: 'eth:0x6c713198b09add6ee54c535e4135860907afd4b4',
-    },
+    wallet: 'eth:0x6c713198b09add6ee54c535e4135860907afd4b4',
     social: { google: 'haileymiller298@gmail.com', twitter: '@0xhaileym' },
   },
   nameWalletSocial: {
     name: 'Hailey Miller',
     loggedIn: true,
-    wallet: {
-      default: 'eth:0x6c713198b09add6ee54c535e4135860907afd4b4',
-    },
+    wallet: 'eth:0x6c713198b09add6ee54c535e4135860907afd4b4',
     social: { google: 'haileymiller298@gmail.com', twitter: '@0xhaileym' },
   },
 };
