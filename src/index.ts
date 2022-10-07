@@ -6,6 +6,11 @@ import {
 } from './core/context/legacy-slashauth';
 import { supportedFontFamilies } from './core/ui/fonts';
 import { Account } from './shared/global';
+import { Buffer } from 'buffer';
+
+if (typeof window !== 'undefined') {
+  window.Buffer = Buffer;
+}
 
 SlashAuth.mountComponentManager = mountComponentManager;
 
