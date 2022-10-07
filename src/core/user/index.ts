@@ -24,7 +24,7 @@ export class User {
     return this.#idTokenClaims?.sub;
   }
 
-  public get wallet() {
+  public get wallet(): string | undefined {
     if (!this.#idTokenClaims?.wallet?.default) {
       return undefined;
     }
