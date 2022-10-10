@@ -36,7 +36,6 @@ export class Portal<
     let startPath = '';
     switch (componentName) {
       case 'SignIn':
-        console.log('setting start path');
         startPath = '/sign-in';
         break;
       default:
