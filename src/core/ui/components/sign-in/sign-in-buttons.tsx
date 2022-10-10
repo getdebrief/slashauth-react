@@ -6,6 +6,7 @@ import {
   Web3LoginMethod,
 } from '../../context/login-methods';
 import { useUser } from '../../context/user';
+import { useRouter } from '../../router/context';
 import { useSignInContext } from './context';
 import { SignInWeb2Buttons } from './sign-in-web2-buttons';
 import { SignInWeb3Buttons } from './sign-in-web3-buttons';
@@ -24,13 +25,13 @@ type Props = {
 };
 
 export const SignInButtons = ({ showAllWallets, onClick }: Props) => {
-  const { excludeLoginMethodTypes, includeLoginMethodTypes } =
+  const { excludeLoginMethodTypes, includeLoginMethodTypes, viewOnly } =
     useSignInContext();
   const user = useUser();
   const enabledLoginMethods = useLoginMethods();
 
   const web3LoginMethods = useMemo(() => {
-    if (user && user.loginMethods.includes(LoginMethodType.Web3)) {
+    if (!viewOnly && user && user.loginMethods.includes(LoginMethodType.Web3)) {
       // User is already logged in using web3 so we should not expose this.
       return [];
     }
@@ -57,6 +58,7 @@ export const SignInButtons = ({ showAllWallets, onClick }: Props) => {
     excludeLoginMethodTypes,
     includeLoginMethodTypes,
     user,
+    viewOnly,
   ]);
 
   const web2LoginMethods = useMemo(() => {
@@ -65,7 +67,7 @@ export const SignInButtons = ({ showAllWallets, onClick }: Props) => {
     return enabledLoginMethods.loginMethods.filter(
       (m) =>
         m.type !== LoginMethodType.Web3 &&
-        !loggedInMethods.includes(m.type) &&
+        (viewOnly || !loggedInMethods.includes(m.type)) &&
         (!excludeLoginMethodTypes ||
           !excludeLoginMethodTypes.includes(m.type)) &&
         (!includeLoginMethodTypes || includeLoginMethodTypes.includes(m.type))
@@ -75,6 +77,7 @@ export const SignInButtons = ({ showAllWallets, onClick }: Props) => {
     excludeLoginMethodTypes,
     includeLoginMethodTypes,
     user?.loginMethods,
+    viewOnly,
   ]);
 
   if (web3LoginMethods.length && (showAllWallets || !web2LoginMethods.length)) {
