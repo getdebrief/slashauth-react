@@ -2,7 +2,7 @@ import React from 'react';
 import ReactDOM, { createPortal } from 'react-dom';
 
 import { ComponentContext } from './components/sign-in/context';
-import { HashRouter } from './router/hash';
+import { VirtualRouter } from './router/virtual';
 import { AvailableComponentCtx } from './types/ui-components';
 
 type PortalProps<
@@ -33,8 +33,20 @@ export class Portal<
       </ComponentContext.Provider>
     );
 
+    let startPath = '';
+    switch (componentName) {
+      case 'SignIn':
+        console.log('setting start path');
+        startPath = '/sign-in';
+        break;
+      default:
+        break;
+    }
+
     return ReactDOM.createPortal(
-      <HashRouter preservedParams={preservedParams}>{el}</HashRouter>,
+      <VirtualRouter preservedParams={preservedParams} startPath={startPath}>
+        {el}
+      </VirtualRouter>,
       node
     );
   }
