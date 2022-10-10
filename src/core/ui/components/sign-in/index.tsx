@@ -103,9 +103,14 @@ function SignInRoutes(): JSX.Element {
           loginMethods={[...web3LoginMethods, ...web2LoginMethods]}
         >
           <Flow.Root flow="sign-in">
-            <Route index>
-              <SignInStart />
-            </Route>
+            <Switch>
+              <Route path="all-wallets">
+                <SignInStart showAllWallets showBackButton />
+              </Route>
+              <Route index>
+                <SignInStart />
+              </Route>
+            </Switch>
           </Flow.Root>
         </LoginMethodsProvider>
       </Web3LoginStateProvider>
@@ -158,7 +163,9 @@ export const SignIn: React.ComponentType<SignInProps> = () => {
 
   return (
     <ModalContent modalStyles={appearance.modalStyle}>
-      <SignInRoutes />
+      <Route path="sign-in">
+        <SignInRoutes />
+      </Route>
     </ModalContent>
   );
 };
