@@ -14,7 +14,7 @@ if (typeof window !== 'undefined') {
 
 SlashAuth.mountComponentManager = mountComponentManager;
 
-export { useNetwork, useAccount } from './core/hooks';
+export { useNetwork, useAccount, useIsAuthenticated } from './core/hooks';
 
 export * from './core/ui';
 
