@@ -1,6 +1,6 @@
 {
   "name": "@slashauth/slashauth-react",
-  "version": "0.10.0",
+  "version": "0.10.0-beta.0",
   "homepage": "https://www.slashauth.xyz",
   "repository": {
     "type": "git",
