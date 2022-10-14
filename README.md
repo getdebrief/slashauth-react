@@ -177,6 +177,16 @@ export const LoginStatus = () => {
 };
 ```
 
+#### Using specific hooks
+
+Aside from `useSlashAuth` hook, we also expose more specific hooks. This includes:
+
+- `useHasRole`
+- `useHasOrgRole`
+- `useIsAuthenticated`
+
+If you are missing a hook, please join our [Discord server](https://discord.gg/qGNqmKts).
+
 ### Logout Button
 
 The /auth SDK exposes logout functionality that logs the user out both locally and invalidates their tokens remotely. Let's build a button to add this functionality.
