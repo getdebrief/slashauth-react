@@ -3,7 +3,7 @@ import {
   Account,
   CacheLocation,
   GetIdTokenClaimsOptions,
-  GetTokenSilentlyOptions,
+  GetTokensOptions,
   IdToken,
   LogoutOptions,
 } from '../../shared/global';
@@ -17,9 +17,7 @@ import { SlashAuthUIProvider } from '../ui/context/slashauth';
 import { SlashAuthWagmiProvider, useWeb3Manager } from './wagmi-provider';
 
 type AuthFunctions = {
-  getAccessTokenSilently: (
-    options?: GetTokenSilentlyOptions
-  ) => Promise<string>;
+  getAccessTokenSilently: (options?: GetTokensOptions) => Promise<string>;
 
   openSignIn: (options?: SignInOptions) => Promise<void>;
 
@@ -27,7 +25,7 @@ type AuthFunctions = {
 
   getIdTokenClaims: (options?: GetIdTokenClaimsOptions) => Promise<IdToken>;
 
-  checkSession: (options?: GetTokenSilentlyOptions) => Promise<boolean>;
+  checkSession: (options?: GetTokensOptions) => Promise<boolean>;
 };
 
 type UIFunctions = {
@@ -315,8 +313,8 @@ export function LegacyProvider({ children }: _Props) {
   );
 
   const getAccessTokenSilently = useCallback(
-    async (options?: GetTokenSilentlyOptions): Promise<string> => {
-      return slashAuth.client.getTokenSilently(options);
+    async (options?: GetTokensOptions): Promise<string> => {
+      return slashAuth.client.getTokens(options);
     },
     [slashAuth.client]
   );

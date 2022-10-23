@@ -50,14 +50,14 @@ import {
   Account,
   GetAccountOptions,
   GetIdTokenClaimsOptions,
-  GetTokenSilentlyOptions,
-  GetTokenSilentlyVerboseResponse,
+  GetTokensOptions,
+  GetTokensVerboseResponse,
   LogoutOptions,
   LogoutUrlOptions,
   LoginNoRedirectNoPopupOptions,
   GetNonceToSignOptions,
   RefreshTokenOptions,
-  GetTokenSilentlyResult,
+  GetTokensResult,
   GetAppConfigResponse,
   ExchangeTokenOptions,
   TokenEndpointResponse,
@@ -85,13 +85,6 @@ import { createRandomString } from '../shared/utils/string';
 import { encodeCaseSensitiveClientID } from '../shared/utils/id';
 import { SessionManager } from './session';
 
-// type GetTokenSilentlyResult = TokenEndpointResponse & {
-//   decodedToken: ReturnType<typeof verifyIdToken>;
-//   scope: string;
-//   oauthTokenScope?: string;
-//   audience: string;
-// };
-
 /**
  * @ignore
  */
@@ -100,7 +93,7 @@ const lock = new Lock();
 /**
  * @ignore
  */
-const GET_TOKEN_SILENTLY_LOCK_KEY = 'slashauth.lock.getTokenSilently';
+const GET_TOKEN_LOCK_KEY = 'slashauth.lock.getTokens';
 
 /**
  * @ignore
@@ -420,8 +413,8 @@ export default class SlashAuthClient {
    * await slashauth.checkSession();
    * ```
    *
-   * Check if the user is logged in using `getTokenSilently`. The difference
-   * with `getTokenSilently` is that this doesn't return a token, but it will
+   * Check if the user is logged in using `getTokens`. The difference
+   * with `getTokens` is that this doesn't return a token, but it will
    * pre-fill the token cache.
    *
    * This method also heeds the `slashauth.{clientId}.is.authenticated` cookie, as an optimization
@@ -435,14 +428,12 @@ export default class SlashAuthClient {
    * **Note:** the cookie **may not** be present if running an app using a private tab, as some
    * browsers clear JS cookie data and local storage when the tab or page is closed, or on page reload. This effectively
    * means that `checkSession` could silently return without authenticating the user on page refresh when
-   * using a private tab, despite having previously logged in. As a workaround, use `getTokenSilently` instead
+   * using a private tab, despite having previously logged in. As a workaround, use `getTokens` instead
    * and handle the possible `login_required` error.
    *
    * @param options
    */
-  public async checkSession(
-    options?: GetTokenSilentlyOptions
-  ): Promise<boolean> {
+  public async checkSession(options?: GetTokensOptions): Promise<boolean> {
     if (!this.cookieStorage.get(this.isAuthenticatedCookieName)) {
       if (!this.cookieStorage.get(OLD_IS_AUTHENTICATED_COOKIE_NAME)) {
         return;
@@ -458,7 +449,7 @@ export default class SlashAuthClient {
     }
 
     try {
-      return !!(await this.getTokenSilently(options));
+      return !!(await this.getTokens(options));
     } catch (error) {
       return false;
     }
@@ -469,24 +460,22 @@ export default class SlashAuthClient {
    *
    * @param options
    */
-  public async getTokenSilently(
-    options: GetTokenSilentlyOptions & { detailedResponse: true }
-  ): Promise<GetTokenSilentlyVerboseResponse>;
+  public async getTokens(
+    options: GetTokensOptions & { detailedResponse: true }
+  ): Promise<GetTokensVerboseResponse>;
 
   /**
    * Fetches a new access token and returns it.
    *
    * @param options
    */
-  public async getTokenSilently(
-    options?: GetTokenSilentlyOptions
-  ): Promise<string | null>;
+  public async getTokens(options?: GetTokensOptions): Promise<string | null>;
 
   /**
    * Fetches a new access token, and either returns just the access token (the default) or the response from the /oauth/token endpoint, depending on the `detailedResponse` option.
    *
    * ```js
-   * const token = await slashauth.getTokenSilently(options);
+   * const token = await slashauth.getTokens(options);
    * ```
    *
    * If there's a valid token stored and it has more than 60 seconds
@@ -515,9 +504,9 @@ export default class SlashAuthClient {
    *
    * @param options
    */
-  public async getTokenSilently(
-    options: GetTokenSilentlyOptions = {}
-  ): Promise<string | GetTokenSilentlyVerboseResponse | null> {
+  public async getTokens(
+    options: GetTokensOptions = {}
+  ): Promise<string | GetTokensVerboseResponse | null> {
     const { ignoreCache, ...getTokenOptions } = {
       audience: this.options.audience,
       ignoreCache: false,
@@ -527,7 +516,7 @@ export default class SlashAuthClient {
 
     return singlePromise(
       () =>
-        this._getTokenSilently({
+        this._getTokens({
           ignoreCache,
           ...getTokenOptions,
         }),
@@ -535,9 +524,9 @@ export default class SlashAuthClient {
     );
   }
 
-  private async _getTokenSilently(
-    options: GetTokenSilentlyOptions = {}
-  ): Promise<string | GetTokenSilentlyVerboseResponse | null> {
+  private async _getTokens(
+    options: GetTokensOptions = {}
+  ): Promise<string | GetTokensVerboseResponse | null> {
     const { ignoreCache, ...getTokenOptions } = options;
 
     // Check the cache before acquiring the lock to avoid the latency of
@@ -556,10 +545,7 @@ export default class SlashAuthClient {
     }
 
     if (
-      await retryPromise(
-        () => lock.acquireLock(GET_TOKEN_SILENTLY_LOCK_KEY, 5000),
-        10
-      )
+      await retryPromise(() => lock.acquireLock(GET_TOKEN_LOCK_KEY, 5000), 10)
     ) {
       try {
         // Check the cache a second time, because it may have been populated
@@ -605,7 +591,7 @@ export default class SlashAuthClient {
       } catch (err) {
         return null;
       } finally {
-        await lock.releaseLock(GET_TOKEN_SILENTLY_LOCK_KEY);
+        await lock.releaseLock(GET_TOKEN_LOCK_KEY);
       }
     } else {
       throw new TimeoutError();
@@ -622,7 +608,7 @@ export default class SlashAuthClient {
 
   public async hasRole(roleName: string): Promise<boolean> {
     try {
-      const accessToken = await this.getTokenSilently();
+      const accessToken = await this.getTokens();
       if (!accessToken) {
         return false;
       }
@@ -654,7 +640,7 @@ export default class SlashAuthClient {
     roleName: string
   ): Promise<boolean> {
     try {
-      const accessToken = await this.getTokenSilently();
+      const accessToken = await this.getTokens();
       if (!accessToken) {
         return false;
       }
@@ -681,7 +667,7 @@ export default class SlashAuthClient {
 
   public async getRoleMetadata(roleName: string): Promise<ObjectMap> {
     try {
-      const accessToken = await this.getTokenSilently();
+      const accessToken = await this.getTokens();
       if (!accessToken) {
         return {};
       }
@@ -728,7 +714,7 @@ export default class SlashAuthClient {
       client_id: this.options.clientID,
     };
 
-    const accessToken = await this.getTokenSilently();
+    const accessToken = await this.getTokens();
     if (!accessToken) {
       return null;
     }
@@ -753,9 +739,9 @@ export default class SlashAuthClient {
     const hints = {};
 
     if (options.connectAccounts) {
-      const tokens = (await this.getTokenSilently({
+      const tokens = (await this.getTokens({
         detailedResponse: true,
-      })) as GetTokenSilentlyVerboseResponse;
+      })) as GetTokensVerboseResponse;
 
       if (tokens) {
         hints['id_token_hint'] = tokens.id_token;
@@ -838,9 +824,9 @@ export default class SlashAuthClient {
     const hints = {};
 
     if (options.connectAccounts) {
-      const tokens = (await this.getTokenSilently({
+      const tokens = (await this.getTokens({
         detailedResponse: true,
-      })) as GetTokenSilentlyVerboseResponse;
+      })) as GetTokensVerboseResponse;
 
       if (tokens) {
         hints['id_token_hint'] = tokens.id_token;
@@ -1014,11 +1000,11 @@ export default class SlashAuthClient {
     };
 
     if (this.options.cache) {
-      const accessToken = await this.getTokenSilently();
+      const accessToken = await this.getTokens();
       await this.cacheManager.clear();
       await postCacheClear(accessToken);
     } else {
-      const accessToken = await this.getTokenSilently();
+      const accessToken = await this.getTokens();
       this.cacheManager.clearSync();
       await postCacheClear(accessToken);
     }
@@ -1026,7 +1012,7 @@ export default class SlashAuthClient {
 
   private async _getTokenUsingRefreshToken(
     options: RefreshTokenOptions
-  ): Promise<GetTokenSilentlyResult> {
+  ): Promise<GetTokensResult> {
     const cache = await this.cacheManager.get(
       new CacheKey({
         scope: this.defaultScope,
