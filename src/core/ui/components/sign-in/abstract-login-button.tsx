@@ -8,6 +8,8 @@ type Props = {
   onClick: () => void;
 };
 
+const DEFAULT_BORDER_RADIUS = '10px';
+
 export const AbstractConnectorButton = ({
   onClick,
   disabled,
@@ -28,7 +30,7 @@ export const AbstractConnectorButton = ({
           ? appearance.modalStyle.hoverButtonBackgroundColor
           : appearance.modalStyle.buttonBackgroundColor,
         border: '1px solid #e5e7eb',
-        borderRadius: '10px',
+        borderRadius: appearance.modalStyle.borderRadius || '10px',
         paddingTop: '0.5rem',
         paddingBottom: '0.5rem',
         paddingLeft: '1rem',
