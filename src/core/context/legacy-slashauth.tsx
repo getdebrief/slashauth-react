@@ -1,12 +1,10 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
-import { useClient, useConnect, useDisconnect, WagmiConfig } from 'wagmi';
 import {
   Account,
   CacheLocation,
   GetIdTokenClaimsOptions,
   GetTokenSilentlyOptions,
   IdToken,
-  LoginNoRedirectNoPopupOptions,
   LogoutOptions,
 } from '../../shared/global';
 import { SlashAuthStyle } from '../../shared/types';
@@ -17,16 +15,11 @@ import { SlashAuth } from '../slashauth';
 import { useCoreSlashAuth } from '../ui/context/core-slashauth';
 import { SlashAuthUIProvider } from '../ui/context/slashauth';
 import { SlashAuthWagmiProvider, useWeb3Manager } from './wagmi-provider';
-import { User } from '../user';
 
 type AuthFunctions = {
   getAccessTokenSilently: (
     options?: GetTokenSilentlyOptions
   ) => Promise<string>;
-
-  loginNoRedirectNoPopup: (
-    options?: LoginNoRedirectNoPopupOptions
-  ) => Promise<void>;
 
   openSignIn: (options?: SignInOptions) => Promise<void>;
 
@@ -328,13 +321,6 @@ export function LegacyProvider({ children }: _Props) {
     [slashAuth.client]
   );
 
-  const loginNoRedirectNoPopup = useCallback(
-    async (options?: LoginNoRedirectNoPopupOptions): Promise<void> => {
-      return slashAuth.openSignInSync();
-    },
-    [slashAuth]
-  );
-
   const openSignIn = useCallback(
     async (options?: SignInOptions): Promise<void> => {
       return slashAuth.openSignIn(options);
@@ -401,7 +387,6 @@ export function LegacyProvider({ children }: _Props) {
     hasOrgRole,
     getRoleMetadata,
     getAccessTokenSilently,
-    loginNoRedirectNoPopup,
     logout,
     getIdTokenClaims,
     checkSession,
