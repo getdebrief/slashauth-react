@@ -17,7 +17,7 @@ import { SlashAuthUIProvider } from '../ui/context/slashauth';
 import { SlashAuthWagmiProvider, useWeb3Manager } from './wagmi-provider';
 
 type AuthFunctions = {
-  getAccessTokenSilently: (options?: GetTokensOptions) => Promise<string>;
+  getTokens: (options?: GetTokensOptions) => Promise<string>;
 
   openSignIn: (options?: SignInOptions) => Promise<void>;
 
@@ -260,7 +260,7 @@ const emptyContext = {
   hasRole: uninitializedStub,
   hasOrgRole: uninitializedStub,
   getRoleMetadata: uninitializedStub,
-  getAccessTokenSilently: uninitializedStub,
+  getTokens: uninitializedStub,
   loginNoRedirectNoPopup: uninitializedStub,
   openSignIn: uninitializedStub,
   logout: uninitializedStub,
@@ -312,7 +312,7 @@ export function LegacyProvider({ children }: _Props) {
     [slashAuth.client]
   );
 
-  const getAccessTokenSilently = useCallback(
+  const getTokens = useCallback(
     async (options?: GetTokensOptions): Promise<string> => {
       return slashAuth.client.getTokens(options);
     },
@@ -384,7 +384,7 @@ export function LegacyProvider({ children }: _Props) {
     hasRole,
     hasOrgRole,
     getRoleMetadata,
-    getAccessTokenSilently,
+    getTokens,
     logout,
     getIdTokenClaims,
     checkSession,
