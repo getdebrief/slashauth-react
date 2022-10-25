@@ -1,12 +1,17 @@
 import { useState } from 'react';
+import { useAppearance } from '../../context/appearance';
 
 type Props = {
   children: React.ReactNode;
   onClick: () => void;
 };
 
+const DEFAULT_BORDER_RADIUS = 12;
+
 export const PrimaryButton = ({ children, onClick }: Props) => {
   const [isHover, setHover] = useState<boolean>(false);
+
+  const appearance = useAppearance();
 
   return (
     <button
@@ -18,7 +23,8 @@ export const PrimaryButton = ({ children, onClick }: Props) => {
         cursor: 'pointer',
         outline: 'none',
         border: 'none',
-        borderRadius: 12,
+        borderRadius:
+          appearance.modalStyle.borderRadius || DEFAULT_BORDER_RADIUS,
         padding: '16px',
         backgroundColor: isHover ? '#0D3CFC' : '#0D5AFC',
         color: 'white',
@@ -37,6 +43,8 @@ export const PrimaryButton = ({ children, onClick }: Props) => {
 export const SecondaryButton = ({ children, onClick }: Props) => {
   const [isHover, setHover] = useState<boolean>(false);
 
+  const appearance = useAppearance();
+
   return (
     <button
       style={{
@@ -47,7 +55,8 @@ export const SecondaryButton = ({ children, onClick }: Props) => {
         cursor: 'pointer',
         outline: 'none',
         border: '1px solid #0D5AFC',
-        borderRadius: 12,
+        borderRadius:
+          appearance.modalStyle.borderRadius || DEFAULT_BORDER_RADIUS,
         padding: '16px',
         backgroundColor: isHover ? '#E6E6E6' : '#FFFFFF',
         color: '#0D5AFC',

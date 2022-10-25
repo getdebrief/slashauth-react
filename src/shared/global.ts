@@ -312,7 +312,7 @@ export interface GetIdTokenClaimsOptions {
   audience?: string;
 }
 
-export interface GetTokenSilentlyOptions {
+export interface GetTokensOptions {
   /**
    * When `true`, ignores the cache and always sends a
    * request to slashauth.
@@ -408,12 +408,12 @@ export interface OAuthTokenOptions extends TokenEndpointOptions {
   scope: string;
 }
 
-export type GetTokenSilentlyVerboseResponse = Omit<
+export type GetTokensVerboseResponse = Omit<
   TokenEndpointResponse,
   'refresh_token'
 >;
 
-export type GetTokenSilentlyResult = TokenEndpointResponse & {
+export type GetTokensResult = TokenEndpointResponse & {
   decodedToken: ReturnType<typeof verifyIdToken>;
   scope: string;
   audience: string;

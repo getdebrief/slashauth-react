@@ -1,12 +1,10 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
-import { useClient, useConnect, useDisconnect, WagmiConfig } from 'wagmi';
 import {
   Account,
   CacheLocation,
   GetIdTokenClaimsOptions,
-  GetTokenSilentlyOptions,
+  GetTokensOptions,
   IdToken,
-  LoginNoRedirectNoPopupOptions,
   LogoutOptions,
 } from '../../shared/global';
 import { SlashAuthStyle } from '../../shared/types';
@@ -17,16 +15,9 @@ import { SlashAuth } from '../slashauth';
 import { useCoreSlashAuth } from '../ui/context/core-slashauth';
 import { SlashAuthUIProvider } from '../ui/context/slashauth';
 import { SlashAuthWagmiProvider, useWeb3Manager } from './wagmi-provider';
-import { User } from '../user';
 
 type AuthFunctions = {
-  getAccessTokenSilently: (
-    options?: GetTokenSilentlyOptions
-  ) => Promise<string>;
-
-  loginNoRedirectNoPopup: (
-    options?: LoginNoRedirectNoPopupOptions
-  ) => Promise<void>;
+  getTokens: (options?: GetTokensOptions) => Promise<string>;
 
   openSignIn: (options?: SignInOptions) => Promise<void>;
 
@@ -34,7 +25,7 @@ type AuthFunctions = {
 
   getIdTokenClaims: (options?: GetIdTokenClaimsOptions) => Promise<IdToken>;
 
-  checkSession: (options?: GetTokenSilentlyOptions) => Promise<boolean>;
+  checkSession: (options?: GetTokensOptions) => Promise<boolean>;
 };
 
 type UIFunctions = {
@@ -269,7 +260,7 @@ const emptyContext = {
   hasRole: uninitializedStub,
   hasOrgRole: uninitializedStub,
   getRoleMetadata: uninitializedStub,
-  getAccessTokenSilently: uninitializedStub,
+  getTokens: uninitializedStub,
   loginNoRedirectNoPopup: uninitializedStub,
   openSignIn: uninitializedStub,
   logout: uninitializedStub,
@@ -321,18 +312,11 @@ export function LegacyProvider({ children }: _Props) {
     [slashAuth.client]
   );
 
-  const getAccessTokenSilently = useCallback(
-    async (options?: GetTokenSilentlyOptions): Promise<string> => {
-      return slashAuth.client.getTokenSilently(options);
+  const getTokens = useCallback(
+    async (options?: GetTokensOptions): Promise<string> => {
+      return slashAuth.client.getTokens(options);
     },
     [slashAuth.client]
-  );
-
-  const loginNoRedirectNoPopup = useCallback(
-    async (options?: LoginNoRedirectNoPopupOptions): Promise<void> => {
-      return slashAuth.openSignInSync();
-    },
-    [slashAuth]
   );
 
   const openSignIn = useCallback(
@@ -400,8 +384,7 @@ export function LegacyProvider({ children }: _Props) {
     hasRole,
     hasOrgRole,
     getRoleMetadata,
-    getAccessTokenSilently,
-    loginNoRedirectNoPopup,
+    getTokens,
     logout,
     getIdTokenClaims,
     checkSession,

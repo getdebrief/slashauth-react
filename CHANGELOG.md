@@ -21,6 +21,18 @@ straightforward as possible.
 
 ### Fixed
 
+## [0.11.0] - 2020-10-24
+
+### Added
+
+### Changed
+
+- Removed the function `loginNoRedirectNoPopup` as it simply called `openSignIn` under the hood
+- Renamed `getTokensSilently` to `getTokens`. This uses the plural `tokens` because with the verbose flag, this returns all tokens (access token, refresh token, and identity token)
+- Border Radius from the modal styles now affects both the modal as well as any buttons internal to the modal.
+
+### Fixed
+
 ## [0.10.0] - 2020-10-13
 
 ### Added
