@@ -1,8 +1,8 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { useCoreClient } from '../ui/context/slashauth-client';
 
 type HookState = {
-  role: string;
+  role: string | null;
   loading: boolean;
   hasRole: boolean;
   error: Error | null;
@@ -10,8 +10,9 @@ type HookState = {
 
 export function useHasRole(role: string) {
   const slashAuthClient = useCoreClient();
+  const fetching = useRef<boolean>(false);
   const [hookState, setHookState] = useState<HookState>({
-    role,
+    role: null,
     loading: false,
     hasRole: false,
     error: null,
@@ -45,17 +46,22 @@ export function useHasRole(role: string) {
   }, [role, slashAuthClient]);
 
   useEffect(() => {
-    if (hookState.loading || hookState.role === role) {
+    if (fetching.current || hookState.loading || hookState.role === role) {
       return;
     }
-    setHookState({
-      role,
-      loading: !!role,
-      hasRole: false,
-      error: null,
-    });
-    if (role) {
-      fetchHasRole();
+    fetching.current = true;
+    try {
+      setHookState({
+        role,
+        loading: !!role,
+        hasRole: false,
+        error: null,
+      });
+      if (role) {
+        fetchHasRole();
+      }
+    } finally {
+      fetching.current = false;
     }
   }, [fetchHasRole, hookState.loading, hookState.role, role, slashAuthClient]);
 

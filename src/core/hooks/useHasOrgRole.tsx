@@ -1,4 +1,4 @@
-import { useState, useCallback, useEffect } from 'react';
+import { useState, useCallback, useEffect, useRef } from 'react';
 import { useCoreClient } from '../ui/context/slashauth-client';
 
 type HasOrgRoleArgs = {
@@ -7,8 +7,8 @@ type HasOrgRoleArgs = {
 };
 
 type HookState = {
-  organizationID: string;
-  role: string;
+  organizationID: string | null;
+  role: string | null;
   loading: boolean;
   hasOrgRole: boolean;
   error: Error | null;
@@ -16,9 +16,10 @@ type HookState = {
 
 export function useHasOrgRole({ organizationID, role }: HasOrgRoleArgs) {
   const slashAuthClient = useCoreClient();
+  const fetching = useRef<boolean>(false);
   const [hookState, setHookState] = useState<HookState>({
-    organizationID,
-    role,
+    organizationID: null,
+    role: null,
     loading: false,
     hasOrgRole: false,
     error: null,
@@ -55,20 +56,26 @@ export function useHasOrgRole({ organizationID, role }: HasOrgRoleArgs) {
 
   useEffect(() => {
     if (
+      fetching.current ||
       hookState.loading ||
       (hookState.role === role && hookState.organizationID === organizationID)
     ) {
       return;
     }
-    setHookState({
-      organizationID,
-      role,
-      loading: !!role && !!organizationID,
-      hasOrgRole: false,
-      error: null,
-    });
-    if (role && organizationID) {
-      fetchHasOrgRole();
+    fetching.current = true;
+    try {
+      setHookState({
+        organizationID,
+        role,
+        loading: !!role && !!organizationID,
+        hasOrgRole: false,
+        error: null,
+      });
+      if (role && organizationID) {
+        fetchHasOrgRole();
+      }
+    } finally {
+      fetching.current = false;
     }
   }, [
     fetchHasOrgRole,
