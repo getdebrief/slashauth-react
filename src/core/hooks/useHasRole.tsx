@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { useCoreClient } from '../ui/context/slashauth-client';
+import { useIsAuthenticated } from './useIsAuthenticated';
 
 type HookState = {
   role: string | null;
@@ -17,6 +18,7 @@ export function useHasRole(role: string) {
     hasRole: false,
     error: null,
   });
+  const isAuthenticated = useIsAuthenticated();
 
   const fetchHasRole = useCallback(async () => {
     setHookState((prevState) => {
@@ -46,6 +48,15 @@ export function useHasRole(role: string) {
   }, [role, slashAuthClient]);
 
   useEffect(() => {
+    if (!isAuthenticated) {
+      setHookState({
+        role: null,
+        loading: false,
+        hasRole: false,
+        error: null,
+      });
+      return;
+    }
     if (fetching.current || hookState.loading || hookState.role === role) {
       return;
     }
@@ -63,7 +74,14 @@ export function useHasRole(role: string) {
     } finally {
       fetching.current = false;
     }
-  }, [fetchHasRole, hookState.loading, hookState.role, role, slashAuthClient]);
+  }, [
+    fetchHasRole,
+    hookState.loading,
+    hookState.role,
+    isAuthenticated,
+    role,
+    slashAuthClient,
+  ]);
 
   return {
     ...hookState,

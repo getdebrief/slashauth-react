@@ -1,5 +1,6 @@
 import { useState, useCallback, useEffect, useRef } from 'react';
 import { useCoreClient } from '../ui/context/slashauth-client';
+import { useIsAuthenticated } from './useIsAuthenticated';
 
 type HasOrgRoleArgs = {
   organizationID: string;
@@ -24,6 +25,7 @@ export function useHasOrgRole({ organizationID, role }: HasOrgRoleArgs) {
     hasOrgRole: false,
     error: null,
   });
+  const isAuthenticated = useIsAuthenticated();
 
   const fetchHasOrgRole = useCallback(async () => {
     setHookState((prevState) => {
@@ -55,6 +57,16 @@ export function useHasOrgRole({ organizationID, role }: HasOrgRoleArgs) {
   }, [organizationID, role, slashAuthClient]);
 
   useEffect(() => {
+    if (!isAuthenticated) {
+      setHookState({
+        organizationID: null,
+        role: null,
+        loading: false,
+        hasOrgRole: false,
+        error: null,
+      });
+      return;
+    }
     if (
       fetching.current ||
       hookState.loading ||
@@ -85,6 +97,7 @@ export function useHasOrgRole({ organizationID, role }: HasOrgRoleArgs) {
     organizationID,
     role,
     slashAuthClient,
+    isAuthenticated,
   ]);
 
   return {
