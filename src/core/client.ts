@@ -1042,7 +1042,7 @@ export default class SlashAuthClient {
         ...params,
         audience: 'default',
         grant_type: 'refresh_token',
-        scpoe: this.defaultScope,
+        scope: this.defaultScope,
         baseUrl: this.domainUrl,
         timeout: this.httpTimeoutMs,
         slashAuthClient: DEFAULT_SLASHAUTH_CLIENT,
