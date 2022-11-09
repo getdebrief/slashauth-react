@@ -254,7 +254,15 @@ export class Web3Manager {
         );
       }
       this.#client = this.#config.wagmiOptions.wagmiClient as WagmiClient;
-      this.#connectors = this.#client.connectors;
+
+      // Show our four default connectors if only an injected connector is passed in
+      // (this is wagmi's default when no connectors are passed into the wagmi client)
+      if (
+        this.#client.connectors.length !== 1 ||
+        this.#client.connectors[0].id !== 'injected'
+      ) {
+        this.#connectors = this.#client.connectors;
+      }
     } else {
       this.#client = createClient({
         autoConnect,
