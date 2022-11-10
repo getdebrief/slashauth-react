@@ -21,6 +21,15 @@ straightforward as possible.
 
 ### Fixed
 
+## [0.11.3] - 2020-11-9
+
+### Added
+
+### Changed
+
+### Fixed
+- Set default connectors when a user passes in a wagmiClient with no connectors.
+
 ## [0.11.0] - 2020-10-24
 
 ### Added
