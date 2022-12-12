@@ -41,6 +41,9 @@ export interface SlashAuthLoginMethodConfig {
     magicLink?: {
       enabled: boolean;
     };
+    google?: {
+      enabled: boolean;
+    };
   };
 }
 

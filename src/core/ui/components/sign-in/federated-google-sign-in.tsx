@@ -42,7 +42,7 @@ export const FederatedGoogleSignIn = () => {
   }, []);
 
   return (
-    <Flow.Part part="emailLink">
+    <Flow.Part part="federatedGoogle">
       <SignInCard showBackButton>
         <div
           style={{
