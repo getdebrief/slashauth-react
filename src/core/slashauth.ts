@@ -351,6 +351,13 @@ export class SlashAuth {
         });
       }
     }
+    // TODO: Add check from backend response one implemented
+    resp.push({
+      id: 'federated-google',
+      type: LoginMethodType.FederatedGoogle,
+      name: 'Google',
+      ready: true,
+    });
     return resp;
   };
 }

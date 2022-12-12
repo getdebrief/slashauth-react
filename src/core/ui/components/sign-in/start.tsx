@@ -78,8 +78,12 @@ const _SignInStart = ({ showAllWallets, showBackButton }: Props) => {
             await navigate(location);
           }
         } else {
-          // Handle web2 login here.
-          navigate('./magic-link');
+          if (loginMethod.type === LoginMethodType.MagicLink) {
+            // Handle web2 login here.
+            navigate('./magic-link');
+          } else if (loginMethod.type === LoginMethodType.FederatedGoogle) {
+            navigate('./federated-google');
+          }
         }
       } finally {
         setConnecting(false);

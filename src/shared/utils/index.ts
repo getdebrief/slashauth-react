@@ -17,6 +17,8 @@ type MessageTypes = {
   responseTypes: string[];
 };
 
+type PopupMessageTypes = Pick<MessageTypes, 'responseTypes'>;
+
 type WalletLoginPayload = {
   address: string;
   signature: string;
@@ -25,6 +27,111 @@ type WalletLoginPayload = {
 
 type MagicLinkLoginPayload = {
   email: string;
+};
+
+export const runLoginPopup = async (
+  loginUrl: string,
+  eventOrigin: string,
+  messageTypes: PopupMessageTypes,
+  sessionId: string
+): Promise<AuthenticationResult> => {
+  return new Promise<AuthenticationResult>((res, rej) => {
+    const popup = window.open(loginUrl, '_blank');
+    // eslint-disable-next-line prefer-const
+    const closeInterval = setTimeout(() => {
+      if (popup.closed) {
+        closePopup();
+      }
+    }, 500);
+    // eslint-disable-next-line prefer-const
+    let popupEventHandler: (e: MessageEvent) => void;
+    const closePopup = () => {
+      clearTimeout(closeInterval);
+      if (popup && !popup.closed) {
+        popup.close();
+      }
+      window.removeEventListener('message', popupEventHandler, false);
+    };
+
+    // NOTE: We use the suffix here because Google redirects are not specific
+    // to the child subdomain. This is because a redirect URI to Google must
+    // be exact (e.g. we couldn't do like https://*.slashauth.com). Thus
+    // there is no way to have the origin equal the actual domain. Instead
+    // we create the naked domain here as best we can.
+    const originParts = eventOrigin.split('.');
+    originParts.splice(0, 1);
+    const originSuffix = originParts.join('.').toLowerCase();
+
+    popupEventHandler = function (e: MessageEvent) {
+      if (!e.origin.toLowerCase().endsWith(originSuffix)) {
+        return;
+      }
+
+      if (!e.data || !messageTypes.responseTypes.includes(e.data.type)) {
+        return;
+      }
+
+      if (e.data.response?.success) {
+        if (e.data.type === 'see_other') {
+          // We need to redirect to another page. We should do this via a fetch request.
+          fetch(e.data.response.data.uri, {
+            method: 'GET',
+            headers: {
+              'Content-Type': 'application/json',
+              Accept: 'application/json',
+              'X-Slashauth-Session': sessionId,
+            },
+          })
+            .then((resp) => {
+              if (!resp.ok) {
+                // If the response is bad we need to do something with an error message.
+                rej(
+                  GenericError.fromPayload({
+                    error: 'unknown_error',
+                    error_description: 'Failed to login with Google',
+                  })
+                );
+              } else {
+                resp
+                  .json()
+                  .then((respJson) => {
+                    res(respJson);
+                  })
+                  .catch(() => {
+                    rej(
+                      GenericError.fromPayload({
+                        error: 'incorrect_response',
+                        error_description: 'Response from API was not JSON',
+                      })
+                    );
+                  });
+              }
+            })
+            .catch((err) => {
+              console.error('Error logging in with Google: ', err);
+              rej(
+                GenericError.fromPayload({
+                  error: 'unknown_error',
+                  error_description: 'Failed to login with Google',
+                })
+              );
+            })
+            .finally(() => {
+              closePopup();
+            });
+        }
+      } else {
+        rej(
+          GenericError.fromPayload({
+            error: e.data.response.errorCode,
+            error_description: e.data.response.errorMsg,
+          })
+        );
+        closePopup();
+      }
+    };
+    window.addEventListener('message', popupEventHandler, false);
+  });
 };
 
 export const runLoginIframe = async (

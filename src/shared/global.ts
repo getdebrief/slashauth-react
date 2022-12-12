@@ -105,6 +105,9 @@ export interface MagicLinkLoginOptions extends BaseLoginOptions {
   email: string;
 }
 
+// eslint-disable-next-line @typescript-eslint/no-empty-interface
+export interface GoogleLoginOptions extends BaseLoginOptions {}
+
 export interface IdTokenSocials {
   google?: {
     email: string;

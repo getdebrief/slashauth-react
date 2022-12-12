@@ -1,5 +1,4 @@
 import { useSlashAuth } from '@slashauth/slashauth-react';
-import { useNetwork, useContractRead } from 'wagmi';
 
 import './App.css';
 import { useEffect, useRef } from 'react';
@@ -116,21 +115,8 @@ function App() {
     mountDropDown,
   } = context;
 
-  const network = useNetwork();
-  console.log(network);
   const ref = useRef(null);
 
-  const { data, isError, isLoading } = useContractRead({
-    addressOrName: '0xecb504d39723b0be0e3a9aa33d646642d1051ee1',
-    contractInterface: wagmigotchiABI,
-    functionName: 'getHunger',
-  });
-
-  console.log({
-    data,
-    isError,
-    isLoading,
-  });
   useEffect(() => {
     if (ref.current) mountDropDown(ref.current);
   }, [mountDropDown]);
