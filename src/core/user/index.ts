@@ -105,11 +105,11 @@ export class User {
           return LoginMethodType.Web3;
         case 'MagicLink':
           return LoginMethodType.MagicLink;
-        case 'Federated.Google':
+        case 'Federated:Google':
           return LoginMethodType.FederatedGoogle;
-        case 'Federated.Twitter':
+        case 'Federated:Twitter':
           return LoginMethodType.FederatedTwitter;
-        case 'Federated.Discord':
+        case 'Federated:Discord':
           return LoginMethodType.FederatedDiscord;
         default:
           return LoginMethodType.Unknown;

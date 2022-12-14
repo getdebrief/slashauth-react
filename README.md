@@ -39,11 +39,14 @@ import ReactDOM from 'react-dom/client';
 import './index.css';
 import App from './App';
 import { SlashAuthProvider } from '@slashauth/slashauth-react';
-import { configureChains, defaultChains, createClient, chain } from 'wagmi';
+import { configureChains, createClient, chain } from 'wagmi';
+import { mainnet, goerli } from 'wagmi/chains'
 
 const root = ReactDOM.createRoot(
   document.getElementById('root') as HTMLElement
 );
+
+const defaultChains = [mainnet, goerli]
 
 const { chains, provider } = configureChains(
   defaultChains,

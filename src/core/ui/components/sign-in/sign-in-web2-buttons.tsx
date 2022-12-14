@@ -41,6 +41,7 @@ export const SignInWeb2Buttons = ({ onClick }: Props) => {
         {web2LoginMethods.map((meth) => {
           return (
             <Web2LoginButton
+              key={meth.id}
               loginMethod={meth}
               onClick={onClick}
               display={'icon'}

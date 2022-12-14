@@ -17,6 +17,7 @@ import { Flow } from '../flow/flow';
 import { ModalContent } from '../modal/modal-content';
 import { ComponentContext, useSignInContext } from './context';
 import { SignInError } from './error';
+import { FederatedGoogleSignIn } from './federated-google-sign-in';
 import { MagicLinkSignIn } from './magic-link-sign-in';
 import { SignNonce } from './sign-nonce';
 import { SignInStart } from './start';
@@ -88,6 +89,14 @@ function SignInRoutes(): JSX.Element {
           ready: true,
         });
       }
+      if (loginMethodConfigOverride.web2.google?.enabled) {
+        resp.push({
+          id: 'federated-google',
+          type: LoginMethodType.FederatedGoogle,
+          name: 'Google',
+          ready: true,
+        });
+      }
     }
     return resp;
   }, [
@@ -146,6 +155,9 @@ function SignInRoutes(): JSX.Element {
               </Route>
               <Route path="magic-link">
                 <MagicLinkSignIn />
+              </Route>
+              <Route path="federated-google">
+                <FederatedGoogleSignIn />
               </Route>
               <Route index>
                 <SignInStart />

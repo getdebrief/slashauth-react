@@ -350,6 +350,14 @@ export class SlashAuth {
           ready: true,
         });
       }
+      if (this.#modalConfig.loginMethods.web2.google?.enabled) {
+        resp.push({
+          id: 'federated-google',
+          type: LoginMethodType.FederatedGoogle,
+          name: 'Google',
+          ready: true,
+        });
+      }
     }
     return resp;
   };

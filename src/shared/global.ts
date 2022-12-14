@@ -24,6 +24,11 @@ export class Account {
     default?: string;
     allEmails?: string[];
   };
+  socials?: {
+    google?: {
+      email?: string;
+    };
+  };
 }
 
 // eslint-disable-next-line @typescript-eslint/no-empty-interface
@@ -104,6 +109,9 @@ export interface LoginNoRedirectNoPopupOptions extends BaseLoginOptions {
 export interface MagicLinkLoginOptions extends BaseLoginOptions {
   email: string;
 }
+
+// eslint-disable-next-line @typescript-eslint/no-empty-interface
+export interface GoogleLoginOptions extends BaseLoginOptions {}
 
 export interface IdTokenSocials {
   google?: {

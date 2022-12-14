@@ -5,7 +5,6 @@ import {
   ChainProviderFn,
   configureChains,
   Connector,
-  defaultChains,
 } from 'wagmi';
 import { alchemyProvider } from '@wagmi/core/providers/alchemy';
 import { infuraProvider } from '@wagmi/core/providers/infura';
@@ -14,6 +13,7 @@ import { CoinbaseWalletConnector } from '@wagmi/core/connectors/coinbaseWallet';
 import { MetaMaskConnector } from '@wagmi/core/connectors/metaMask';
 import { WalletConnectConnector } from '@wagmi/core/connectors/walletConnect';
 import { Signer } from 'ethers';
+import { mainnet, goerli } from 'wagmi/chains';
 import { WagmiOptions } from '../../types/slashauth';
 
 export type Web3ManagerEventType =
@@ -35,6 +35,8 @@ type Config = {
     disable: boolean;
   };
 };
+
+const defaultChains = [mainnet, goerli];
 
 type WagmiClient = Client;
 

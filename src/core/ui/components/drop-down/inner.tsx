@@ -52,7 +52,12 @@ export const Inner = ({ context }: Props) => {
         return [address, walletDisplay];
       }
     }
-    if (loginType === LoginMethodType.MagicLink && loginIdentifier) {
+    if (
+      [LoginMethodType.MagicLink, LoginMethodType.FederatedGoogle].includes(
+        loginType
+      ) &&
+      loginIdentifier
+    ) {
       const emailParts = loginIdentifier.split('@');
       if (emailParts.length === 1) {
         // There is `@` in the email so we can't shorten it.
@@ -194,10 +199,10 @@ export const Inner = ({ context }: Props) => {
             <span
               className={classNames(
                 styles.connectedAccount,
-                !user.socials?.twitter.handle && styles.action
+                !user.socials?.twitter?.handle && styles.action
               )}
             >
-              {user.socials?.twitter.handle || '+ Connect Twitter'}
+              {user.socials?.twitter?.handle || '+ Connect Twitter'}
             </span>
           </div>
         )}
@@ -223,10 +228,10 @@ export const Inner = ({ context }: Props) => {
             <span
               className={classNames(
                 styles.connectedAccount,
-                !user.socials?.google.email && styles.action
+                !user.socials?.google?.email && styles.action
               )}
             >
-              {user.socials?.google.email || '+ Connect Google Account'}
+              {user.socials?.google?.email || '+ Connect Google Account'}
             </span>
           </div>
         )}

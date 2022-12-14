@@ -1,4 +1,5 @@
 import { LoginMethod, LoginMethodType } from '../../context/login-methods';
+import { FederatedGoogleConnectorButton } from './federated-google-login-button';
 import { MagicLinkConnectorButton } from './magic-link-login-button';
 
 type Props = {
@@ -12,6 +13,13 @@ export const Web2LoginButton = ({ loginMethod, display, onClick }: Props) => {
     case LoginMethodType.MagicLink:
       return (
         <MagicLinkConnectorButton
+          onClick={() => onClick(loginMethod)}
+          display={display}
+        />
+      );
+    case LoginMethodType.FederatedGoogle:
+      return (
+        <FederatedGoogleConnectorButton
           onClick={() => onClick(loginMethod)}
           display={display}
         />
