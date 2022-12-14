@@ -24,6 +24,11 @@ export class Account {
     default?: string;
     allEmails?: string[];
   };
+  socials?: {
+    google?: {
+      email?: string;
+    };
+  };
 }
 
 // eslint-disable-next-line @typescript-eslint/no-empty-interface

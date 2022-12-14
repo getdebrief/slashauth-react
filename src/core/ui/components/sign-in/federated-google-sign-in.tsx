@@ -6,8 +6,10 @@ import { useCoreClient } from '../../context/slashauth-client';
 import { useRouter } from '../../router/context';
 import { useSignInContext } from './context';
 import { useInteraction } from '../../context/interaction';
+import { useCoreSlashAuth } from '../../context/core-slashauth';
 
 export const FederatedGoogleSignIn = () => {
+  const slashAuth = useCoreSlashAuth();
   const { setProcessing } = useInteraction();
   const { connectAccounts } = useSignInContext();
   const { navigate } = useRouter();
@@ -20,12 +22,20 @@ export const FederatedGoogleSignIn = () => {
         connectAccounts,
       })
       .then((resp) => {
-        navigate('../success');
+        slashAuth
+          .checkLoginState()
+          .then(() => {
+            navigate('../success');
+          })
+          .catch((err) => {
+            setError(err.toString());
+          })
+          .finally(() => {
+            setProcessing(false);
+          });
       })
       .catch((err) => {
         setError(err);
-      })
-      .finally(() => {
         setProcessing(false);
       });
     setProcessing(true);

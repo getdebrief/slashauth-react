@@ -52,7 +52,12 @@ export const Inner = ({ context }: Props) => {
         return [address, walletDisplay];
       }
     }
-    if (loginType === LoginMethodType.MagicLink && loginIdentifier) {
+    if (
+      [LoginMethodType.MagicLink, LoginMethodType.FederatedGoogle].includes(
+        loginType
+      ) &&
+      loginIdentifier
+    ) {
       const emailParts = loginIdentifier.split('@');
       if (emailParts.length === 1) {
         // There is `@` in the email so we can't shorten it.
