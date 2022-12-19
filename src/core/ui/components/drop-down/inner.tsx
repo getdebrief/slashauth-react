@@ -165,6 +165,7 @@ export const Inner = ({ context }: Props) => {
         )}
         {authSettings.availableWeb3LoginMethods.length > 0 &&
           user.wallet &&
+          user.rawWallet.walletTypeMap &&
           user.rawWallet.walletTypeMap[user.wallet] === 'managed_wallet' && (
             <div
               className={styles.connectedAccountRow}
