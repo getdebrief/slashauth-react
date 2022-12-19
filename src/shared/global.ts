@@ -19,6 +19,7 @@ export class Account {
   wallet?: {
     default?: string;
     allWallets?: string[];
+    walletTypeMap?: Map<string, string>;
   };
   email?: {
     default?: string;
@@ -164,6 +165,7 @@ export interface IdToken {
   wallet?: {
     default: string;
     allWallets: string[];
+    walletTypeMap: Map<string, string>;
   };
   email?: {
     default: string;

@@ -163,6 +163,21 @@ export const Inner = ({ context }: Props) => {
             </span>
           </div>
         )}
+        {authSettings.availableWeb3LoginMethods.length > 0 &&
+          user.wallet &&
+          user.rawWallet.walletTypeMap[user.wallet] === 'managed_wallet' && (
+            <div
+              className={styles.connectedAccountRow}
+              onClick={() => handleConnectClick([LoginMethodType.Web3])}
+            >
+              <Icon style={{ height: '20px', width: '20px' }}>{EthLogo}</Icon>
+              <span
+                className={classNames(styles.connectedAccount, styles.action)}
+              >
+                {'+ Connect Wallet'}
+              </span>
+            </div>
+          )}
         {!!web2LoginMethods.find(
           (lm) => lm.type === LoginMethodType.MagicLink
         ) && (
