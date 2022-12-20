@@ -70,3 +70,7 @@
   color: blue;
   cursor: pointer;
 }
+
+.managedWallet {
+  opacity: 40%;
+}

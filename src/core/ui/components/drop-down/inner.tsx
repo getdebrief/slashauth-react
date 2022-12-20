@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { ScaleLoader } from 'react-spinners';
+import ReactTooltip from 'react-tooltip';
 import { shortenEthAddress } from '../../../../shared/utils/eth';
 import { profilePicturePlaceholder } from './icons/profilePicturePlaceholder';
 import { chevronDown } from './icons/chevronDown';
@@ -17,10 +18,12 @@ import { SlashAuth } from '../../../slashauth';
 import { classNames } from '../../../../shared/utils/classnames';
 import { twitterIcon } from './icons/twitterIcon';
 import { MailIcon } from '@heroicons/react/outline';
+import { QuestionMarkCircleIcon } from '@heroicons/react/solid';
 import { LoginMethodType } from '../../context/login-methods';
 import { useEnvironment } from '../../context/environment';
 import { User } from '../../../user';
 import { EthLogo } from '../icon/ethereum-eth-logo';
+import { WalletConnectLogo } from '../icon/wallet-connect-logo';
 import { MANAGED_WALLET } from '../../../../shared/constants';
 
 const MANAGE_ACCOUNT_ENABLED = false;
@@ -131,6 +134,11 @@ export const Inner = ({ context }: Props) => {
       return <div />;
     }
 
+    const isManagedWallet =
+      user.wallet &&
+      user.rawWallet?.walletTypeMap &&
+      user.rawWallet.walletTypeMap[user.wallet] === MANAGED_WALLET;
+
     return (
       <Section>
         <div
@@ -155,30 +163,52 @@ export const Inner = ({ context }: Props) => {
             <span
               className={classNames(
                 styles.connectedAccount,
-                !user.wallet && styles.action
+                !user.wallet && styles.action,
+                isManagedWallet && styles.managedWallet
               )}
             >
               {user.wallet
                 ? shortenEthAddress(user.wallet)
                 : '+ Connect Wallet'}
             </span>
+            {isManagedWallet && (
+              <div
+                className="ml-1"
+                data-tip="Wallet managed by SlashAuth"
+                data-for="managed-wallet-tooltip"
+                data-iscapture="true"
+              >
+                <QuestionMarkCircleIcon
+                  style={{ width: 18, height: 18, color: '#6B7280' }}
+                />
+              </div>
+            )}
           </div>
         )}
-        {authSettings.availableWeb3LoginMethods.length > 0 &&
-          user.wallet &&
-          user.rawWallet.walletTypeMap &&
-          user.rawWallet.walletTypeMap[user.wallet] === MANAGED_WALLET && (
-            <div
-              className={styles.connectedAccountRow}
-              onClick={() => handleConnectClick([LoginMethodType.Web3])}
+        <ReactTooltip
+          multiline={true}
+          place="top"
+          type="dark"
+          effect="solid"
+          id="managed-wallet-tooltip"
+        ></ReactTooltip>
+
+        {authSettings.availableWeb3LoginMethods.length > 0 && isManagedWallet && (
+          <div
+            className={styles.connectedAccountRow}
+            onClick={() => handleConnectClick([LoginMethodType.Web3])}
+            style={{ paddingTop: '0px' }}
+          >
+            <Icon style={{ height: '20px', width: '20px' }}>
+              {WalletConnectLogo}
+            </Icon>
+            <span
+              className={classNames(styles.connectedAccount, styles.action)}
             >
-              <span
-                className={classNames(styles.connectedAccount, styles.action)}
-              >
-                {'+ Connect Personal Wallet'}
-              </span>
-            </div>
-          )}
+              {'+ Connect Personal Wallet'}
+            </span>
+          </div>
+        )}
         {!!web2LoginMethods.find(
           (lm) => lm.type === LoginMethodType.MagicLink
         ) && (
