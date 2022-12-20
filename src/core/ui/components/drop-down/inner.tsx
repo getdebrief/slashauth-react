@@ -21,6 +21,7 @@ import { LoginMethodType } from '../../context/login-methods';
 import { useEnvironment } from '../../context/environment';
 import { User } from '../../../user';
 import { EthLogo } from '../icon/ethereum-eth-logo';
+import { MANAGED_WALLET } from '../../../../shared/constants';
 
 const MANAGE_ACCOUNT_ENABLED = false;
 
@@ -166,16 +167,15 @@ export const Inner = ({ context }: Props) => {
         {authSettings.availableWeb3LoginMethods.length > 0 &&
           user.wallet &&
           user.rawWallet.walletTypeMap &&
-          user.rawWallet.walletTypeMap[user.wallet] === 'managed_wallet' && (
+          user.rawWallet.walletTypeMap[user.wallet] === MANAGED_WALLET && (
             <div
               className={styles.connectedAccountRow}
               onClick={() => handleConnectClick([LoginMethodType.Web3])}
             >
-              <Icon style={{ height: '20px', width: '20px' }}>{EthLogo}</Icon>
               <span
                 className={classNames(styles.connectedAccount, styles.action)}
               >
-                {'+ Connect Wallet'}
+                {'+ Connect Personal Wallet'}
               </span>
             </div>
           )}
