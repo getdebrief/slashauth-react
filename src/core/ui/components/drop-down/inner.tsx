@@ -43,6 +43,7 @@ type Props = {
 export const Inner = ({ context }: Props) => {
   const { authSettings } = useEnvironment();
   const [copySuccess, setCopySuccess] = useState(false);
+  const [copyCusodialSuccess, setCopyCusodialSuccess] = useState(false);
   const [isOpen, setIsOpen] = useState(false);
   const { isReady, logout, openSignIn, appName, user } = context;
 
@@ -172,16 +173,30 @@ export const Inner = ({ context }: Props) => {
                 : '+ Connect Wallet'}
             </span>
             {isManagedWallet && (
-              <div
-                className="ml-1"
-                data-tip="Wallet managed by SlashAuth"
-                data-for="managed-wallet-tooltip"
-                data-iscapture="true"
-              >
-                <QuestionMarkCircleIcon
-                  style={{ width: 18, height: 18, color: '#6B7280' }}
-                />
-              </div>
+              <>
+                <div
+                  className="ml-1"
+                  data-tip="Wallet managed by SlashAuth2"
+                  data-for="managed-wallet-tooltip"
+                  data-iscapture="true"
+                >
+                  <QuestionMarkCircleIcon
+                    style={{ width: 18, height: 18, color: '#6B7280' }}
+                  />
+                </div>
+                <div>
+                  <Icon
+                    style={{ marginLeft: 8, cursor: 'pointer' }}
+                    onClick={() => {
+                      navigator.clipboard.writeText(user.wallet);
+                      setCopyCusodialSuccess(true);
+                      setTimeout(() => setCopyCusodialSuccess(false), 2000);
+                    }}
+                  >
+                    {copyCusodialSuccess ? CheckMarkIcon : copyIcon}
+                  </Icon>
+                </div>
+              </>
             )}
           </div>
         )}
@@ -288,6 +303,7 @@ export const Inner = ({ context }: Props) => {
     authSettings.availableWeb3LoginMethods.length,
     handleConnectClick,
     user,
+    copyCusodialSuccess,
   ]);
 
   const loggedOutContent = (
