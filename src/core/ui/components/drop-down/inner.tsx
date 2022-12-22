@@ -24,7 +24,7 @@ import { useEnvironment } from '../../context/environment';
 import { User } from '../../../user';
 import { EthLogo } from '../icon/ethereum-eth-logo';
 import { WalletConnectLogo } from '../icon/wallet-connect-logo';
-import { EtherscanLogo } from '../icon/etherscan-logo';
+import { EtherscanLogo } from './icons/etherscan-logo';
 import { MANAGED_WALLET } from '../../../../shared/constants';
 
 const MANAGE_ACCOUNT_ENABLED = false;
