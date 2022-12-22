@@ -175,25 +175,30 @@ export const Inner = ({ context }: Props) => {
                 ? shortenEthAddress(user.wallet)
                 : '+ Connect Wallet'}
             </span>
-            <div data-tip="Check on Etherscan" data-for="etherscan-tooltip">
-              <Icon
-                style={{ marginLeft: 8, height: '18px', width: '18px' }}
-                onClick={() => {
-                  window.open(
-                    `https://etherscan.io/address/${user.wallet}`,
-                    '_blank'
-                  );
-                }}
-              >
-                {EtherscanLogo}
-              </Icon>
-            </div>
-            <ReactTooltip
-              place="top"
-              type="dark"
-              effect="solid"
-              id="etherscan-tooltip"
-            ></ReactTooltip>
+            {user.wallet && (
+              <>
+                <div data-tip="Check on Etherscan" data-for="etherscan-tooltip">
+                  <Icon
+                    style={{ marginLeft: 8, height: '18px', width: '18px' }}
+                    onClick={() => {
+                      window.open(
+                        `https://etherscan.io/address/${user.wallet}`,
+                        '_blank'
+                      );
+                    }}
+                  >
+                    {EtherscanLogo}
+                  </Icon>
+                </div>
+                <ReactTooltip
+                  place="top"
+                  type="dark"
+                  effect="solid"
+                  id="etherscan-tooltip"
+                ></ReactTooltip>
+              </>
+            )}
+
             {isManagedWallet && (
               <>
                 <div>
