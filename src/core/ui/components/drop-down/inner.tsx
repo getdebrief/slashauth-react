@@ -195,7 +195,7 @@ export const Inner = ({ context }: Props) => {
                   type="dark"
                   effect="solid"
                   id="etherscan-tooltip"
-                ></ReactTooltip>
+                />
               </>
             )}
 
@@ -222,7 +222,7 @@ export const Inner = ({ context }: Props) => {
                   type="dark"
                   effect="solid"
                   id="managed-wallet-tooltip"
-                ></ReactTooltip>
+                />
               </>
             )}
           </div>
