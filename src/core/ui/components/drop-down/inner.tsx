@@ -175,12 +175,30 @@ export const Inner = ({ context }: Props) => {
                 ? shortenEthAddress(user.wallet)
                 : '+ Connect Wallet'}
             </span>
+            <div data-tip="Check on Etherscan" data-for="etherscan-tooltip">
+              <Icon
+                style={{ marginLeft: 8, height: '18px', width: '18px' }}
+                onClick={() => {
+                  window.open(
+                    `https://etherscan.io/address/${user.wallet}`,
+                    '_blank'
+                  );
+                }}
+              >
+                {EtherscanLogo}
+              </Icon>
+            </div>
+            <ReactTooltip
+              place="top"
+              type="dark"
+              effect="solid"
+              id="etherscan-tooltip"
+            ></ReactTooltip>
             {isManagedWallet && (
               <>
                 <div>
                   <Icon
                     style={{
-                      marginLeft: 8,
                       cursor: 'pointer',
                       height: '18px',
                       width: '18px',
@@ -194,30 +212,11 @@ export const Inner = ({ context }: Props) => {
                     {copyCusodialSuccess ? CheckMarkIcon : copyIcon}
                   </Icon>
                 </div>
-                <div data-tip="Check on Etherscan" data-for="etherscan-tooltip">
-                  <Icon
-                    style={{ height: '18px', width: '18px' }}
-                    onClick={() => {
-                      window.open(
-                        `https://etherscan.io/address/${user.wallet}`,
-                        '_blank'
-                      );
-                    }}
-                  >
-                    {EtherscanLogo}
-                  </Icon>
-                </div>
                 <ReactTooltip
                   place="top"
                   type="dark"
                   effect="solid"
                   id="managed-wallet-tooltip"
-                ></ReactTooltip>
-                <ReactTooltip
-                  place="top"
-                  type="dark"
-                  effect="solid"
-                  id="etherscan-tooltip"
                 ></ReactTooltip>
               </>
             )}
