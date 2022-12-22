@@ -44,7 +44,8 @@ type Props = {
 export const Inner = ({ context }: Props) => {
   const { authSettings } = useEnvironment();
   const [copySuccess, setCopySuccess] = useState(false);
-  const [copyCusodialSuccess, setCopyCusodialSuccess] = useState(false);
+  const [copyManagedWalletSuccess, setCopyManagedWalletSuccess] =
+    useState(false);
   const [isOpen, setIsOpen] = useState(false);
   const { isReady, logout, openSignIn, appName, user } = context;
 
@@ -210,11 +211,14 @@ export const Inner = ({ context }: Props) => {
                     }}
                     onClick={() => {
                       navigator.clipboard.writeText(user.wallet);
-                      setCopyCusodialSuccess(true);
-                      setTimeout(() => setCopyCusodialSuccess(false), 2000);
+                      setCopyManagedWalletSuccess(true);
+                      setTimeout(
+                        () => setCopyManagedWalletSuccess(false),
+                        2000
+                      );
                     }}
                   >
-                    {copyCusodialSuccess ? CheckMarkIcon : copyIcon}
+                    {copyManagedWalletSuccess ? CheckMarkIcon : copyIcon}
                   </Icon>
                 </div>
                 <ReactTooltip
@@ -323,7 +327,7 @@ export const Inner = ({ context }: Props) => {
     authSettings.availableWeb3LoginMethods.length,
     handleConnectClick,
     user,
-    copyCusodialSuccess,
+    copyManagedWalletSuccess,
   ]);
 
   const loggedOutContent = (
