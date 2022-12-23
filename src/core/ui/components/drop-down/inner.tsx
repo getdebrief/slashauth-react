@@ -24,6 +24,7 @@ import { useEnvironment } from '../../context/environment';
 import { User } from '../../../user';
 import { EthLogo } from '../icon/ethereum-eth-logo';
 import { WalletConnectLogo } from '../icon/wallet-connect-logo';
+import { EtherscanLogo } from './icons/etherscan-logo';
 import { MANAGED_WALLET } from '../../../../shared/constants';
 
 const MANAGE_ACCOUNT_ENABLED = false;
@@ -43,6 +44,8 @@ type Props = {
 export const Inner = ({ context }: Props) => {
   const { authSettings } = useEnvironment();
   const [copySuccess, setCopySuccess] = useState(false);
+  const [copyManagedWalletSuccess, setCopyManagedWalletSuccess] =
+    useState(false);
   const [isOpen, setIsOpen] = useState(false);
   const { isReady, logout, openSignIn, appName, user } = context;
 
@@ -166,32 +169,68 @@ export const Inner = ({ context }: Props) => {
                 !user.wallet && styles.action,
                 isManagedWallet && styles.managedWallet
               )}
+              data-tip="Wallet managed by SlashAuth"
+              data-for="managed-wallet-tooltip"
             >
               {user.wallet
                 ? shortenEthAddress(user.wallet)
                 : '+ Connect Wallet'}
             </span>
-            {isManagedWallet && (
-              <div
-                className="ml-1"
-                data-tip="Wallet managed by SlashAuth"
-                data-for="managed-wallet-tooltip"
-                data-iscapture="true"
-              >
-                <QuestionMarkCircleIcon
-                  style={{ width: 18, height: 18, color: '#6B7280' }}
+            {user.wallet && (
+              <>
+                <div data-tip="Check on Etherscan" data-for="etherscan-tooltip">
+                  <Icon
+                    style={{ marginLeft: 8, height: '18px', width: '18px' }}
+                    onClick={() => {
+                      window.open(
+                        `https://etherscan.io/address/${user.wallet}`,
+                        '_blank'
+                      );
+                    }}
+                  >
+                    {EtherscanLogo}
+                  </Icon>
+                </div>
+                <ReactTooltip
+                  place="top"
+                  type="dark"
+                  effect="solid"
+                  id="etherscan-tooltip"
                 />
-              </div>
+              </>
+            )}
+
+            {isManagedWallet && (
+              <>
+                <div>
+                  <Icon
+                    style={{
+                      cursor: 'pointer',
+                      height: '18px',
+                      width: '18px',
+                    }}
+                    onClick={() => {
+                      navigator.clipboard.writeText(user.wallet);
+                      setCopyManagedWalletSuccess(true);
+                      setTimeout(
+                        () => setCopyManagedWalletSuccess(false),
+                        2000
+                      );
+                    }}
+                  >
+                    {copyManagedWalletSuccess ? CheckMarkIcon : copyIcon}
+                  </Icon>
+                </div>
+                <ReactTooltip
+                  place="top"
+                  type="dark"
+                  effect="solid"
+                  id="managed-wallet-tooltip"
+                />
+              </>
             )}
           </div>
         )}
-        <ReactTooltip
-          multiline={true}
-          place="top"
-          type="dark"
-          effect="solid"
-          id="managed-wallet-tooltip"
-        ></ReactTooltip>
 
         {authSettings.availableWeb3LoginMethods.length > 0 && isManagedWallet && (
           <div
@@ -288,6 +327,7 @@ export const Inner = ({ context }: Props) => {
     authSettings.availableWeb3LoginMethods.length,
     handleConnectClick,
     user,
+    copyManagedWalletSuccess,
   ]);
 
   const loggedOutContent = (
