@@ -19,6 +19,15 @@ straightforward as possible.
 
 ### Changed
 
+### Fixed
+
+## [0.14.0] - 2023-01-09
+
+### Added
+
+### Changed
+
+- Replaced loader with a new design
 - Updated README by replacing `loginNoRedirectNoPopup` with `openSignIn`
 - Updated tests by replacing `loginNoRedirectNoPopup` with `openSignIn`
 
