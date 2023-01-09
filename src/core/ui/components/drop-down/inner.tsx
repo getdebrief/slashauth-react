@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { ScaleLoader } from 'react-spinners';
+import { Loader } from '../primitives/loader';
 import ReactTooltip from 'react-tooltip';
 import { shortenEthAddress } from '../../../../shared/utils/eth';
 import { profilePicturePlaceholder } from './icons/profilePicturePlaceholder';
@@ -18,7 +18,6 @@ import { SlashAuth } from '../../../slashauth';
 import { classNames } from '../../../../shared/utils/classnames';
 import { twitterIcon } from './icons/twitterIcon';
 import { MailIcon } from '@heroicons/react/outline';
-import { QuestionMarkCircleIcon } from '@heroicons/react/solid';
 import { LoginMethodType } from '../../context/login-methods';
 import { useEnvironment } from '../../context/environment';
 import { User } from '../../../user';
@@ -409,7 +408,7 @@ export const Inner = ({ context }: Props) => {
     return hashDisplayElement;
   }, [copySuccess, loggedInButtonDisplay, loggedInCopyText, user]);
 
-  if (!isReady()) return <ScaleLoader height={35} width={4} />;
+  if (!isReady()) return <Loader size={8} color="black" />;
   const loggedInContent = (
     <>
       <Section style={{ borderTop: 'none' }}>{loggedInHeaderContent}</Section>
