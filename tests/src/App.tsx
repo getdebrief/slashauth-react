@@ -110,7 +110,7 @@ function App() {
     initialized,
     isAuthenticated,
     logout,
-    loginNoRedirectNoPopup,
+    openSignIn,
     connect,
     mountDropDown,
   } = context;
@@ -148,7 +148,7 @@ function App() {
         {!isAuthenticated && (
           <button
             onClick={() => {
-              loginNoRedirectNoPopup();
+              openSignIn();
             }}
           >
             Open sign in
