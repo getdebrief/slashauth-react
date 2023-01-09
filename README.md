@@ -96,17 +96,17 @@ Congratulations! Your app is now connected to /auth.
 
 ### Add login with wallet
 
-The /auth SDK gives you tools to quickly implement authentication via Metamask wallet in your React application. The simplest implementation is to log the user in directly in their browser. We use the function loginNoRedirectNoPopup() from the useSlashAuth() hook to accomplish this.
+The /auth SDK gives you tools to quickly implement authentication via Metamask wallet in your React application. The simplest implementation is to log the user in directly in their browser. We use the function openSignIn() from the useSlashAuth() hook to accomplish this.
 
 ```tsx
 // file:LoginButton.tsx
 import { useSlashAuth } from '@slashauth/slashauth-react';
 
 export const LoginButton = () => {
-  const { loginNoRedirectNoPopup } = useSlashAuth();
+  const { openSignIn } = useSlashAuth();
 
   return (
-    <button className="login-button" onClick={() => loginNoRedirectNoPopup()}>
+    <button className="login-button" onClick={() => openSignIn()}>
       Login With Wallet
     </button>
   );

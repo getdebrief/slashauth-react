@@ -261,7 +261,6 @@ const emptyContext = {
   hasOrgRole: uninitializedStub,
   getRoleMetadata: uninitializedStub,
   getTokens: uninitializedStub,
-  loginNoRedirectNoPopup: uninitializedStub,
   openSignIn: uninitializedStub,
   logout: uninitializedStub,
   getIdTokenClaims: uninitializedStub,

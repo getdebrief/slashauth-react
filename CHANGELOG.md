@@ -19,6 +19,9 @@ straightforward as possible.
 
 ### Changed
 
+- Updated README by replacing `loginNoRedirectNoPopup` with `openSignIn`
+- Updated tests by replacing `loginNoRedirectNoPopup` with `openSignIn`
+
 ### Fixed
 
 ## [0.11.3] - 2020-11-9
@@ -28,6 +31,7 @@ straightforward as possible.
 ### Changed
 
 ### Fixed
+
 - Set default connectors when a user passes in a wagmiClient with no connectors.
 
 ## [0.11.0] - 2020-10-24
