@@ -1,5 +1,5 @@
-import { ScaleLoader } from 'react-spinners';
 import { useAppearance } from '../../context/appearance';
+import { Loader } from '../primitives/loader';
 
 type Props = {
   textContent?: string;
@@ -32,11 +32,7 @@ export const LoadingModalContents = ({ textContent }: Props) => {
           {textContent}
         </h2>
       ) : null}
-      <ScaleLoader
-        height={35}
-        width={4}
-        color={appearance.modalStyle.fontColor}
-      />
+      <Loader color={appearance.modalStyle.fontColor} size={14} />
     </div>
   );
 };

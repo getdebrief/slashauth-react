@@ -115,7 +115,6 @@
     "os-browserify": "^0.3.0",
     "promise-polyfill": "8.2.3",
     "react-animate-height": "^3.0.4",
-    "react-spinners": "^0.13.4",
     "react-tooltip": "^4.2.21",
     "react-transition-group": "^4.4.5",
     "stream-browserify": "^3.0.0",
