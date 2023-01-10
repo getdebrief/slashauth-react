@@ -1,5 +1,9 @@
 import { useState } from 'react';
 import { useAppearance } from '../../context/appearance';
+import { classNames } from '../../../../shared/utils/classnames';
+import { HighlightedIcon } from './icon';
+import { Flex } from './container';
+import styles from './button.module.css';
 
 type Props = {
   children: React.ReactNode;
@@ -71,3 +75,40 @@ export const SecondaryButton = ({ children, onClick }: Props) => {
     </button>
   );
 };
+
+interface BaseButtonProps
+  extends React.ButtonHTMLAttributes<HTMLButtonElement> {
+  padding?: number;
+  wide?: boolean;
+  primary?: boolean;
+  children: React.ReactNode;
+}
+
+export const BaseButton = ({
+  padding,
+  wide,
+  primary,
+  children,
+  ...props
+}: BaseButtonProps) => (
+  <button
+    {...props}
+    style={{ padding: padding }}
+    className={classNames(
+      styles.baseButton,
+      wide && styles.wide,
+      primary && styles.primaryButton
+    )}
+  >
+    {children}
+  </button>
+);
+
+export const ButtonWithIcon = ({ icon, children }) => (
+  <BaseButton wide padding={12}>
+    <Flex gap={17} alignItems="center">
+      <HighlightedIcon>{icon}</HighlightedIcon>
+      {children}
+    </Flex>
+  </BaseButton>
+);

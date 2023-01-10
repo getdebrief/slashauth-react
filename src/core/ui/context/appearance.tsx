@@ -12,7 +12,7 @@ const DEFAULT_MODAL_STYLES: ComputedSlashAuthModalStyle = {
   backgroundColor: '#ffffff',
   buttonBackgroundColor: '#ffffff',
   hoverButtonBackgroundColor: '#f5f5f5',
-  borderRadius: '8px',
+  borderRadius: '22px',
   fontFamily: 'sans-serif',
   fontColor: '#000000',
   alignItems: 'center',
@@ -30,12 +30,20 @@ type AppearanceProviderProps = React.PropsWithChildren<SlashAuthStyle>;
 
 const AppearanceProvider = (props: AppearanceProviderProps) => {
   const ctxValue = useDeepEqualMemo(() => {
+    const theme = {
+      ...DEFAULT_MODAL_STYLES,
+      ...props.signInModalStyle,
+      testColor: 'red',
+    };
+
+    const root = document.documentElement;
+    Object.keys(theme).forEach((key) => {
+      root.style.setProperty(`--slashauth-${key}`, theme[key]);
+    });
+
     return {
       value: {
-        modalStyle: {
-          ...DEFAULT_MODAL_STYLES,
-          ...props.signInModalStyle,
-        },
+        modalStyle: theme,
       },
     };
   }, [props.signInModalStyle]);
