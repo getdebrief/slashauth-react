@@ -6,27 +6,35 @@ const Wrapper = ({ children }) => (
   <header className={styles.wrapper}>{children}</header>
 );
 
+Wrapper.displayName = 'Header.Wrapper';
+
 const Title = <C extends React.ElementType>({
-  as,
+  component,
   children,
 }: {
-  as?: C;
+  component?: C;
   children: React.ReactNode;
 }) => {
-  const Element = as ?? 'span';
+  const Element = component ?? 'span';
 
   return <Element className={styles.title}>{children}</Element>;
 };
 
+Title.displayName = 'Header.Title';
+
 const Description = ({ children }) => (
   <span className={styles.description}>{children}</span>
 );
+
+Description.displayName = 'Header.Description';
 
 const Logo = ({ url, alt }) => (
   <span className={styles.logo}>
     <img src={url} alt={alt} />
   </span>
 );
+
+Logo.displayName = 'Header.Logo';
 
 export const Header = ({
   title,
@@ -47,7 +55,7 @@ export const Header = ({
           <Description>{description}</Description>
         </h1>
       ) : (
-        <Title as="h1">{title}</Title>
+        <Title component="h1">{title}</Title>
       )}
     </Wrapper>
   );
