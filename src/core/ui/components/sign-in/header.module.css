@@ -1,0 +1,39 @@
+.wrapper {
+  display: flex;
+  flex-direction: column;
+  padding: 28px;
+  padding-top: 32px;
+  gap: 16px;
+  background-color: var(--slashauth-headerBackgroundColor, #F3F4F6);
+}
+
+.logo {
+  height: 24px;
+  width: auto;
+  margin: auto;
+}
+
+.logo img {
+  height: 100%;
+  width: auto;
+}
+
+.title {
+  display: block;
+  text-align: center;
+  font-weight: 500;
+  font-size: 24px;
+  line-height: 30px;
+  color: var(--slashauth-headerFontColor, #363849);
+  margin: 0;
+}
+
+.description {
+  display: block;
+  text-align: center;
+  font-weight: 500;
+  font-size: 16px;
+  line-height: 22px;
+  color: var(--slashauth-headerFontColor, #363849);
+  margin-top: 8px;
+}
