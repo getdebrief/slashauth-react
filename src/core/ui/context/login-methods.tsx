@@ -22,7 +22,7 @@ export type LoginMethod = {
   type: LoginMethodType;
 };
 
-export const getWeb3IconsById = (id: string) => {
+export const getIconsById = (id: string) => {
   switch (id) {
     case 'metaMask':
       return 'https://d1l2xccggl7xwv.cloudfront.net/icons/metamask.png';
@@ -30,6 +30,8 @@ export const getWeb3IconsById = (id: string) => {
       return 'https://d1l2xccggl7xwv.cloudfront.net/icons/coinbase.png';
     case 'walletConnect':
       return 'https://d1l2xccggl7xwv.cloudfront.net/icons/wallet-connect.png';
+    case 'federated-google':
+      return 'https://d1l2xccggl7xwv.cloudfront.net/icons/google.png';
     default:
       return 'https://d1l2xccggl7xwv.cloudfront.net/icons/slashauth-dark.png';
   }
@@ -127,14 +129,16 @@ const useLoginMethods = () => {
   const web2 = useMemo(() => {
     const loggedInMethods = user?.loginMethods || [];
 
-    return loginMethods.filter(
-      (m) =>
-        m.type !== LoginMethodType.Web3 &&
-        (viewOnly || !loggedInMethods.includes(m.type)) &&
-        (!excludeLoginMethodTypes ||
-          !excludeLoginMethodTypes.includes(m.type)) &&
-        (!includeLoginMethodTypes || includeLoginMethodTypes.includes(m.type))
-    ) as unknown as LoginMethod[];
+    return loginMethods
+      .filter((m) => m.id !== 'magic-link')
+      .filter(
+        (m) =>
+          m.type !== LoginMethodType.Web3 &&
+          (viewOnly || !loggedInMethods.includes(m.type)) &&
+          (!excludeLoginMethodTypes ||
+            !excludeLoginMethodTypes.includes(m.type)) &&
+          (!includeLoginMethodTypes || includeLoginMethodTypes.includes(m.type))
+      ) as unknown as LoginMethod[];
   }, [
     loginMethods,
     excludeLoginMethodTypes,

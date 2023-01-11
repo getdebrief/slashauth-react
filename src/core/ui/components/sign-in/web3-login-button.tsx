@@ -1,5 +1,5 @@
 import { useMemo } from 'react';
-import { getWeb3IconsById, Web3LoginMethod } from '../../context/login-methods';
+import { getIconsById, Web3LoginMethod } from '../../context/login-methods';
 import { AbstractConnectorButton } from './abstract-login-button';
 import { useSignInContext } from './context';
 
@@ -11,10 +11,7 @@ type Props = {
 export const WalletConnectorButton = ({ loginMethod, onClick }: Props) => {
   const { walletConnectOnly } = useSignInContext();
 
-  const icon = useMemo(
-    () => getWeb3IconsById(loginMethod.id),
-    [loginMethod.id]
-  );
+  const icon = useMemo(() => getIconsById(loginMethod.id), [loginMethod.id]);
 
   return (
     <AbstractConnectorButton onClick={onClick} disabled={!loginMethod.ready}>
