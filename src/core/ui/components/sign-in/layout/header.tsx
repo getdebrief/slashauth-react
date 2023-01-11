@@ -1,5 +1,5 @@
 import styles from './header.module.css';
-import { useAppearance } from '../../context/appearance';
+import { useAppearance } from '../../../context/appearance';
 import React from 'react';
 
 const Wrapper = ({ children }) => (

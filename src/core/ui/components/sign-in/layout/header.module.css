@@ -1,5 +1,6 @@
 .wrapper {
   display: flex;
+  flex: 0 1 auto;
   flex-direction: column;
   padding: 28px;
   padding-top: 32px;
