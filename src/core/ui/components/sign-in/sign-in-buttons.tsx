@@ -1,13 +1,4 @@
-import { useMemo } from 'react';
-import {
-  LoginMethod,
-  LoginMethodType,
-  useLoginMethods,
-  Web3LoginMethod,
-} from '../../context/login-methods';
-import { useUser } from '../../context/user';
-import { useRouter } from '../../router/context';
-import { useSignInContext } from './context';
+import { LoginMethod, useLoginMethods } from '../../context/login-methods';
 import { SignInWeb2Buttons } from './sign-in-web2-buttons';
 import { SignInWeb3Buttons } from './sign-in-web3-buttons';
 import localStyles from './styles.module.css';
@@ -25,65 +16,12 @@ type Props = {
 };
 
 export const SignInButtons = ({ showAllWallets, onClick }: Props) => {
-  const { excludeLoginMethodTypes, includeLoginMethodTypes, viewOnly } =
-    useSignInContext();
-  const user = useUser();
-  const enabledLoginMethods = useLoginMethods();
+  const { web2, web3 } = useLoginMethods();
 
-  const web3LoginMethods = useMemo(() => {
-    if (!viewOnly && user && user.loginMethods.includes(LoginMethodType.Web3)) {
-      // User is already logged in using web3 so we should not expose this.
-      return [];
-    }
-
-    if (
-      excludeLoginMethodTypes &&
-      excludeLoginMethodTypes.includes(LoginMethodType.Web3)
-    ) {
-      return [];
-    }
-
-    if (
-      includeLoginMethodTypes &&
-      !includeLoginMethodTypes.includes(LoginMethodType.Web3)
-    ) {
-      return [];
-    }
-
-    return enabledLoginMethods.loginMethods.filter(
-      (m) => m.type === LoginMethodType.Web3
-    ) as unknown as Web3LoginMethod[];
-  }, [
-    enabledLoginMethods.loginMethods,
-    excludeLoginMethodTypes,
-    includeLoginMethodTypes,
-    user,
-    viewOnly,
-  ]);
-
-  const web2LoginMethods = useMemo(() => {
-    const loggedInMethods = user?.loginMethods || [];
-
-    return enabledLoginMethods.loginMethods.filter(
-      (m) =>
-        m.type !== LoginMethodType.Web3 &&
-        (viewOnly || !loggedInMethods.includes(m.type)) &&
-        (!excludeLoginMethodTypes ||
-          !excludeLoginMethodTypes.includes(m.type)) &&
-        (!includeLoginMethodTypes || includeLoginMethodTypes.includes(m.type))
-    ) as unknown as Web3LoginMethod[];
-  }, [
-    enabledLoginMethods.loginMethods,
-    excludeLoginMethodTypes,
-    includeLoginMethodTypes,
-    user?.loginMethods,
-    viewOnly,
-  ]);
-
-  if (web3LoginMethods.length && (showAllWallets || !web2LoginMethods.length)) {
+  if (web3.length && (showAllWallets || !web2.length)) {
     // We want to return just the web3 login methods.
     return <SignInWeb3Buttons showMoreAfter={-1} onClick={onClick} />;
-  } else if (web3LoginMethods.length && web2LoginMethods.length) {
+  } else if (web3.length && web2.length) {
     return (
       <div
         style={{

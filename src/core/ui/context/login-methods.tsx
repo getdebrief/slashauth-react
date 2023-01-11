@@ -1,7 +1,10 @@
-import React from 'react';
+import React, { useCallback, useMemo } from 'react';
 
 import { useSafeState } from '../hooks';
 import { createContextAndHook } from '../../../shared/utils';
+
+import { useSignInContext } from '../components/sign-in/context';
+import { useUser } from './user';
 
 export enum LoginMethodType {
   Web3 = 'web3',
@@ -17,6 +20,19 @@ export type LoginMethod = {
   name: string;
   id: string;
   type: LoginMethodType;
+};
+
+export const getWeb3IconsById = (id: string) => {
+  switch (id) {
+    case 'metaMask':
+      return 'https://d1l2xccggl7xwv.cloudfront.net/icons/metamask.png';
+    case 'coinbaseWallet':
+      return 'https://d1l2xccggl7xwv.cloudfront.net/icons/coinbase.png';
+    case 'walletConnect':
+      return 'https://d1l2xccggl7xwv.cloudfront.net/icons/wallet-connect.png';
+    default:
+      return 'https://d1l2xccggl7xwv.cloudfront.net/icons/slashauth-dark.png';
+  }
 };
 
 export type Web3LoginMethod = LoginMethod & {
@@ -63,18 +79,82 @@ const LoginMethodsProvider = (
 };
 
 const useLoginMethods = () => {
-  const {
+  const { loginMethods, selectedLoginMethod, setSelectedLoginMethod } =
+    _useLoginMethods();
+  const { excludeLoginMethodTypes, includeLoginMethodTypes, viewOnly } =
+    useSignInContext();
+  const user = useUser();
+
+  const web3 = useMemo(() => {
+    console.log(
+      loginMethods,
+      excludeLoginMethodTypes,
+      includeLoginMethodTypes,
+      user?.loginMethods,
+      viewOnly
+    );
+    if (!viewOnly && user?.loginMethods.includes(LoginMethodType.Web3)) {
+      console.log('user');
+      // User is already logged in using web3 so we should not expose this.
+      return [];
+    }
+
+    if (excludeLoginMethodTypes?.includes(LoginMethodType.Web3)) {
+      console.log('exclude');
+      return [];
+    }
+
+    if (
+      includeLoginMethodTypes &&
+      !includeLoginMethodTypes?.includes(LoginMethodType.Web3)
+    ) {
+      console.log('include');
+      return [];
+    }
+
+    console.log('filter');
+    return loginMethods.filter(
+      (m) => m.type === LoginMethodType.Web3
+    ) as unknown as Web3LoginMethod[];
+  }, [
     loginMethods,
-    setLoginMethods,
-    selectedLoginMethod,
-    setSelectedLoginMethod,
-  } = _useLoginMethods();
+    excludeLoginMethodTypes,
+    includeLoginMethodTypes,
+    user?.loginMethods,
+    viewOnly,
+  ]);
+
+  const web2 = useMemo(() => {
+    const loggedInMethods = user?.loginMethods || [];
+
+    return loginMethods.filter(
+      (m) =>
+        m.type !== LoginMethodType.Web3 &&
+        (viewOnly || !loggedInMethods.includes(m.type)) &&
+        (!excludeLoginMethodTypes ||
+          !excludeLoginMethodTypes.includes(m.type)) &&
+        (!includeLoginMethodTypes || includeLoginMethodTypes.includes(m.type))
+    ) as unknown as LoginMethod[];
+  }, [
+    loginMethods,
+    excludeLoginMethodTypes,
+    includeLoginMethodTypes,
+    user?.loginMethods,
+    viewOnly,
+  ]);
+
+  const setSelectedLoginMethodById = useCallback(
+    (id?: string) => {
+      setSelectedLoginMethod(id ? loginMethods.find((m) => m.id === id) : null);
+    },
+    [loginMethods, setSelectedLoginMethod]
+  );
 
   return {
-    loginMethods,
-    setLoginMethods,
+    web2,
+    web3,
     selectedLoginMethod,
-    setSelectedLoginMethod,
+    setSelectedLoginMethodById,
   };
 };
 

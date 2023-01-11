@@ -104,8 +104,8 @@ export const BaseButton = ({
   </button>
 );
 
-export const ButtonWithIcon = ({ icon, children }) => (
-  <BaseButton wide padding={12}>
+export const ButtonWithIcon = ({ icon, children, ...props }) => (
+  <BaseButton {...props} wide padding={12}>
     <Flex gap={17} alignItems="center">
       <HighlightedIcon>{icon}</HighlightedIcon>
       {children}

@@ -1,0 +1,10 @@
+.loginOptions {
+  margin: 8px 0;
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 8px;
+}
+
+.loginOptions > *:only-child {
+  grid-column: 1 / end;
+}
