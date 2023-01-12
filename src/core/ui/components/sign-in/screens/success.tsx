@@ -15,6 +15,7 @@ export const SuccessScreen = () => {
       <Content>
         <Section>
           <Flex alignItems="center" justifyContent="center">
+            {/* TODO: SLA-1968 - Create a shared sign in process status component */}
             <HighlightedIcon>
               <img src={getIconsById('slashAuth')} alt="SlashAuth logo" />
             </HighlightedIcon>
