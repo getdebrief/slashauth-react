@@ -4,11 +4,16 @@ import { useDeepEqualMemo } from '../../../shared/hooks';
 import {
   ComputedSlashAuthModalStyle,
   SlashAuthStyle,
+  ThemeType,
 } from '../../../shared/types';
 import { createContextAndHook } from '../../../shared/utils';
-import { DARK_SLASHAUTH_ICON } from '../components/app-logo';
+import {
+  DARK_SLASHAUTH_ICON,
+  LIGHT_SLASHAUTH_ICON,
+} from '../components/app-logo';
 
 const DEFAULT_MODAL_STYLES: ComputedSlashAuthModalStyle = {
+  type: ThemeType.Light,
   backgroundColor: '#ffffff',
   buttonBackgroundColor: '#ffffff',
   hoverButtonBackgroundColor: '#f5f5f5',
@@ -17,6 +22,11 @@ const DEFAULT_MODAL_STYLES: ComputedSlashAuthModalStyle = {
   fontColor: '#000000',
   alignItems: 'center',
   iconURL: DARK_SLASHAUTH_ICON,
+  headerBackgroundColor: '#F3F4F6',
+  headerFontColor: '#363849',
+  lineColor: '#E5E7EB',
+  primaryButtonBackgroundColor: '#424559',
+  primaryButtonTextColor: 'white',
 };
 
 type AppearanceContextValue = {
@@ -33,8 +43,11 @@ const AppearanceProvider = (props: AppearanceProviderProps) => {
     const theme = {
       ...DEFAULT_MODAL_STYLES,
       ...props.signInModalStyle,
-      testColor: 'red',
     };
+
+    if (theme.type === ThemeType.Dark) {
+      theme.iconURL = LIGHT_SLASHAUTH_ICON;
+    }
 
     const root = document.documentElement;
     Object.keys(theme).forEach((key) => {
