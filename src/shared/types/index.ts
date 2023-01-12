@@ -7,6 +7,7 @@ export interface SlashAuthOptions {
 }
 
 export interface SlashAuthModalStyle {
+  type?: ThemeType;
   backgroundColor?: string;
   borderRadius?: string;
   alignItems?: string;
@@ -15,6 +16,11 @@ export interface SlashAuthModalStyle {
   buttonBackgroundColor?: string;
   hoverButtonBackgroundColor?: string;
   iconURL?: string;
+  headerBackgroundColor?: string;
+  headerFontColor?: string;
+  lineColor?: string;
+  primaryButtonBackgroundColor?: string;
+  primaryButtonTextColor?: string;
 }
 
 export interface SlashAuthLoginMethodConfig {
@@ -47,7 +53,12 @@ export interface SlashAuthLoginMethodConfig {
   };
 }
 
+export enum ThemeType {
+  Dark,
+  Light,
+}
 export interface ComputedSlashAuthModalStyle {
+  type: ThemeType;
   backgroundColor: string;
   borderRadius: string;
   alignItems: string;
@@ -56,6 +67,11 @@ export interface ComputedSlashAuthModalStyle {
   buttonBackgroundColor: string;
   hoverButtonBackgroundColor: string;
   iconURL: string;
+  headerBackgroundColor: string;
+  headerFontColor: string;
+  lineColor: string;
+  primaryButtonBackgroundColor: string;
+  primaryButtonTextColor: string;
 }
 
 export interface SlashAuthStyle {
