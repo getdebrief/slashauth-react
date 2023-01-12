@@ -19,10 +19,12 @@ export const ActionScreen = ({ navigateBack, signNonceAndLogin }) => {
 
   return (
     <>
+      {/* TODO: SLA-1969 - Update wording with new login flow designs */}
       <Header title="Confirm Connection" />
       <Content>
         <Section>
           <Flex alignItems="center" justifyContent="center">
+            {/* TODO: SLA-1968 - Create a shared sign in process status component */}
             <HighlightedIcon>
               <img src={getIconsById('slashAuth')} alt="SlashAuth logo" />
             </HighlightedIcon>
@@ -34,10 +36,12 @@ export const ActionScreen = ({ navigateBack, signNonceAndLogin }) => {
               />
             </HighlightedIcon>
           </Flex>
+          {/* TODO: SLA-1968 - Add centered property to text component */}
           <Text
             className={classNames(text.centered, margin.top4)}
             size={Size.Large}
           >
+            {/* TODO: SLA-1969 - Update wording with new login flow designs */}
             You are connected with wallet address{' '}
             <strong>{shortenEthAddress(address)}</strong>
           </Text>
@@ -47,11 +51,13 @@ export const ActionScreen = ({ navigateBack, signNonceAndLogin }) => {
             wide
             onClick={signNonceAndLogin}
           >
+            {/* TODO: SLA-1969 - Update wording with new login flow designs */}
             Continue
           </BaseButton>
         </Section>
         <Section className={styles.navigateBack}>
           <BaseButton onClick={navigateBack}>
+            {/* TODO: SLA-1969 - Update wording with new login flow designs */}
             Or sign in with another wallet
           </BaseButton>
         </Section>

@@ -1,4 +1,4 @@
-
+/* TODO: SLA-1968 - Move this to a vertical divider css module */
 .navigateBack {
   border-top: 1px solid var(--slashauth-lineColor, #E5E7EB);
   margin-top: 32px;
@@ -6,6 +6,7 @@
   justify-content: center;
 }
 
+/* TODO: SLA-1968 - Create question mark icon class and component */
 .icon {
   background-color: #6B7280;
   color: #F3F4F6;
