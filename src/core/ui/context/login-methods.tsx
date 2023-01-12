@@ -88,21 +88,12 @@ const useLoginMethods = () => {
   const user = useUser();
 
   const web3 = useMemo(() => {
-    console.log(
-      loginMethods,
-      excludeLoginMethodTypes,
-      includeLoginMethodTypes,
-      user?.loginMethods,
-      viewOnly
-    );
     if (!viewOnly && user?.loginMethods.includes(LoginMethodType.Web3)) {
-      console.log('user');
       // User is already logged in using web3 so we should not expose this.
       return [];
     }
 
     if (excludeLoginMethodTypes?.includes(LoginMethodType.Web3)) {
-      console.log('exclude');
       return [];
     }
 
@@ -110,11 +101,9 @@ const useLoginMethods = () => {
       includeLoginMethodTypes &&
       !includeLoginMethodTypes?.includes(LoginMethodType.Web3)
     ) {
-      console.log('include');
       return [];
     }
 
-    console.log('filter');
     return loginMethods.filter(
       (m) => m.type === LoginMethodType.Web3
     ) as unknown as Web3LoginMethod[];
