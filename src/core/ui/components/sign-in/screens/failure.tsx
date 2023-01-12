@@ -21,11 +21,7 @@ export const FailureScreen = ({ retry }) => {
         <Section>
           <Flex alignItems="center" justifyContent="center">
             <HighlightedIcon>
-              <img
-                style={{ width: 24 }}
-                src={getIconsById('slashAuth')}
-                alt="SlashAuth logo"
-              />
+              <img src={getIconsById('slashAuth')} alt="SlashAuth logo" />
             </HighlightedIcon>
             <span className={styles.icon} />
             <HighlightedIcon>
@@ -39,10 +35,10 @@ export const FailureScreen = ({ retry }) => {
             className={classNames(text.centered, margin.top4)}
             size={Size.Large}
           >
+            <strong className={styles.errorMessage}>Please try again</strong>
+            <br />
+            <br />
             There was an error while trying to login.
-            <br />
-            <br />
-            <strong>Please try again</strong>
           </Text>
           <BaseButton className={margin.top4} primary wide onClick={retry}>
             Retry

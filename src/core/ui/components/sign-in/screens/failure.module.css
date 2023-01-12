@@ -47,5 +47,9 @@
 }
 
 .support a {
-  color: '#577EFD';
+  color: #577EFD;
+}
+
+.errorMessage {
+  color: #df1212;
 }
