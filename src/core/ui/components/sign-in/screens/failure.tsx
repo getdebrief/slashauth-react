@@ -34,16 +34,19 @@ export const FailureScreen = ({ retry }) => {
           </Flex>
           {/* TODO: SLA-1968 - Add centered property to text component */}
           <Text
-            className={classNames(text.centered, margin.top4)}
-            size={Size.Large}
+            className={classNames(
+              text.centered,
+              margin.top4,
+              styles.errorMessage
+            )}
           >
             {/* TODO: SLA-1968 - Create a shared error message component */}
-            <strong className={styles.errorMessage}>Please try again</strong>
-            <br />
-            <br />
+            Please try again
+          </Text>
+          <Text className={classNames(text.centered, margin.top2)}>
             There was an error while trying to login.
           </Text>
-          <BaseButton className={margin.top4} primary wide onClick={retry}>
+          <BaseButton className={margin.top6} primary wide onClick={retry}>
             Retry
           </BaseButton>
         </Section>

@@ -46,7 +46,7 @@ export const ActionScreen = ({ navigateBack, signNonceAndLogin }) => {
             <strong>{shortenEthAddress(address)}</strong>
           </Text>
           <BaseButton
-            className={margin.top4}
+            className={margin.top6}
             primary
             wide
             onClick={signNonceAndLogin}
