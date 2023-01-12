@@ -1,3 +1,4 @@
+/* TODO: SLA-1968 - Create cross icon class and component */
 .icon {
   background-color: #efd7d7;
   color: #D7EFDC;
@@ -33,6 +34,7 @@
   transform: translate3d(-0.27em, 0.45em, 0) rotate(45deg); 
 }
 
+/* TODO: SLA-1968 - Move this to a vertical divider css module */
 .verticalDivider {
   border-top: 1px solid var(--slashauth-lineColor, #E5E7EB);
   margin-top: 32px;
@@ -46,10 +48,12 @@
   font-weight: 500;
 }
 
+/* TODO: SLA-1968 - Move this to a links css module */
 .support a {
   color: #577EFD;
 }
 
+/* TODO: SLA-1968 - Move this to an errors css module */
 .errorMessage {
   color: #df1212;
 }

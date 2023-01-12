@@ -20,6 +20,7 @@ export const FailureScreen = ({ retry }) => {
       <Content>
         <Section>
           <Flex alignItems="center" justifyContent="center">
+            {/* TODO: SLA-1968 - Create a shared sign in process status component */}
             <HighlightedIcon>
               <img src={getIconsById('slashAuth')} alt="SlashAuth logo" />
             </HighlightedIcon>
@@ -31,10 +32,12 @@ export const FailureScreen = ({ retry }) => {
               />
             </HighlightedIcon>
           </Flex>
+          {/* TODO: SLA-1968 - Add centered property to text component */}
           <Text
             className={classNames(text.centered, margin.top4)}
             size={Size.Large}
           >
+            {/* TODO: SLA-1968 - Create a shared error message component */}
             <strong className={styles.errorMessage}>Please try again</strong>
             <br />
             <br />
@@ -44,9 +47,11 @@ export const FailureScreen = ({ retry }) => {
             Retry
           </BaseButton>
         </Section>
+        {/* TODO: SLA-1968 - Create a shared vertical divider component */}
         <Section className={styles.verticalDivider}>
           <small className={styles.support}>
             If you continue to have issues, please contact us at{' '}
+            {/* TODO: SLA-1968 - Create a shared link component */}
             <a href="mailto:support@slashauth.com">support@slashauth.com</a>
           </small>
         </Section>
