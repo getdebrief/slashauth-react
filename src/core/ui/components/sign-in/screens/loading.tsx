@@ -21,6 +21,7 @@ export const LoadingScreen = ({ navigateBack }) => {
       <Content>
         <Section>
           <Flex gap={8} alignItems="center" justifyContent="center">
+            {/* TODO: SLA-1968 - Create a shared sign in process status component */}
             <HighlightedIcon>
               <img src={getIconsById('slashAuth')} alt="SlashAuth logo" />
             </HighlightedIcon>
@@ -32,6 +33,7 @@ export const LoadingScreen = ({ navigateBack }) => {
               />
             </HighlightedIcon>
           </Flex>
+          {/* TODO: SLA-1968 - Add centered property to text component */}
           <Text
             className={classNames(text.centered, margin.top4)}
             size={Size.Large}
@@ -39,6 +41,7 @@ export const LoadingScreen = ({ navigateBack }) => {
             Connecting{' '}
             {selectedLoginMethod ? `to ${selectedLoginMethod?.name}` : ''}
           </Text>
+          {/* TODO: SLA-1968 - Add centered property to text component */}
           <Text
             className={classNames(
               text.centered,
@@ -49,6 +52,7 @@ export const LoadingScreen = ({ navigateBack }) => {
             Please sign the message in your wallet app or plugin to continue
           </Text>
         </Section>
+        {/* TODO: SLA-1968 - Create a shared vertical divider component */}
         <Section className={styles.navigateBack}>
           <BaseButton onClick={navigateBack}>
             Or go back to login options

@@ -5,6 +5,7 @@ type Props = {
   textContent?: string;
 };
 
+// TODO: SLA-1968 - Create centered shared component
 const Centered = ({ children }) => (
   <div style={{ margin: 'auto' }}>{children}</div>
 );

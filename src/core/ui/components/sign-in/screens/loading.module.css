@@ -1,9 +1,11 @@
 
 .detailedDescription {
   max-width: 300px;
+  /* TODO: SLA-1968 - Create use created centered shared component and extend with margin top and button */
   margin: 8px auto 0 auto;
 }
 
+/* TODO: SLA-1968 - Move this to a vertical divider css module */
 .navigateBack {
   border-top: 1px solid var(--slashauth-lineColor, #E5E7EB);
   margin-top: 32px;
