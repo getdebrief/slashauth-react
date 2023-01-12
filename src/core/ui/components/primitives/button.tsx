@@ -76,36 +76,39 @@ export const SecondaryButton = ({ children, onClick }: Props) => {
   );
 };
 
-interface BaseButtonProps
-  extends React.ButtonHTMLAttributes<HTMLButtonElement> {
-  padding?: number;
-  wide?: boolean;
-  primary?: boolean;
-  children: React.ReactNode;
-  className?: string;
-}
-
-export const BaseButton = ({
+export const BaseButton = <C extends React.ElementType = 'button'>({
   padding,
   wide,
   primary,
   children,
   className,
+  component,
   ...props
-}: BaseButtonProps) => (
-  <button
-    {...props}
-    style={{ padding: padding }}
-    className={classNames(
-      styles.baseButton,
-      wide && styles.wide,
-      primary && styles.primaryButton,
-      className
-    )}
-  >
-    {children}
-  </button>
-);
+}: {
+  padding?: number;
+  wide?: boolean;
+  primary?: boolean;
+  children?: React.ReactNode;
+  className?: string;
+  component?: C;
+} & React.ComponentPropsWithoutRef<C>) => {
+  const Element = component ?? 'button';
+
+  return (
+    <Element
+      {...props}
+      style={{ padding: padding }}
+      className={classNames(
+        styles.baseButton,
+        wide && styles.wide,
+        primary && styles.primaryButton,
+        className
+      )}
+    >
+      {children}
+    </Element>
+  );
+};
 
 export const ButtonWithIcon = ({ icon, children, ...props }) => (
   <BaseButton {...props} wide padding={12}>
