@@ -82,6 +82,7 @@ interface BaseButtonProps
   wide?: boolean;
   primary?: boolean;
   children: React.ReactNode;
+  className?: string;
 }
 
 export const BaseButton = ({
@@ -89,6 +90,7 @@ export const BaseButton = ({
   wide,
   primary,
   children,
+  className,
   ...props
 }: BaseButtonProps) => (
   <button
@@ -97,7 +99,8 @@ export const BaseButton = ({
     className={classNames(
       styles.baseButton,
       wide && styles.wide,
-      primary && styles.primaryButton
+      primary && styles.primaryButton,
+      className
     )}
   >
     {children}

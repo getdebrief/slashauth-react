@@ -2,10 +2,14 @@
   font-size: 14px;
   color: var(--slashauth-fontColor, '#363849');
   font-weight: 500;
-  line-height: '17px';
+  line-height: 17px;
   margin: 0;
 }
 
 .largeText {
   font-size: 16px;
+}
+
+.centered {
+  text-align: center;
 }

@@ -10,10 +10,12 @@ export const Text = ({
   size = Size.Medium,
   component,
   children,
+  className,
 }: {
   size?: Size;
   component?: React.ElementType;
   children: React.ReactNode;
+  className?: string;
 }) => {
   const Element = component ?? 'p';
 
@@ -21,7 +23,8 @@ export const Text = ({
     <Element
       className={classNames(
         styles.text,
-        size === Size.Large && styles.largeText
+        size === Size.Large && styles.largeText,
+        className
       )}
     >
       {children}

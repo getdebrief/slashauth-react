@@ -5,6 +5,10 @@ type Props = {
   textContent?: string;
 };
 
+const Centered = ({ children }) => (
+  <div style={{ margin: 'auto' }}>{children}</div>
+);
+
 export const LoadingModalContents = ({ textContent }: Props) => {
   const appearance = useAppearance();
 
@@ -32,7 +36,9 @@ export const LoadingModalContents = ({ textContent }: Props) => {
           {textContent}
         </h2>
       ) : null}
-      <Loader color={appearance.modalStyle.fontColor} size={14} />
+      <Centered>
+        <Loader color={appearance.modalStyle.fontColor} size={14} />
+      </Centered>
     </div>
   );
 };

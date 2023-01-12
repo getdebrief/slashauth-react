@@ -1,0 +1,12 @@
+
+.detailedDescription {
+  max-width: 300px;
+  margin: 8px auto 0 auto;
+}
+
+.navigateBack {
+  border-top: 1px solid var(--slashauth-lineColor, #E5E7EB);
+  margin-top: 32px;
+  display: flex;
+  justify-content: center;
+}
