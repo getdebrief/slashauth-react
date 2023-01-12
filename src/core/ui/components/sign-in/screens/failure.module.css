@@ -1,0 +1,59 @@
+/* TODO: SLA-1968 - Create cross icon class and component */
+.icon {
+  background-color: #efd7d7;
+  color: #D7EFDC;
+  border-radius: 50%;
+  margin: -0.6em 0;
+
+  width: 1.5em;
+  height: 1.5em;
+  transform: scale(0.8);
+
+  display: flex;
+  justify-content: center;
+  padding: 0 0 0.05em 0.05em;
+
+  font-weight: 900;
+
+  margin: -0.5em;
+}
+
+.icon:before {
+  content: "";
+    height: 0.3em;
+    width: 0.8em;
+    border-bottom: 0.15em solid #c05d7e;
+    transform: translate3d(0.25em, 0.45em, 0) rotate(-45deg);
+}
+
+.icon:after {
+  content: "";
+  height: 0.3em;
+  width: 0.8em;
+  border-bottom: 0.15em solid #c05d7e;
+  transform: translate3d(-0.27em, 0.45em, 0) rotate(45deg); 
+}
+
+/* TODO: SLA-1968 - Move this to a vertical divider css module */
+.verticalDivider {
+  border-top: 1px solid var(--slashauth-lineColor, #E5E7EB);
+  margin-top: 32px;
+  display: flex;
+  justify-content: center;
+}
+
+.support {
+  font-size: 12px;
+  color: #B6BCC8;
+  font-weight: 500;
+}
+
+/* TODO: SLA-1968 - Move this to a links css module */
+.support a {
+  color: #577EFD;
+}
+
+/* TODO: SLA-1968 - Move this to an errors css module */
+.errorMessage {
+  color: #df1212;
+}

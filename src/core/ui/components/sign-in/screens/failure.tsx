@@ -3,24 +3,20 @@ import { Content, Section } from '../layout/content';
 import { Footer } from '../layout/footer';
 import { Text, Size } from '../../primitives/text';
 import { useLoginMethods, getIconsById } from '../../../context/login-methods';
-import { useWeb3LoginState } from '../../../context/web3-signin';
 import { Flex } from '../../primitives/container';
 import { HighlightedIcon } from '../../primitives/icon';
 import { BaseButton } from '../../primitives/button';
 import { classNames } from '../../../../../shared/utils/classnames';
 import text from '../../primitives/text.module.css';
 import margin from '../../primitives/margin.module.css';
-import styles from './action.module.css';
-import { shortenEthAddress } from '../../../../../shared/utils/eth';
+import styles from './failure.module.css';
 
-export const ActionScreen = ({ navigateBack, signNonceAndLogin }) => {
+export const FailureScreen = ({ retry }) => {
   const { selectedLoginMethod } = useLoginMethods();
-  const { address } = useWeb3LoginState();
 
   return (
     <>
-      {/* TODO: SLA-1969 - Update wording with new login flow designs */}
-      <Header title="Confirm Connection" />
+      <Header title="Failed login attempt" />
       <Content>
         <Section>
           <Flex alignItems="center" justifyContent="center">
@@ -38,28 +34,29 @@ export const ActionScreen = ({ navigateBack, signNonceAndLogin }) => {
           </Flex>
           {/* TODO: SLA-1968 - Add centered property to text component */}
           <Text
-            className={classNames(text.centered, margin.top4)}
-            size={Size.Large}
+            className={classNames(
+              text.centered,
+              margin.top4,
+              styles.errorMessage
+            )}
           >
-            {/* TODO: SLA-1969 - Update wording with new login flow designs */}
-            You are connected with wallet address{' '}
-            <strong>{shortenEthAddress(address)}</strong>
+            {/* TODO: SLA-1968 - Create a shared error message component */}
+            Please try again
           </Text>
-          <BaseButton
-            className={margin.top6}
-            primary
-            wide
-            onClick={signNonceAndLogin}
-          >
-            {/* TODO: SLA-1969 - Update wording with new login flow designs */}
-            Continue
+          <Text className={classNames(text.centered, margin.top2)}>
+            There was an error while trying to login.
+          </Text>
+          <BaseButton className={margin.top6} primary wide onClick={retry}>
+            Retry
           </BaseButton>
         </Section>
-        <Section className={styles.navigateBack}>
-          <BaseButton onClick={navigateBack}>
-            {/* TODO: SLA-1969 - Update wording with new login flow designs */}
-            Or sign in with another wallet
-          </BaseButton>
+        {/* TODO: SLA-1968 - Create a shared vertical divider component */}
+        <Section className={styles.verticalDivider}>
+          <small className={styles.support}>
+            If you continue to have issues, please contact us at{' '}
+            {/* TODO: SLA-1968 - Create a shared link component */}
+            <a href="mailto:support@slashauth.com">support@slashauth.com</a>
+          </small>
         </Section>
       </Content>
       <Footer />
