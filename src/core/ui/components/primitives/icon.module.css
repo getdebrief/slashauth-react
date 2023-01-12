@@ -1,6 +1,8 @@
 .highlightedIcon {
   box-sizing: border-box;
-  display: inline-block;
+  display: inline-flex;
+  justify-content: center;
+  align-items: center;
   height: 48px;
   width: 48px;
   border: 1px solid var(--slashauth-lineColor, #E5E7EB);
