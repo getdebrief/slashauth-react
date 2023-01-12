@@ -4,3 +4,7 @@
   grid-template-columns: repeat(2, 1fr);
   gap: 8px;
 }
+
+.loginOptions > *:only-child {
+  grid-column: 1 / end;
+}
