@@ -17,8 +17,13 @@
   transition: 0.3s;
 }
 
-.baseButton:hover {
+.baseButton:enabled:hover {
   background: var(--slashauth-hoverButtonBackgroundColor);
+}
+
+.baseButton:disabled {
+  cursor: not-allowed;
+  opacity: 0.6;
 }
 
 .primaryButton {
@@ -27,8 +32,13 @@
   color: var(--slashauth-primaryButtonTextColor, white);
 }
 
-.primaryButton:hover {
+.primaryButton:enabled:hover {
   color: var(--slashauth-primaryButtonBackgroundColor, #424559);
+}
+
+.primaryButton:disabled {
+  cursor: not-allowed;
+  opacity: 0.6;
 }
 
 .wide {

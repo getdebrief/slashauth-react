@@ -13,6 +13,7 @@ import {
 } from '../../context/login-methods';
 import { SignInButtons } from './sign-in-buttons';
 import { useInteraction } from '../../context/interaction';
+import { SignInScreen } from './screens/sign-in';
 
 type Props = {
   showAllWallets?: boolean;
@@ -24,12 +25,12 @@ const _SignInStart = ({ showAllWallets, showBackButton }: Props) => {
   const { viewOnly, walletConnectOnly, connectAccounts } = useSignInContext();
   const { navigate, fullPath } = useRouter();
   const web3LoginState = useWeb3LoginState();
-  const { loginMethods, setSelectedLoginMethod } = useLoginMethods();
+  const { setSelectedLoginMethodById } = useLoginMethods();
 
   const [isConnecting, setConnecting] = useState(false);
 
   useEffect(() => {
-    setSelectedLoginMethod(null);
+    setSelectedLoginMethodById(null);
     setConnecting(false);
     return () => {
       setConnecting(false);
@@ -53,9 +54,7 @@ const _SignInStart = ({ showAllWallets, showBackButton }: Props) => {
         return;
       }
       try {
-        setSelectedLoginMethod(
-          loginMethods.find((m) => m.id === loginMethod.id)
-        );
+        setSelectedLoginMethodById(loginMethod.id);
         setConnecting(true);
         if (loginMethod.type === LoginMethodType.Web3) {
           try {
@@ -91,10 +90,9 @@ const _SignInStart = ({ showAllWallets, showBackButton }: Props) => {
     },
     [
       fullPath,
-      loginMethods,
       navigate,
       setProcessing,
-      setSelectedLoginMethod,
+      setSelectedLoginMethodById,
       viewOnly,
       walletConnectOnly,
       web3LoginState.web3Manager,
