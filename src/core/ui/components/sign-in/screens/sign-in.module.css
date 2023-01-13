@@ -1,8 +1,17 @@
 .loginOptions {
   margin: 8px 0;
   display: grid;
-  grid-template-columns: repeat(2, 1fr);
+  grid-template-columns: repeat(1, 1fr);
   gap: 8px;
+}
+
+/* 1 column layout until 2 can fit properly.
+Min-width is different from section's padding because from 464px to 500px
+we can fit 2 columns with reduced padding */
+@media screen and (min-width: 464px) {
+  .loginOptions {
+    grid-template-columns: repeat(2, 1fr);
+  }
 }
 
 .loginOptions > *:only-child {
