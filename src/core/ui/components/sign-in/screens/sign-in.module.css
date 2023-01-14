@@ -14,6 +14,12 @@ we can fit 2 columns with reduced padding */
   }
 }
 
+@container modalContainer (max-width: 463px) {
+  .loginOptions {
+    grid-template-columns: repeat(1, 1fr);
+  }
+}
+
 .loginOptions > *:only-child {
   grid-column: 1 / end;
 }

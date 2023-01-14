@@ -15,3 +15,9 @@
     padding: 27px 34px 0 34px;
   }
 }
+
+@container modalContainer (max-width: 499px) {
+  .section {
+    padding: 27px 16px 0 16px;
+  }
+}

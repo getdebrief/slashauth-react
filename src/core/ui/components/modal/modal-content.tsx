@@ -1,6 +1,7 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { addFontFamily, isFamilySupported } from '../../fonts';
 import { IModalContainerStyles, ModalStyles } from '../../types/modal';
+import styles from './modal.module.css';
 
 type Props = {
   modalStyles: ModalStyles;
@@ -132,6 +133,7 @@ export const ModalContent = React.forwardRef<HTMLDivElement, Props>(
 
     return (
       <div
+        className={styles.modalContainer}
         style={wrapperStyles}
         ref={(node) => {
           modalRef.current = node;
