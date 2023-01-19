@@ -21,11 +21,12 @@ const Input = ({
   name,
   type = 'text',
   placeholder,
+  className,
   ...props
 }) => (
   <input
     {...props}
-    className={classNames(styles.input, !valid && styles.invalid)}
+    className={classNames(styles.input, !valid && styles.invalid, className)}
     id={name}
     type={type}
     autoComplete={name}
@@ -35,12 +36,14 @@ const Input = ({
 );
 
 const ErrorMessage = ({ children }) => (
-  <Text className={classNames(error.message, margin.top2)}>{children}</Text>
+  <Text className={classNames(margin.top2)} error>
+    {children}
+  </Text>
 );
 
 ErrorMessage.displayName = 'Input.ErrorMessage';
 
-export const EmailInput = () => {
+export const EmailInput = ({ className }) => {
   const [error, setError] = useState(null);
 
   const updateError = (event: React.SyntheticEvent) => {
@@ -63,6 +66,7 @@ export const EmailInput = () => {
     <div>
       <Label htmlFor="email">Email</Label>
       <Input
+        className={className}
         required
         type="email"
         name="email"

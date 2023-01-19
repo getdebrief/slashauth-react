@@ -33,7 +33,7 @@
 }
 
 .primaryButton:enabled:hover {
-  color: var(--slashauth-primaryButtonBackgroundColor, #424559);
+  color: var(--slashauth-fontColor, #424559);
 }
 
 .primaryButton:disabled {

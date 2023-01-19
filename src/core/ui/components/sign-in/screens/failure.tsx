@@ -33,13 +33,7 @@ export const FailureScreen = ({ retry }) => {
             </HighlightedIcon>
           </Flex>
           {/* TODO: SLA-1968 - Add centered property to text component */}
-          <Text
-            className={classNames(
-              text.centered,
-              margin.top4,
-              styles.errorMessage
-            )}
-          >
+          <Text className={classNames(text.centered, margin.top4)} error>
             {/* TODO: SLA-1968 - Create a shared error message component */}
             Please try again
           </Text>

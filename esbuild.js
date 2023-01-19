@@ -26,7 +26,9 @@ esbuild.build({
   platform: 'browser',
   loader: { '.svg': 'dataurl' },
   plugins: [
-    cssModulesPlugin(),
+    cssModulesPlugin({
+      generateTsFile: true,
+    }),
     NodeModulesPolyfillPlugin(),
     NodeGlobalPolyfillPlugin({
       process: true,

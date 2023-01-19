@@ -118,16 +118,14 @@ const useLoginMethods = () => {
   const web2 = useMemo(() => {
     const loggedInMethods = user?.loginMethods || [];
 
-    return loginMethods
-      .filter((m) => m.id !== 'magic-link')
-      .filter(
-        (m) =>
-          m.type !== LoginMethodType.Web3 &&
-          (viewOnly || !loggedInMethods.includes(m.type)) &&
-          (!excludeLoginMethodTypes ||
-            !excludeLoginMethodTypes.includes(m.type)) &&
-          (!includeLoginMethodTypes || includeLoginMethodTypes.includes(m.type))
-      ) as unknown as LoginMethod[];
+    return loginMethods.filter(
+      (m) =>
+        m.type !== LoginMethodType.Web3 &&
+        (viewOnly || !loggedInMethods.includes(m.type)) &&
+        (!excludeLoginMethodTypes ||
+          !excludeLoginMethodTypes.includes(m.type)) &&
+        (!includeLoginMethodTypes || includeLoginMethodTypes.includes(m.type))
+    ) as unknown as LoginMethod[];
   }, [
     loginMethods,
     excludeLoginMethodTypes,

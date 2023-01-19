@@ -12,12 +12,14 @@ export const Text = <C extends React.ElementType = 'p'>({
   component,
   children,
   className,
+  error,
   ...props
 }: {
   size?: Size;
   component?: C;
   children: React.ReactNode;
   className?: string;
+  error?: boolean;
 } & React.ComponentPropsWithoutRef<C>) => {
   const Element = component ?? 'p';
 
@@ -27,6 +29,7 @@ export const Text = <C extends React.ElementType = 'p'>({
       className={classNames(
         styles.text,
         size === Size.Large && styles.largeText,
+        error && styles.error,
         className
       )}
     >

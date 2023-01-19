@@ -6,6 +6,10 @@
   margin: 0;
 }
 
+.error {
+  color: #df1212;
+}
+
 .largeText {
   font-size: 16px;
 }

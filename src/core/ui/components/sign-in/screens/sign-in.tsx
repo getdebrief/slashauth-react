@@ -38,7 +38,7 @@ export const SignInScreen = ({ startLoginWith }) => {
             </div>
           </Section>
         ) : null}
-        {web2.length && (
+        {web2.length ? (
           <Section>
             <Text component="h2">Web2 accounts</Text>
             <div className={styles.loginOptions}>
@@ -59,7 +59,7 @@ export const SignInScreen = ({ startLoginWith }) => {
               ))}
             </div>
           </Section>
-        )}
+        ) : null}
       </Content>
       <Footer />
     </>
