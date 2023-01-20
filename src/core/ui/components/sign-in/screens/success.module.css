@@ -1,0 +1,32 @@
+/* TODO: SLA-1968 - Create success icon class and component */
+.icon {
+  background-color: #D7EFDC;
+  color: #D7EFDC;
+  border-color: #D7EFDC;
+  border: 0.4em solid;
+  border-radius: 50%;
+
+  width: 1.3em;
+  height: 1.3em;
+  transform: scale(0.8);
+
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 0.05em 0 0 0.05em;
+
+  font-weight: 900;
+
+  margin: -0.5em;
+  line-height: 1.3em;
+  box-sizing: content-box;
+}
+
+.icon:before {
+  content: "";
+  height: 0.3em;
+  width: 0.7em;
+  border-left: 0.15em solid #5DC073;
+  border-bottom: 0.15em solid #5DC073;
+  transform: rotate(-45deg);
+}

@@ -1,0 +1,36 @@
+/* TODO: SLA-1968 - Move this to a vertical divider css module */
+.navigateBack {
+  border-top: 1px solid var(--slashauth-lineColor, #E5E7EB);
+  margin-top: 32px;
+  display: flex;
+  justify-content: center;
+}
+
+/* TODO: SLA-1968 - Create question mark icon class and component */
+.icon {
+  background-color: #6B7280;
+  color: #F3F4F6;
+  border-color: #F3F4F6;
+  border: 0.4em solid;
+  border-radius: 50%;
+  margin: -0.6em 0;
+
+  width: 1.3em;
+  height: 1.3em;
+  transform: scale(0.8);
+
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 0.05em 0 0 0.05em;
+
+  font-weight: 900;
+
+  margin: -0.5em;
+  line-height: 1.3em;
+  box-sizing: content-box;
+}
+
+.icon:before {
+  content: '?'
+}

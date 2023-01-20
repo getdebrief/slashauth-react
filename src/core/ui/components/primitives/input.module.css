@@ -1,0 +1,28 @@
+.label {
+  display: inline-block;
+  margin-bottom: 8px;
+}
+
+.input {
+  display: block;
+  border: 1px solid var(--slashauth-lineColor, #E5E7EB);
+  border-radius: 18px;
+  height: 52px;
+  width: 100%;
+  box-sizing: border-box;
+  padding: 16px 22px;
+  color: var(--slashauth-fontColor, '#363849');
+  background: var(--slashauth-backgroundColor, #F3F4F6);
+}
+
+.input:focus {
+  /* Make outline transparent instead of none so OS with high-contrast mode can alter color for accessibility purposes */
+  outline: 2px solid transparent;
+  outline-offset: 2px;
+  border: 1px solid var(--slashauth-primaryButtonBackgroundColor, #424559);
+  box-shadow: 0 0 8px -4px var(--slashauth-primaryButtonBackgroundColor, #424559);;
+}
+
+.invalid {
+  border: 1px solid #df1212;
+}

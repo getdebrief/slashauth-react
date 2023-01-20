@@ -1,0 +1,23 @@
+
+.section {
+  flex: 1 1 auto;
+  /* TODO: SLA-1842 - add webkit scrollbar customized styles to display bar properly in windows devices */
+  overflow-y: scroll;
+}
+
+.section {
+  padding: 27px 16px 0 16px;
+}
+
+/*  Lateral padding is reduced in order to have more space available in mobile (and fit 2 columns in the sign in page) */
+@media screen and (min-width: 500px) {
+  .section {
+    padding: 27px 34px 0 34px;
+  }
+}
+
+@container modalContainer (max-width: 499px) {
+  .section {
+    padding: 27px 16px 0 16px;
+  }
+}

@@ -1,0 +1,38 @@
+
+.detailedDescription {
+  /* TODO: SLA-1968 - Create use created centered shared component and extend with margin top and button */
+  margin: 8px auto 0 auto;
+}
+
+/* TODO: SLA-1968 - Move this to a vertical divider css module */
+.navigateBack {
+  border-top: 1px solid var(--slashauth-lineColor, #E5E7EB);
+  margin-top: 32px;
+  display: flex;
+  justify-content: center;
+}
+
+/* TODO: SLA-1968 - Create success icon class and component */
+.icon {
+  background-color: #E4EAFF;
+  color: #E4EAFF;
+  border-color: #E4EAFF;
+  border: 0.4em solid;
+  border-radius: 50%;
+  margin: -0.6em 0;
+
+  width: 1.3em;
+  height: 1.3em;
+  transform: scale(0.8);
+
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 0.025em;
+
+  font-weight: 900;
+
+  margin: -1em;
+  line-height: 1.3em;
+  box-sizing: content-box;
+}

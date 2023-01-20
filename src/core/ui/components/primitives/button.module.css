@@ -1,0 +1,46 @@
+.baseButton {
+  display: inline-block;
+  margin: auto;
+  padding: 8px 20px;
+  border-radius: var(--slashauth-borderRadius, 22px);
+
+  color: var(--slashauth-fontColor, #363849);
+  font-family: var(--slashauth-fontFamily, sans-serif);
+  line-height: 17px;
+  font-size: 14px;
+  font-weight: 500;
+
+  background: var(--slashauth-buttonBackgroundColor);
+  border: solid 1px var(--slashauth-lineColor, #E5E7EB);
+
+  cursor: pointer;
+  transition: 0.3s;
+}
+
+.baseButton:enabled:hover {
+  background: var(--slashauth-hoverButtonBackgroundColor);
+}
+
+.baseButton:disabled {
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+.primaryButton {
+  border-color: var(--slashauth-primaryButtonBackgroundColor, #424559);
+  background-color: var(--slashauth-primaryButtonBackgroundColor, #424559);
+  color: var(--slashauth-primaryButtonTextColor, white);
+}
+
+.primaryButton:enabled:hover {
+  color: var(--slashauth-fontColor, #424559);
+}
+
+.primaryButton:disabled {
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+.wide {
+  width: 100%;
+}

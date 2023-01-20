@@ -231,9 +231,7 @@ const ComponentManagerComponent = (props: ComponentManagerComponentProps) => {
       }
     >
       <FlowMetadataProvider flow={'sign-in'}>
-        <Modal
-          handleClose={() => componentController.closeModal(ModalType.SignIn)}
-        >
+        <Modal>
           <VirtualRouter
             preservedParams={PRESERVED_QUERYSTRING_PARAMS}
             onExternalNavigate={() =>

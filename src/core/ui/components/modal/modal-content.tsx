@@ -1,6 +1,7 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { addFontFamily, isFamilySupported } from '../../fonts';
 import { IModalContainerStyles, ModalStyles } from '../../types/modal';
+import styles from './modal.module.css';
 
 type Props = {
   modalStyles: ModalStyles;
@@ -10,8 +11,8 @@ type Props = {
 const MAX_HEIGHT_PX = 600;
 
 const baseModalContainerStyles = {
-  width: '366px',
-  height: `${MAX_HEIGHT_PX}px`,
+  maxWidth: '524px',
+  width: '100%',
   transition: 'max-height 0.2s ease-in-out',
   WebkitTransition: 'max-height 0.2s ease-in-out',
   overflow: 'hidden',
@@ -37,16 +38,6 @@ export const ModalContent = React.forwardRef<HTMLDivElement, Props>(
     const [baseModalStyles, setBaseModalStyles] = useState({
       ...baseModalContainerStyles,
     });
-
-    const [modalContentsStyle, setModalContentStyle] =
-      useState<React.CSSProperties>({
-        flexGrow: 1,
-        display: 'flex',
-        flexDirection: 'column',
-        paddingTop: '3rem',
-        paddingLeft: '2rem',
-        paddingRight: '2rem',
-      });
 
     const footerRef = useRef<HTMLDivElement>();
     const bodyRef = useRef<HTMLDivElement>();
@@ -113,25 +104,9 @@ export const ModalContent = React.forwardRef<HTMLDivElement, Props>(
       modalStyles.fontFamily,
     ]);
 
-    const bodyStyles = useMemo(() => {
-      const resp: React.CSSProperties = {
-        width: '100%',
-        flexGrow: 1,
-        display: 'flex',
-        flexDirection: 'column' as const,
-        alignItems: 'center',
-        overflowY: 'hidden' as const,
-      };
-
-      if (modalStyles.alignItems) {
-        resp.alignItems = modalStyles.alignItems;
-      }
-
-      return resp;
-    }, [modalStyles.alignItems]);
-
     return (
       <div
+        className={styles.modalContainer}
         style={wrapperStyles}
         ref={(node) => {
           modalRef.current = node;
@@ -147,32 +122,7 @@ export const ModalContent = React.forwardRef<HTMLDivElement, Props>(
           e.stopPropagation();
         }}
       >
-        <div
-          className="slashauth-modal-body"
-          ref={bodyRef}
-          style={{
-            ...modalContentsStyle,
-          }}
-        >
-          <div style={bodyStyles}>{children}</div>
-        </div>
-        <div
-          ref={footerRef}
-          style={{
-            flexShrink: 0,
-            display: 'flex',
-            flexDirection: 'row',
-            justifyContent: 'center',
-            alignItems: 'center',
-            width: '100%',
-            paddingBottom: '3rem',
-            paddingTop: '1.5rem',
-          }}
-        >
-          <span style={{ fontSize: '12px', color: '#9B9B9B' }}>
-            Powered by /auth
-          </span>
-        </div>
+        <div>{children}</div>
       </div>
     );
   }

@@ -1,0 +1,15 @@
+.highlightedIcon {
+  box-sizing: border-box;
+  display: inline-flex;
+  justify-content: center;
+  align-items: center;
+  height: 48px;
+  width: 48px;
+  border: 1px solid var(--slashauth-lineColor, #E5E7EB);
+  border-radius: calc(var(--slashauth-borderRadius, 22px) * 0.6);
+  padding: 8px;
+}
+
+.highlightedIcon img {
+  width: 24px;
+}

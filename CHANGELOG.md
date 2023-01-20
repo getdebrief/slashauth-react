@@ -21,6 +21,24 @@ straightforward as possible.
 
 ### Fixed
 
+## [1.0.0] - 2023-01-20
+
+Redesign for the sign-in component.
+
+### Added
+
+- New theming options
+- Unified header with logo and different background for all screens
+- Powered by SlashAuth link in the footer
+
+### Changed
+
+- Desktop layout to 2 columns
+- Login methods selection screen design
+- Failure and success screens designs
+
+### Fixed
+
 ## [0.14.0] - 2023-01-09
 
 ### Added
