@@ -23,7 +23,7 @@ export const LoadingScreen = ({
   navigateBack: ReactEventHandler;
   loading?: boolean;
   description: string;
-  detailedDescription: string;
+  detailedDescription: string | React.ReactNode;
 }) => {
   const { selectedLoginMethod } = useLoginMethods();
   const appearance = useAppearance();

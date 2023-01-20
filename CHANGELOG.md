@@ -21,6 +21,16 @@ straightforward as possible.
 
 ### Fixed
 
+## [1.0.1] - 2023-01-20
+
+### Added
+
+- Show link to open gmail if gmail.com domain in the magic link flow
+
+### Fixed
+
+- Retry magic link
+
 ## [1.0.0] - 2023-01-20
 
 Redesign for the sign-in component.

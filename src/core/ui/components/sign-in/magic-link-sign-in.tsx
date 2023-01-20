@@ -1,4 +1,4 @@
-import { useCallback, useState } from 'react';
+import { useCallback, useMemo, useState } from 'react';
 import { Flow } from '../flow/flow';
 import { useCoreClient } from '../../context/slashauth-client';
 import { useRouter } from '../../router/context';
@@ -36,13 +36,32 @@ export const MagicLinkSignIn = () => {
     [client, connectAccounts, setProcessing, navigate, slashAuth]
   );
 
+  const isGmail = useMemo(
+    () => submittedEmail.includes('@gmail'),
+    [submittedEmail]
+  );
+
   return (
     <Flow.Part part="emailLink">
       {processing ? (
         <LoadingScreen
           description={`A link was sent to ${submittedEmail}`}
-          detailedDescription=""
+          detailedDescription={
+            isGmail ? (
+              <>
+                You can also{' '}
+                <a
+                  href="https://mail.google.com/mail/"
+                  rel="noreferrer"
+                  target="_blank"
+                >
+                  view the link here.
+                </a>
+              </>
+            ) : null
+          }
           navigateBack={async () => {
+            setProcessing(false);
             navigate('../');
           }}
         />
