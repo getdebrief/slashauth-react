@@ -4,10 +4,25 @@ import { Footer } from '../layout/footer';
 import { ButtonWithIcon } from '../../primitives/button';
 import { Text } from '../../primitives/text';
 import styles from './sign-in.module.css';
-import { useLoginMethods, getIconsById } from '../../../context/login-methods';
+import {
+  useLoginMethods,
+  getIconsById,
+  LoginMethod,
+} from '../../../context/login-methods';
+import { useMemo } from 'react';
 
 export const SignInScreen = ({ startLoginWith }) => {
   const { web3, web2 } = useLoginMethods();
+
+  const web3LoginMethodsOrdered = useMemo(() => {
+    const disabledLast = (a: LoginMethod, b: LoginMethod) => {
+      if (a.ready && !b.ready) return -1;
+      if (!a.ready && b.ready) return 1;
+      return 0;
+    };
+
+    return web3.sort(disabledLast);
+  }, [web3]);
 
   return (
     <>
@@ -20,7 +35,7 @@ export const SignInScreen = ({ startLoginWith }) => {
           <Section>
             <Text component="h2">Web3 Wallets</Text>
             <div className={styles.loginOptions}>
-              {web3.map((loginMethod) => (
+              {web3LoginMethodsOrdered.map((loginMethod) => (
                 <ButtonWithIcon
                   key={loginMethod.id}
                   icon={
