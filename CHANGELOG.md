@@ -21,6 +21,16 @@ straightforward as possible.
 
 ### Fixed
 
+## [1.1.0] - 2023-01-20
+
+### Added
+
+- Only display a max of 4 login methods by default with the possibility of showing all of them by clicking the More Wallets button
+
+### Changed
+
+- Display last the disabled login methods
+
 ## [1.0.1] - 2023-01-20
 
 ### Added

@@ -3,6 +3,8 @@
   flex: 1 1 auto;
   /* TODO: SLA-1842 - add webkit scrollbar customized styles to display bar properly in windows devices */
   overflow-y: scroll;
+  display: flex;
+  flex-direction: column;
 }
 
 .section {
