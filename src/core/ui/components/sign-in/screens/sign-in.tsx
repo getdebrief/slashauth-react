@@ -1,7 +1,7 @@
 import { Header } from '../layout/header';
 import { Content, Section } from '../layout/content';
 import { Footer } from '../layout/footer';
-import { ButtonWithIcon } from '../../primitives/button';
+import { BaseButton, ButtonWithIcon } from '../../primitives/button';
 import { Text } from '../../primitives/text';
 import styles from './sign-in.module.css';
 import {
@@ -9,7 +9,7 @@ import {
   getIconsById,
   LoginMethod,
 } from '../../../context/login-methods';
-import { useMemo } from 'react';
+import { useMemo, useState } from 'react';
 
 export const SignInScreen = ({ startLoginWith }) => {
   const { web3, web2 } = useLoginMethods();
@@ -24,6 +24,23 @@ export const SignInScreen = ({ startLoginWith }) => {
     return web3.sort(disabledLast);
   }, [web3]);
 
+  const maxDisplayedOptions = web2.length === 0 ? 4 : 2;
+  const isShowMoreEnabled = web3.length > maxDisplayedOptions;
+  const [showMore, setShowMore] = useState(false);
+
+  const visibleMethods = useMemo(() => {
+    if (!isShowMoreEnabled) return web3LoginMethodsOrdered;
+
+    return showMore
+      ? web3LoginMethodsOrdered
+      : web3LoginMethodsOrdered.slice(0, maxDisplayedOptions);
+  }, [
+    web3LoginMethodsOrdered,
+    maxDisplayedOptions,
+    showMore,
+    isShowMoreEnabled,
+  ]);
+
   return (
     <>
       <Header
@@ -35,7 +52,7 @@ export const SignInScreen = ({ startLoginWith }) => {
           <Section>
             <Text component="h2">Web3 Wallets</Text>
             <div className={styles.loginOptions}>
-              {web3LoginMethodsOrdered.map((loginMethod) => (
+              {visibleMethods.map((loginMethod) => (
                 <ButtonWithIcon
                   key={loginMethod.id}
                   icon={
@@ -51,6 +68,11 @@ export const SignInScreen = ({ startLoginWith }) => {
                 </ButtonWithIcon>
               ))}
             </div>
+            {isShowMoreEnabled ? (
+              <BaseButton onClick={() => setShowMore((showMore) => !showMore)}>
+                {showMore ? 'Back to login options' : 'More Wallets'}
+              </BaseButton>
+            ) : null}
           </Section>
         ) : null}
         {web2.length ? (
