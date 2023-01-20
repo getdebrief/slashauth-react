@@ -12,10 +12,34 @@ import text from '../../primitives/text.module.css';
 import margin from '../../primitives/margin.module.css';
 import styles from './action.module.css';
 import { shortenEthAddress } from '../../../../../shared/utils/eth';
+import { useEffect, useRef } from 'react';
+import { useRouter } from '../../../router/context';
+
+function usePrevious(value) {
+  const ref = useRef();
+  useEffect(() => {
+    ref.current = value;
+  });
+  return ref.current;
+}
 
 export const ActionScreen = ({ navigateBack, signNonceAndLogin }) => {
-  const { selectedLoginMethod } = useLoginMethods();
+  const { selectedLoginMethod, setSelectedLoginMethodById } = useLoginMethods();
   const { address } = useWeb3LoginState();
+
+  const prevAddress = usePrevious(address);
+  const { navigate } = useRouter();
+
+  useEffect(() => {
+    /**
+     * Address changed to undefined when the site is disconnected with Metamask.
+     * In that case we go back to the login options to start the process all over again.
+     * */
+    if (prevAddress && !address) {
+      navigate('../');
+      setSelectedLoginMethodById(null);
+    }
+  }, [address, prevAddress, navigate, setSelectedLoginMethodById]);
 
   return (
     <>

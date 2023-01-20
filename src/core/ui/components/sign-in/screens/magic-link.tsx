@@ -27,14 +27,13 @@ export const MagicLinkScreen = ({ navigateBack, sendMagicLink }) => {
       <Content>
         <form onSubmit={handleSubmit}>
           <Section>
-            <EmailInput />
+            <EmailInput className={margin.top2} />
             <BaseButton
               component="input"
               type="submit"
               className={margin.top2}
               primary
               wide
-              onClick={sendMagicLink}
               value="Send a MagicLink"
             />
           </Section>

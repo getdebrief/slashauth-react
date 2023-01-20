@@ -1,12 +1,11 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect } from 'react';
 import { Flow } from '../flow/flow';
-import { SignInCard } from './card';
-import { LoadingModalContents } from './loading';
 import { useCoreClient } from '../../context/slashauth-client';
 import { useRouter } from '../../router/context';
 import { useSignInContext } from './context';
 import { useInteraction } from '../../context/interaction';
 import { useCoreSlashAuth } from '../../context/core-slashauth';
+import { LoadingScreen } from './screens/loading';
 
 export const FederatedGoogleSignIn = () => {
   const slashAuth = useCoreSlashAuth();
@@ -14,7 +13,6 @@ export const FederatedGoogleSignIn = () => {
   const { connectAccounts } = useSignInContext();
   const { navigate } = useRouter();
   const client = useCoreClient();
-  const [, setError] = useState<string | null>(null);
 
   useEffect(() => {
     client
@@ -27,15 +25,15 @@ export const FederatedGoogleSignIn = () => {
           .then(() => {
             navigate('../success');
           })
-          .catch((err) => {
-            setError(err.toString());
+          .catch(() => {
+            navigate('../error');
           })
           .finally(() => {
             setProcessing(false);
           });
       })
-      .catch((err) => {
-        setError(err);
+      .catch(() => {
+        navigate('../error');
         setProcessing(false);
       });
     setProcessing(true);
@@ -43,26 +41,17 @@ export const FederatedGoogleSignIn = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const contents = useMemo(() => {
-    return (
-      <LoadingModalContents
-        textContent={'Check the new tab to complete your login with Google'}
-      />
-    );
-  }, []);
-
   return (
+    // When processing display loader
     <Flow.Part part="federatedGoogle">
-      <SignInCard showBackButton>
-        <div
-          style={{
-            width: '100%',
-            padding: '2rem 0',
-          }}
-        >
-          {contents}
-        </div>
-      </SignInCard>
+      <LoadingScreen
+        description="Connecting to Google"
+        detailedDescription="Confirm your account connection"
+        navigateBack={async () => {
+          setProcessing(false);
+          navigate('../');
+        }}
+      />
     </Flow.Part>
   );
 };

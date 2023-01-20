@@ -1,9 +1,15 @@
 import styles from './footer.module.css';
+import pkg from '../../../../../../package.json';
 
 const Copyright = () => (
-  <small className={styles.copyright}>
+  <a
+    href={pkg.homepage}
+    target="_blank"
+    rel="noreferrer"
+    className={styles.copyright}
+  >
     Powered by <span className={styles.logo}>/auth</span>
-  </small>
+  </a>
 );
 
 Copyright.displayName = 'Footer.Copyright';

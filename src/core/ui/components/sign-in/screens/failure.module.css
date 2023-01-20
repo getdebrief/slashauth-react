@@ -11,28 +11,24 @@
 
   display: flex;
   justify-content: center;
-  padding: 0 0 0.05em 0.05em;
+  padding: 0;
 
-  font-weight: 900;
+  font-weight: 500;
 
   margin: -0.5em;
+  line-height: 1em;
+  box-sizing: content-box;
 }
 
 .icon:before {
-  content: "";
-    height: 0.3em;
-    width: 0.8em;
-    border-bottom: 0.15em solid #c05d7e;
-    transform: translate3d(0.25em, 0.45em, 0) rotate(-45deg);
+  content: '×';
+  font-size: 1.3em;
+  color: #c05d7e;
+  text-align: center;
+  top: 0.5em;
+  margin-top: 0.15em;
 }
 
-.icon:after {
-  content: "";
-  height: 0.3em;
-  width: 0.8em;
-  border-bottom: 0.15em solid #c05d7e;
-  transform: translate3d(-0.27em, 0.45em, 0) rotate(45deg); 
-}
 
 /* TODO: SLA-1968 - Move this to a vertical divider css module */
 .verticalDivider {
@@ -51,9 +47,4 @@
 /* TODO: SLA-1968 - Move this to a links css module */
 .support a {
   color: #577EFD;
-}
-
-/* TODO: SLA-1968 - Move this to an errors css module */
-.errorMessage {
-  color: #df1212;
 }
