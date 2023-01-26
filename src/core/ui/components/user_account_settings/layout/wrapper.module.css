@@ -1,6 +1,6 @@
 .wrapper {
   background: var(--slashauth-backgroundColor, white);
-  padding: 16px;
+  padding: 32px;
   padding-bottom: 48px;
   width: 100%;
   max-width: 640px;
