@@ -7,12 +7,17 @@ export enum Size {
   Large,
 }
 
+export enum Align {
+  Left,
+}
+
 export const Text = <C extends React.ElementType = 'p'>({
   size = Size.Medium,
   component,
   children,
   className,
   error,
+  align,
   ...props
 }: {
   size?: Size;
@@ -20,6 +25,7 @@ export const Text = <C extends React.ElementType = 'p'>({
   children: React.ReactNode;
   className?: string;
   error?: boolean;
+  align?: Align;
 } & React.ComponentPropsWithoutRef<C>) => {
   const Element = component ?? 'p';
 
@@ -30,6 +36,7 @@ export const Text = <C extends React.ElementType = 'p'>({
         styles.text,
         size === Size.Large && styles.largeText,
         error && styles.error,
+        align === Align.Left && styles.alignLeft,
         className
       )}
     >

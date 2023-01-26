@@ -1,6 +1,6 @@
 .text {
   font-size: 14px;
-  color: var(--slashauth-fontColor, '#363849');
+  color: var(--slashauth-fontColor, #363849);
   font-weight: 500;
   line-height: 17px;
   margin: 0;
@@ -16,4 +16,8 @@
 
 .centered {
   text-align: center;
+}
+
+.alignLeft {
+  text-align: left;
 }

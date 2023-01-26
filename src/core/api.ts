@@ -17,6 +17,7 @@ import {
   RefreshTokenResponse,
   TokenEndpointOptions,
   TokenEndpointResponse,
+  UserAccountSettings,
 } from '../shared/global';
 import { getJSON, switchFetch } from './http';
 import { createQueryParams } from '../shared/utils';
@@ -44,6 +45,30 @@ export async function getAppConfig({
       {
         method: 'GET',
         headers: {
+          'Content-Type': 'application/json',
+          'X-SlashAuth-Client': btoa(JSON.stringify(DEFAULT_SLASHAUTH_CLIENT)),
+        },
+      }
+    )
+  ).data;
+}
+
+export async function getUserAccountSettings({
+  baseUrl,
+  clientID,
+  userID,
+  accessToken,
+}): Promise<UserAccountSettings> {
+  return (
+    await getJSON<{ data: UserAccountSettings }>(
+      `${baseUrl}/p/${clientID}/user/${userID}/account_settings`,
+      1000,
+      'default',
+      '',
+      {
+        method: 'GET',
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
           'Content-Type': 'application/json',
           'X-SlashAuth-Client': btoa(JSON.stringify(DEFAULT_SLASHAUTH_CLIENT)),
         },

@@ -1,0 +1,17 @@
+.title {
+  line-height: 30px;
+  font-family: 'Poppins', sans-serif;
+  font-style: normal;
+  font-weight: 500;
+  font-size: 24px;
+  color: var(--slashauth-fontColor, #363849);
+  text-align: left;
+  margin: 0;
+}
+
+/* TODO: SLA-1968 - Move this to a horizontal divider css module */
+.horizontalDivider {
+  background-color: var(--slashauth-lineColor, #E5E7EB);
+  height: 1px;
+  border: 0;
+}

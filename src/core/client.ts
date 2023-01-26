@@ -80,6 +80,7 @@ import {
   exchangeToken,
   oauthToken,
   logoutAPICall,
+  getUserAccountSettings,
 } from './api';
 import { ObjectMap } from '../shared/utils/object';
 import { createRandomString } from '../shared/utils/string';
@@ -688,6 +689,21 @@ export default class SlashAuthClient {
     const result = await getAppConfig({
       baseUrl: getDomain(this.domainUrl),
       client_id: this.options.clientID,
+    });
+
+    return result;
+  }
+
+  public async getUserAccountSettings(userID: string) {
+    const accessToken = await this.getTokens();
+
+    if (!accessToken) return null;
+
+    const result = await getUserAccountSettings({
+      baseUrl: getDomain(this.domainUrl),
+      clientID: this.options.clientID,
+      userID,
+      accessToken,
     });
 
     return result;
