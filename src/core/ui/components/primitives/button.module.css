@@ -10,7 +10,7 @@
   font-size: 14px;
   font-weight: 500;
 
-  background: var(--slashauth-buttonBackgroundColor);
+  background: var(--slashauth-buttonBackgroundColor, #ffffff);
   border: solid 1px var(--slashauth-lineColor, #E5E7EB);
 
   cursor: pointer;
@@ -18,7 +18,7 @@
 }
 
 .baseButton:enabled:hover {
-  background: var(--slashauth-hoverButtonBackgroundColor);
+  background: var(--slashauth-hoverButtonBackgroundColor, #f5f5f5);
 }
 
 .baseButton:disabled {

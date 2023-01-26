@@ -2,10 +2,9 @@ import { Text } from './text';
 import margin from './margin.module.css';
 import { classNames } from '../../../../shared/utils/classnames';
 import styles from './input.module.css';
-import error from './error.module.css';
 import { useState } from 'react';
 
-const Label = ({ htmlFor, children }) => (
+export const Label = ({ htmlFor, children }) => (
   <Text component="label" htmlFor={htmlFor} className={styles.label}>
     {children}
   </Text>
@@ -16,7 +15,7 @@ Label.displayName = 'Input.Label';
 /**
  * Uncontrolled Input component
  */
-const Input = ({
+export const Input = ({
   valid = true,
   name,
   type = 'text',
@@ -35,7 +34,7 @@ const Input = ({
   />
 );
 
-const ErrorMessage = ({ children }) => (
+export const ErrorMessage = ({ children }) => (
   <Text className={classNames(margin.top2)} error>
     {children}
   </Text>
