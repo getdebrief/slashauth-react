@@ -77,6 +77,55 @@ export async function getUserAccountSettings({
   ).data;
 }
 
+export async function patchUser({
+  baseUrl,
+  clientID,
+  userID,
+  accessToken,
+  user,
+}) {
+  return (
+    await getJSON<{ data: UserAccountSettings }>(
+      `${baseUrl}/p/${clientID}/user/${userID}`,
+      1000,
+      'default',
+      '',
+      {
+        method: 'PATCH',
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+          'Content-Type': 'application/json',
+          'X-SlashAuth-Client': btoa(JSON.stringify(DEFAULT_SLASHAUTH_CLIENT)),
+        },
+        body: JSON.stringify(user),
+      }
+    )
+  ).data;
+}
+
+export async function deleteConnection({
+  baseUrl,
+  clientID,
+  userID,
+  connectionID,
+  accessToken,
+}) {
+  return await getJSON<void>(
+    `${baseUrl}/p/${clientID}/user/${userID}/connections/${connectionID}`,
+    1000,
+    'default',
+    '',
+    {
+      method: 'DELETE',
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+        'Content-Type': 'application/json',
+        'X-SlashAuth-Client': btoa(JSON.stringify(DEFAULT_SLASHAUTH_CLIENT)),
+      },
+    }
+  );
+}
+
 export async function getNonceToSign({
   baseUrl,
   ...options

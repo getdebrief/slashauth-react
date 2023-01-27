@@ -81,6 +81,8 @@ import {
   oauthToken,
   logoutAPICall,
   getUserAccountSettings,
+  patchUser,
+  deleteConnection,
 } from './api';
 import { ObjectMap } from '../shared/utils/object';
 import { createRandomString } from '../shared/utils/string';
@@ -703,6 +705,45 @@ export default class SlashAuthClient {
       baseUrl: getDomain(this.domainUrl),
       clientID: this.options.clientID,
       userID,
+      accessToken,
+    });
+
+    return result;
+  }
+
+  public async patchUserAccountSettings({
+    id,
+    ...userAttributes
+  }: {
+    id: string;
+    defaultProfileImage?: string;
+    name?: string;
+  }) {
+    const accessToken = await this.getTokens();
+
+    if (!accessToken) return null;
+
+    const { defaultProfileImage, name } = await patchUser({
+      baseUrl: getDomain(this.domainUrl),
+      clientID: this.options.clientID,
+      userID: id,
+      user: userAttributes,
+      accessToken,
+    });
+
+    return { defaultProfileImage, name };
+  }
+
+  public async deleteConnection(userID: string, connectionID: string) {
+    const accessToken = await this.getTokens();
+
+    if (!accessToken) return null;
+
+    const result = await deleteConnection({
+      baseUrl: getDomain(this.domainUrl),
+      clientID: this.options.clientID,
+      userID,
+      connectionID,
       accessToken,
     });
 
