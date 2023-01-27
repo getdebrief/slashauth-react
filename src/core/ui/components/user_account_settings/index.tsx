@@ -40,8 +40,11 @@ export const UserAccountSettings = withVirtualRouter(() => {
     <Wrapper>
       <Route path="name">
         <EditNameScreen
+          name={accountSettings?.name}
           backToSettings={() => router.navigate('')}
-          save={(name) => patchAccountSettings({ name })}
+          save={(name) =>
+            patchAccountSettings({ name }).then(() => router.navigate(''))
+          }
         />
       </Route>
       <Route index>

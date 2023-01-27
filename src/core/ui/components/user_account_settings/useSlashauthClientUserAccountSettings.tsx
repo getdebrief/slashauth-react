@@ -3,7 +3,7 @@ import { UserAccountSettings } from '../../../../shared/global';
 import { SlashAuthListenerPayload } from '../../../../shared/types';
 import { useCoreSlashAuth } from '../../context/core-slashauth';
 
-const assign = (a) => (b) => ({ ...a, ...b });
+const assign = (a) => (b) => ({ ...b, ...a });
 
 enum Status {
   Idle,
