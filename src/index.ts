@@ -7,6 +7,7 @@ import {
 import { supportedFontFamilies } from './core/ui/fonts';
 import { Account } from './shared/global';
 import { Buffer } from 'buffer';
+import { UserAccountSettings } from './core/ui/components/user_account_settings';
 
 if (typeof window !== 'undefined') {
   window.Buffer = Buffer;
@@ -25,6 +26,7 @@ export {
 export * from './core/ui';
 
 export {
+  UserAccountSettings,
   Account,
   SlashAuth,
   SlashAuthProvider,
