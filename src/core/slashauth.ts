@@ -206,18 +206,12 @@ export class SlashAuth {
         this.openSignIn(options);
         unsubscribe = this.#componentController.addListener((payload) => {
           if (payload.action === 'close') {
+            resolve();
             unsubscribe();
-            if (this.#web3Manager.address) {
-              resolve();
-            } else {
-              resolve();
-            }
           }
         });
       } catch (err) {
-        if (unsubscribe) {
-          unsubscribe();
-        }
+        unsubscribe?.();
         reject(err);
       }
     });

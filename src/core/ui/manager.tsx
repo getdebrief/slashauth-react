@@ -221,7 +221,7 @@ const ComponentManagerComponent = (props: ComponentManagerComponentProps) => {
       });
       return unsubscribeFn;
     };
-  }, []);
+  }, [managerState]);
 
   const mountedSignInModal = (
     <AppearanceProvider
