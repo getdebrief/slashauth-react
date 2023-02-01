@@ -1,9 +1,8 @@
 import styles from './footer.module.css';
-import pkg from '../../../../../../package.json';
 
 const Copyright = () => (
   <a
-    href={pkg.homepage}
+    href="https://www.slashauth.com"
     target="_blank"
     rel="noreferrer"
     className={styles.copyright}
