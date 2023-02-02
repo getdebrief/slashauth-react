@@ -19,6 +19,7 @@ import { ComponentContext, useSignInContext } from './context';
 import { SignInError } from './error';
 import { FederatedGoogleSignIn } from './federated-google-sign-in';
 import { MagicLinkSignIn } from './magic-link-sign-in';
+import { MagicLinkVerifyEmail } from './magic-link-verify-email';
 import { SignNonce } from './sign-nonce';
 import { SignInStart } from './start';
 import { SignInSuccess } from './success';
@@ -155,6 +156,9 @@ function SignInRoutes(): JSX.Element {
               </Route>
               <Route path="magic-link">
                 <MagicLinkSignIn />
+              </Route>
+              <Route path="magic-link-verify-email">
+                <MagicLinkVerifyEmail />
               </Route>
               <Route path="federated-google">
                 <FederatedGoogleSignIn />

@@ -109,6 +109,8 @@ export interface LoginNoRedirectNoPopupOptions extends BaseLoginOptions {
 
 export interface MagicLinkLoginOptions extends BaseLoginOptions {
   email: string;
+  verificationEmail?: boolean;
+  walletAddress?: string;
 }
 
 // eslint-disable-next-line @typescript-eslint/no-empty-interface
@@ -424,6 +426,7 @@ export type CacheLocation = 'memory' | 'localstorage';
 export interface AuthenticationResult {
   state: string;
   code?: string;
+  status?: ObjectMap;
   error?: string;
   error_description?: string;
 }

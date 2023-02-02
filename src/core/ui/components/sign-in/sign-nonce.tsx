@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useState } from 'react';
+import { EmailRequiredError } from '../../../../shared/errors';
 import { useAppearance } from '../../context/appearance';
 import { withCardStateProvider } from '../../context/card';
 import { useCoreSlashAuth } from '../../context/core-slashauth';
@@ -79,9 +80,14 @@ const _SignNonce = () => {
           });
           slashAuth.checkLoginState();
         } catch (err) {
-          navigate(
-            `../error?error=${err.error}&error_description=${err.error_description}`
-          );
+          console.error(err);
+          if (err instanceof EmailRequiredError) {
+            navigate('../magic-link-verify-email');
+          } else {
+            navigate(
+              `../error?error=${err.error}&error_description=${err.error_description}`
+            );
+          }
           return;
         } finally {
           setLoginWithAPIActive(false);

@@ -25,7 +25,11 @@ import {
 
 import TransactionManager from '../shared/transaction-manager';
 import { verify as verifyIdToken } from '../shared/jwt';
-import { NotLoggedInError, TimeoutError } from '../shared/errors';
+import {
+  EmailRequiredError,
+  NotLoggedInError,
+  TimeoutError,
+} from '../shared/errors';
 
 import {
   ClientStorage,
@@ -961,6 +965,7 @@ export default class SlashAuthClient {
     }
 
     const session = await this.sessionManager.getSession();
+    console.log('session in magicLinkLogin :>> ', session);
 
     const params = {
       client_id: this.options.clientID,
@@ -982,6 +987,8 @@ export default class SlashAuthClient {
 
     const authResult = await runMagicLinkLoginIframe(url, this.domainUrl, {
       email: options.email,
+      verificationEmail: options.verificationEmail,
+      walletAddress: options.walletAddress,
     });
 
     if (authResult.state !== stateIn) {
@@ -1071,6 +1078,10 @@ export default class SlashAuthClient {
       signature: options.signature,
       device_id: getDeviceID(),
     });
+
+    if (authResult?.status?.collectEmail) {
+      throw new EmailRequiredError();
+    }
 
     if (authResult.state !== stateIn) {
       throw new Error('Invalid state');
