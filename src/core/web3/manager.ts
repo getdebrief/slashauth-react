@@ -259,15 +259,11 @@ export class Web3Manager {
 
       // Show our four default connectors if only an injected connector is passed in
       // (this is wagmi's default when no connectors are passed into the wagmi client)
-      if (
-        this.#client.connectors.length === 0 ||
-        (this.#client.connectors.length === 1 &&
-          this.#client.connectors[0].id === 'injected')
-      ) {
-        this.#client.config.connectors = this.#connectors;
-      } else {
-        this.#connectors = this.#client.connectors;
+      if (this.#client.connectors.length === 0) {
+        console.error('Must pass in connectors. Look at docs'); // TODO: Link to docs1
       }
+
+      this.#connectors = this.#client.connectors;
     } else {
       this.#client = createClient({
         autoConnect,
