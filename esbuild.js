@@ -49,6 +49,6 @@ esbuild.build({
   outfile: './dist/index.cjs.js',
   outbase: './src',
   treeShaking: true,
-  external: ['react', 'react-dom'],
+  external: ['react', 'react-dom', 'wagmi', 'ethers', '@wagmi/core'],
   plugins: [cssModulesPlugin()],
 });
