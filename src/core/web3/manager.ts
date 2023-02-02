@@ -257,10 +257,11 @@ export class Web3Manager {
       }
       this.#client = this.#config.wagmiOptions.wagmiClient as WagmiClient;
 
-      // Show our four default connectors if only an injected connector is passed in
-      // (this is wagmi's default when no connectors are passed into the wagmi client)
+      // Fire error if user passes in a client with no connectors
       if (this.#client.connectors.length === 0) {
-        console.error('Must pass in connectors. Look at docs'); // TODO: Link to docs1
+        console.error(
+          'Must pass in connectors as shown in our docs: https://docs.slashauth.com/get-started/wagmi-configuration'
+        );
       }
 
       this.#connectors = this.#client.connectors;
