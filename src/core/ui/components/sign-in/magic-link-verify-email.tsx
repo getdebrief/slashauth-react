@@ -26,7 +26,7 @@ export const MagicLinkVerifyEmail = () => {
         await client.magicLinkLogin({
           email,
           walletAddress: address,
-          verificationEmail: true,
+          isVerificationEmail: true,
         });
         await slashAuth.checkLoginState();
         setProcessing(false);

@@ -109,7 +109,7 @@ export interface LoginNoRedirectNoPopupOptions extends BaseLoginOptions {
 
 export interface MagicLinkLoginOptions extends BaseLoginOptions {
   email: string;
-  verificationEmail?: boolean;
+  isVerificationEmail?: boolean;
   walletAddress?: string;
 }
 

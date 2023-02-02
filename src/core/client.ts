@@ -987,7 +987,7 @@ export default class SlashAuthClient {
 
     const authResult = await runMagicLinkLoginIframe(url, this.domainUrl, {
       email: options.email,
-      verificationEmail: options.verificationEmail,
+      isVerificationEmail: options.isVerificationEmail,
       walletAddress: options.walletAddress,
     });
 

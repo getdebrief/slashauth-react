@@ -31,7 +31,7 @@ type MagicLinkLoginPayload = {
 
 type MagicLinkVerificationPayload = {
   email: string;
-  verificationEmail: boolean;
+  isVerificationEmail: boolean;
   walletAddress: string;
 };
 
