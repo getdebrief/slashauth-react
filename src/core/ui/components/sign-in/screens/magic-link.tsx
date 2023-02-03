@@ -34,7 +34,7 @@ export const MagicLinkScreen = ({ navigateBack, sendMagicLink }) => {
               className={margin.top2}
               primary
               wide
-              value="Send a MagicLink"
+              value="Send a Magic Link"
             />
           </Section>
           <Section className={styles.navigateBack}>
