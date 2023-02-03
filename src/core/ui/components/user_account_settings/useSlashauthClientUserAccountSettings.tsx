@@ -55,6 +55,20 @@ export const useSlashauthClientUserAccountSettings = () => {
     [user, client, refreshData]
   );
 
+  const editProfileImage = useCallback(
+    async (file: File) => {
+      const { id } = await client.uploadBlob(file, user.userID);
+
+      const data = await client.patchUserAccountSettings({
+        id: user.userID,
+        defaultProfileImage: id,
+      });
+
+      setMySettings(assign(data));
+    },
+    [setMySettings, client, user]
+  );
+
   const { status, startConnectionProcess } = useConnectionProcess();
 
   useEffect(() => {
@@ -68,6 +82,7 @@ export const useSlashauthClientUserAccountSettings = () => {
     patchAccountSettings,
     removeConnection,
     addConnection: startConnectionProcess,
+    editProfileImage,
   };
 };
 

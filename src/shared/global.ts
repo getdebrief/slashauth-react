@@ -252,6 +252,11 @@ export type UserAccountSettings = {
   connections: PublicUserConnection[];
 };
 
+export type CreateBlobResponse = {
+  id: string;
+  signedUrl: string;
+};
+
 export interface LoginWithSignedNonceResponse {
   access_token: string;
   refresh_token: string;

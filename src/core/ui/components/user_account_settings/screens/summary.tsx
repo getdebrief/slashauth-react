@@ -68,6 +68,7 @@ export const SummaryScreen = ({
   editProfilePicture,
   addEmail,
   addWallet,
+  addWeb2Account,
 }) => {
   const router = useRouter();
 
@@ -111,7 +112,7 @@ export const SummaryScreen = ({
       <Avatar
         className={margin.top2}
         src={accountSettings.defaultProfileImage}
-        onClick={editProfilePicture}
+        onChange={editProfilePicture}
       />
       <Text
         component="h2"
@@ -208,22 +209,6 @@ export const SummaryScreen = ({
           </Text>
         </div>
       ) : null}
-      {/* <Text
-        component="h2"
-        align={Align.Left}
-        className={classNames(margin.top12, margin.bottom2)}
-      >
-        Web2 accounts
-      </Text>
-      <div className={styles.action}>
-        <Text
-          className={classNames(styles.addButton)}
-          align={Align.Left}
-          onClick={() => onAddConnection(LoginMethodType.MagicLink)}
-        >
-          + Add social account
-        </Text>
-      </div> */}
     </>
   ) : // loading screen
   null;

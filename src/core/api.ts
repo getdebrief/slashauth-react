@@ -18,6 +18,7 @@ import {
   TokenEndpointOptions,
   TokenEndpointResponse,
   UserAccountSettings,
+  CreateBlobResponse,
 } from '../shared/global';
 import { getJSON, switchFetch } from './http';
 import { createQueryParams } from '../shared/utils';
@@ -117,6 +118,62 @@ export async function deleteConnection({
     '',
     {
       method: 'DELETE',
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+        'Content-Type': 'application/json',
+        'X-SlashAuth-Client': btoa(JSON.stringify(DEFAULT_SLASHAUTH_CLIENT)),
+      },
+    }
+  );
+}
+
+export async function getUserProfileImageUploadUrl({
+  baseUrl,
+  clientID,
+  userID,
+  accessToken,
+  fileSize,
+  mimeType,
+}) {
+  return (
+    await getJSON<{ data: CreateBlobResponse }>(
+      `${baseUrl}/p/${clientID}/user/${userID}/profile_image_upload_url`,
+      1000,
+      'default',
+      '',
+      {
+        method: 'POST',
+        body: JSON.stringify({
+          fileSize,
+          mimeType,
+        }),
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+          'Content-Type': 'application/json',
+          'X-SlashAuth-Client': btoa(JSON.stringify(DEFAULT_SLASHAUTH_CLIENT)),
+        },
+      }
+    )
+  ).data;
+}
+
+export async function patchBlob({
+  baseUrl,
+  clientID,
+  blobID,
+  accessToken,
+  status,
+}) {
+  return await getJSON<void>(
+    `${baseUrl}/p/${clientID}/blobs/${blobID}`,
+    10000,
+    'default',
+    '',
+    {
+      method: 'PATCH',
+      body: JSON.stringify({
+        status,
+      }),
       headers: {
         Authorization: `Bearer ${accessToken}`,
         'Content-Type': 'application/json',

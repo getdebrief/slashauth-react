@@ -14,6 +14,7 @@ export const UserAccountSettings = withVirtualRouter(() => {
     patchAccountSettings,
     removeConnection,
     addConnection,
+    editProfileImage,
   } = useSlashauthClientUserAccountSettings();
   const router = useRouter();
 
@@ -25,16 +26,12 @@ export const UserAccountSettings = withVirtualRouter(() => {
     addConnection([LoginMethodType.Web3]);
   }, [addConnection]);
 
-  // const addWeb2Account = useCallback(() => {
-  //   openSignIn({
-  //     connectAccounts: true,
-  //     includeLoginMethodTypes: [
-  //       LoginMethodType.FederatedDiscord,
-  //       LoginMethodType.FederatedTwitter,
-  //     ],
-  //   });
-  //   return;
-  // }, [openSignIn]);
+  const addWeb2Account = useCallback(() => {
+    addConnection([
+      LoginMethodType.FederatedDiscord,
+      LoginMethodType.FederatedTwitter,
+    ]);
+  }, [addConnection]);
 
   return (
     <Wrapper>
@@ -51,9 +48,10 @@ export const UserAccountSettings = withVirtualRouter(() => {
         <SummaryScreen
           accountSettings={accountSettings}
           removeConnection={removeConnection}
-          editProfilePicture={console.log}
+          editProfilePicture={editProfileImage}
           addEmail={addEmail}
           addWallet={addWallet}
+          addWeb2Account={addWeb2Account}
         />
       </Route>
     </Wrapper>
