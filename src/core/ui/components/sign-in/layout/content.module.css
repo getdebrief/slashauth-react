@@ -5,6 +5,12 @@
   overflow-y: scroll;
   display: flex;
   flex-direction: column;
+  -ms-overflow-style: none;  /* IE and Edge */
+  scrollbar-width: none;  /* Firefox */
+}
+
+.section::-webkit-scrollbar {
+  display: none;
 }
 
 .section {
