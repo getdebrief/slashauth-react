@@ -40,7 +40,7 @@ export const useSlashauthClientUserAccountSettings = () => {
       });
 
       setMySettings(assign(data));
-      // TODO: error handling
+      // TODO: SLA-2139 - SR Implement error states for User Account Settings drop-in component
     },
     [user, client]
   );
@@ -50,7 +50,7 @@ export const useSlashauthClientUserAccountSettings = () => {
       await client.deleteConnection(user.userID, connectionID);
 
       refreshData();
-      // TODO: error handling
+      // TODO: SLA-2139 - SR Implement error states for User Account Settings drop-in component
     },
     [user, client, refreshData]
   );
@@ -103,7 +103,7 @@ const useConnectionProcess = () => {
           includeLoginMethodTypes: loginMethods,
         });
       } catch (err) {
-        // TODO: error handling
+        // TODO: SLA-2139 - SR Implement error states for User Account Settings drop-in component
       } finally {
         setStatus(Status.Stopped);
       }

@@ -11,6 +11,7 @@ import { Chip } from '../../primitives/chip';
 import { Avatar } from '../../primitives/avatar';
 import { MailIcon } from '@heroicons/react/outline';
 
+// TODO: SLA-1968 - Unify icons
 const ConnectionTypeIcon = ({ type }) => {
   const style = {
     height: '20px',
@@ -42,6 +43,7 @@ const ConnectionTypeIcon = ({ type }) => {
   }
 };
 
+// TODO: SLA-1968 - Unify icons
 const BinIcon = ({ onClick }) => (
   <span className={styles.deleteAction} onClick={onClick}>
     <svg
@@ -73,7 +75,7 @@ export const SummaryScreen = ({
   const router = useRouter();
 
   if (accountSettings === null) {
-    // display error
+    // TODO: SLA-2139 - SR Implement error states for User Account Settings drop-in component
   }
 
   const { emails, web3Wallets, web2Accounts } = useMemo(() => {
