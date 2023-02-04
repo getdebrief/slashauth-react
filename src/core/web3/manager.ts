@@ -1,4 +1,10 @@
-import { InjectedConnector, Provider, connect, disconnect } from '@wagmi/core';
+import {
+  Chain,
+  InjectedConnector,
+  Provider,
+  connect,
+  disconnect,
+} from '@wagmi/core';
 import {
   Client,
   createClient,
@@ -36,7 +42,7 @@ type Config = {
   };
 };
 
-const defaultChains = [mainnet, goerli];
+const defaultChains: Chain[] = [mainnet, goerli];
 
 type WagmiClient = Client;
 
