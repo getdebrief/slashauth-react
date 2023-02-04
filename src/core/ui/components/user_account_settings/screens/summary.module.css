@@ -49,3 +49,7 @@
 .deleteAction:hover svg path {
   stroke: red;
 }
+
+.addIcon {
+  font-size: 18px;
+}

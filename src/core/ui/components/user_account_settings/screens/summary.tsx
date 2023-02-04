@@ -123,12 +123,12 @@ export const SummaryScreen = ({
       </Text>
       <div className={styles.action} onClick={() => router.navigate('name')}>
         {accountSettings.name ? (
-          <Text align={Align.Left} className={classNames(styles.settingsValue)}>
+          <Text align={Align.Left} className={styles.settingsValue}>
             {accountSettings.name}
           </Text>
         ) : (
-          <Text className={classNames(styles.addButton)} align={Align.Left}>
-            + Add name
+          <Text className={styles.addButton} align={Align.Left}>
+            <span className={styles.addIcon}>+</span> Add name
           </Text>
         )}
         <span className={styles.navigateAction}>
@@ -161,10 +161,7 @@ export const SummaryScreen = ({
           <div className={styles.actionOnHover} key={connection.id}>
             <div style={{ display: 'flex', alignItems: 'center' }}>
               <ConnectionTypeIcon type={connection.connectionType} />
-              <Text
-                align={Align.Left}
-                className={classNames(styles.settingsValue)}
-              >
+              <Text align={Align.Left} className={styles.settingsValue}>
                 {connection.displayValue}
               </Text>
               <Chip>Verified</Chip>
@@ -174,8 +171,8 @@ export const SummaryScreen = ({
         ))
       ) : (
         <div className={styles.action} onClick={addEmail}>
-          <Text className={classNames(styles.addButton)} align={Align.Left}>
-            + Add email
+          <Text className={styles.addButton} align={Align.Left}>
+            <span className={styles.addIcon}>+</span> Add email
           </Text>
         </div>
       )}
@@ -191,10 +188,7 @@ export const SummaryScreen = ({
             <div className={styles.actionOnHover} key={connection.id}>
               <div style={{ display: 'flex', alignItems: 'center' }}>
                 <ConnectionTypeIcon type={connection.connectionType} />
-                <Text
-                  align={Align.Left}
-                  className={classNames(styles.settingsValue)}
-                >
+                <Text align={Align.Left} className={styles.settingsValue}>
                   {connection.displayValue}
                 </Text>
               </div>
@@ -204,8 +198,8 @@ export const SummaryScreen = ({
         : null}
       {!nonCustodialWallets.length ? (
         <div className={styles.action} onClick={addWallet}>
-          <Text className={classNames(styles.addButton)} align={Align.Left}>
-            + Add wallet
+          <Text className={styles.addButton} align={Align.Left}>
+            <span className={styles.addIcon}>+</span> Add wallet
           </Text>
         </div>
       ) : null}
