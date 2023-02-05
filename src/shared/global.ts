@@ -429,6 +429,7 @@ export interface AuthenticationResult {
   status?: ObjectMap;
   error?: string;
   error_description?: string;
+  needsAdditionalLogin?: ObjectMap;
 }
 
 export interface OAuthTokenOptions extends TokenEndpointOptions {

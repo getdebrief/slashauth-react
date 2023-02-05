@@ -291,6 +291,26 @@ export const runMagicLinkLoginIframe = async (
   );
 };
 
+export const runMagicLinkVerifyIframe = async (
+  authorizeUrl: string,
+  eventOrigin: string,
+  payload: MagicLinkVerificationPayload,
+  timeoutInSeconds: number = 60 * 10
+) => {
+  return runLoginIframe(
+    authorizeUrl,
+    eventOrigin,
+    'magicLink',
+    {
+      initialization: 'login_initialized',
+      messageTypeToSend: 'login',
+      responseTypes: ['login_response', 'authorization_response'],
+    },
+    payload,
+    timeoutInSeconds
+  );
+};
+
 export const runIframeWithType = async (
   authorizeUrl: string,
   eventOrigin: string,

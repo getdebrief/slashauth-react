@@ -10,6 +10,7 @@ import {
   sha256,
   runWalletLoginIframe,
   runMagicLinkLoginIframe,
+  runMagicLinkVerifyIframe,
   runLoginPopup,
 } from '../shared/utils';
 
@@ -207,6 +208,10 @@ export default class SlashAuthClient {
   private readonly isAuthenticatedCookieName: string;
   private readonly nowProvider: () => number | Promise<number>;
   private readonly httpTimeoutMs: number;
+  private continuedInteractionId: string | null;
+  private continuedStateIn: string | null;
+  private continuedNonceIn: string | null;
+  private continuedCodeVerifier: string | null;
 
   cacheLocation: CacheLocation;
   private worker: Worker;
@@ -326,6 +331,12 @@ export default class SlashAuthClient {
 
   private _authorizeUrl(authorizeOptions: AuthorizeOptions) {
     return this._url(`/auth?${createQueryParams(authorizeOptions)}`);
+  }
+
+  private _authorizeContinuedUrl(authorizeOptions: AuthorizeOptions) {
+    return this._url(
+      `/auth/continueAuth?${createQueryParams(authorizeOptions)}`
+    );
   }
 
   private async _verifyIdToken(
@@ -984,14 +995,107 @@ export default class SlashAuthClient {
     };
 
     const url = this._authorizeUrl(params);
-
+    console.log('url in magicLinkLogin :>> ', url);
     const authResult = await runMagicLinkLoginIframe(url, this.domainUrl, {
       email: options.email,
       isVerificationEmail: options.isVerificationEmail,
       walletAddress: options.walletAddress,
     });
+    console.log('authResult in magicLinkLogin :>> ', authResult);
+    console.log('stateIn in magicLinkLogin :>> ', stateIn);
+    console.log('authResult.state in magicLinkLogin :>> ', authResult.state);
+    // if (authResult.state !== stateIn) {
+    //   throw new Error('Invalid state');
+    // }
 
+    const tokenResult = await oauthToken({
+      audience: 'default',
+      scope: this.defaultScope,
+      baseUrl: this.domainUrl,
+      client_id: this.options.clientID,
+      code_verifier,
+      code: authResult.code,
+      grant_type: 'authorization_code',
+      redirect_uri: params.redirect_uri,
+      useFormData: false,
+      timeout: this.httpTimeoutMs,
+    });
+    const decodedToken = await this._verifyIdToken(
+      tokenResult.id_token,
+      nonceIn
+    );
+    const cacheEntry = {
+      ...tokenResult,
+      decodedToken,
+      scope: params.scope,
+      audience: 'default',
+      client_id: this.options.clientID,
+    };
+
+    await this.cacheManager.set(cacheEntry);
+
+    this.cookieStorage.save(this.isAuthenticatedCookieName, true, {
+      daysUntilExpire: this.sessionCheckExpiryDays,
+      cookieDomain: this.options.cookieDomain,
+    });
+  }
+
+  public async magicLinkVerify(options: MagicLinkLoginOptions) {
+    const stateIn = this.continuedStateIn;
+    const nonceIn = this.continuedNonceIn;
+    const code_verifier = this.continuedCodeVerifier;
+    const code_challengeBuffer = await sha256(code_verifier);
+    const code_challenge = bufferToBase64UrlEncoded(code_challengeBuffer);
+
+    const hints = {};
+
+    if (options.connectAccounts) {
+      const tokens = (await this.getTokens({
+        detailedResponse: true,
+      })) as GetTokensVerboseResponse;
+
+      if (tokens) {
+        hints['id_token_hint'] = tokens.id_token;
+        hints['login_hint'] = options.email;
+        hints['merge'] = true;
+      }
+    }
+
+    const session = await this.sessionManager.getSession();
+    console.log('session in magicLinkVerify :>> ', session);
+    console.log(
+      'this.continuedInteractionId :>> ',
+      this.continuedInteractionId
+    );
+    const params = {
+      client_id: this.options.clientID,
+      redirect_uri: window.location.href,
+      response_type: 'code id_token',
+      code_challenge: code_challenge,
+      code_challenge_method: 'S256',
+      state: stateIn,
+      nonce: nonceIn,
+      hiddenIframe: 'true',
+      response_mode: 'web_message',
+      scope: this.defaultScope,
+      prompt: 'consent',
+      session_id: session.id,
+      continued_interaction_id: this.continuedInteractionId,
+      ...hints,
+    };
+
+    const url = this._authorizeContinuedUrl(params);
+    console.log('url in magicLinkVerify :>> ', url);
+    const authResult = await runMagicLinkVerifyIframe(url, this.domainUrl, {
+      email: options.email,
+      isVerificationEmail: options.isVerificationEmail,
+      walletAddress: options.walletAddress,
+    });
+    console.log('authResult in magicLinkLogin :>> ', authResult);
+    console.log('stateIn in magicLinkLogin :>> ', stateIn);
+    console.log('authResult.state in magicLinkLogin :>> ', authResult.state);
     if (authResult.state !== stateIn) {
+      console.log('authResult.state failed :>> ', authResult.state, stateIn);
       throw new Error('Invalid state');
     }
 
@@ -1007,6 +1111,7 @@ export default class SlashAuthClient {
       useFormData: false,
       timeout: this.httpTimeoutMs,
     });
+    console.log('tokenResult in magicLinkVerify :>> ', tokenResult);
     const decodedToken = await this._verifyIdToken(
       tokenResult.id_token,
       nonceIn
@@ -1072,14 +1177,24 @@ export default class SlashAuthClient {
     };
 
     const url = this._authorizeUrl(params);
-
+    console.log('url in walletLoginInPage :>> ', url);
     const authResult = await runWalletLoginIframe(url, this.domainUrl, {
       address: options.address,
       signature: options.signature,
       device_id: getDeviceID(),
     });
+    console.log('authResult in wallet :>> ', JSON.stringify(authResult));
+    console.log('stateIn in wallet :>> ', stateIn);
 
-    if (authResult?.status?.collectEmail) {
+    if (
+      authResult.needsAdditionalLogin &&
+      authResult.needsAdditionalLogin.requiresEmailVerification
+    ) {
+      this.continuedStateIn = stateIn;
+      this.continuedNonceIn = nonceIn;
+      this.continuedCodeVerifier = code_verifier;
+      this.continuedInteractionId =
+        authResult.needsAdditionalLogin.interactionID;
       throw new EmailRequiredError();
     }
 

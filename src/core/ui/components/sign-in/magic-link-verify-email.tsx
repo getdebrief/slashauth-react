@@ -23,7 +23,7 @@ export const MagicLinkVerifyEmail = () => {
       setProcessing(true);
       try {
         setEmail(email);
-        await client.magicLinkLogin({
+        await client.magicLinkVerify({
           email,
           walletAddress: address,
           isVerificationEmail: true,
@@ -32,6 +32,7 @@ export const MagicLinkVerifyEmail = () => {
         setProcessing(false);
         navigate('../success');
       } catch (error) {
+        console.error(error);
         setProcessing(false);
         navigate('../error');
       }
