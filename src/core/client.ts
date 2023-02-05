@@ -10,7 +10,6 @@ import {
   sha256,
   runWalletLoginIframe,
   runMagicLinkLoginIframe,
-  runMagicLinkVerifyIframe,
   runLoginPopup,
 } from '../shared/utils';
 
@@ -1080,7 +1079,7 @@ export default class SlashAuthClient {
     };
 
     const url = this._authorizeContinuedUrl(params);
-    const authResult = await runMagicLinkVerifyIframe(url, this.domainUrl, {
+    const authResult = await runMagicLinkLoginIframe(url, this.domainUrl, {
       email: options.email,
       isVerificationEmail: options.isVerificationEmail,
       walletAddress: options.walletAddress,
@@ -1166,6 +1165,7 @@ export default class SlashAuthClient {
     };
 
     const url = this._authorizeUrl(params);
+
     const authResult = await runWalletLoginIframe(url, this.domainUrl, {
       address: options.address,
       signature: options.signature,
