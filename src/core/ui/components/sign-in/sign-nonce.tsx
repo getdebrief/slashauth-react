@@ -80,7 +80,6 @@ const _SignNonce = () => {
           });
           slashAuth.checkLoginState();
         } catch (err) {
-          console.error(err);
           if (err instanceof EmailRequiredError) {
             navigate('../magic-link-verify-email');
           } else {

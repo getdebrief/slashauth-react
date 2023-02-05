@@ -109,6 +109,10 @@ export interface LoginNoRedirectNoPopupOptions extends BaseLoginOptions {
 
 export interface MagicLinkLoginOptions extends BaseLoginOptions {
   email: string;
+}
+
+export interface MagicLinkVerifyOptions extends BaseLoginOptions {
+  email: string;
   isVerificationEmail?: boolean;
   walletAddress?: string;
 }
@@ -426,7 +430,6 @@ export type CacheLocation = 'memory' | 'localstorage';
 export interface AuthenticationResult {
   state: string;
   code?: string;
-  status?: ObjectMap;
   error?: string;
   error_description?: string;
   needsAdditionalLogin?: ObjectMap;
