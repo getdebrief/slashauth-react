@@ -482,6 +482,13 @@ export type GetRoleMetadataResponse = {
   metadata: ObjectMap;
 };
 
+export type ContinuedInteraction = {
+  interactionId: string;
+  stateIn: string;
+  nonceIn: string;
+  codeVerifier: string;
+};
+
 export const TokenTypeAccessToken = 'access_token';
 export const TokenTypeInformationRequiredToken =
   'access_token_requirements_needed';

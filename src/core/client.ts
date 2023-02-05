@@ -51,6 +51,7 @@ import {
   BaseLoginOptions,
   AuthorizeOptions,
   CacheLocation,
+  ContinuedInteraction,
   IdToken,
   Account,
   GetAccountOptions,
@@ -208,10 +209,7 @@ export default class SlashAuthClient {
   private readonly isAuthenticatedCookieName: string;
   private readonly nowProvider: () => number | Promise<number>;
   private readonly httpTimeoutMs: number;
-  private continuedInteractionId: string | null;
-  private continuedStateIn: string | null;
-  private continuedNonceIn: string | null;
-  private continuedCodeVerifier: string | null;
+  private continuedInteraction: ContinuedInteraction;
 
   cacheLocation: CacheLocation;
   private worker: Worker;
@@ -312,6 +310,13 @@ export default class SlashAuthClient {
     this.customOptions = getCustomInitialOptions(options);
 
     this.sessionManager = new SessionManager(this.options.domain);
+
+    this.continuedInteraction = {
+      stateIn: null,
+      nonceIn: null,
+      codeVerifier: null,
+      interactionId: null,
+    };
   }
 
   public async initialize() {
@@ -1041,9 +1046,9 @@ export default class SlashAuthClient {
   }
 
   public async magicLinkVerify(options: MagicLinkLoginOptions) {
-    const stateIn = this.continuedStateIn;
-    const nonceIn = this.continuedNonceIn;
-    const code_verifier = this.continuedCodeVerifier;
+    const stateIn = this.continuedInteraction.stateIn;
+    const nonceIn = this.continuedInteraction.nonceIn;
+    const code_verifier = this.continuedInteraction.codeVerifier;
     const code_challengeBuffer = await sha256(code_verifier);
     const code_challenge = bufferToBase64UrlEncoded(code_challengeBuffer);
 
@@ -1065,7 +1070,7 @@ export default class SlashAuthClient {
     console.log('session in magicLinkVerify :>> ', session);
     console.log(
       'this.continuedInteractionId :>> ',
-      this.continuedInteractionId
+      this.continuedInteraction.interactionId
     );
     const params = {
       client_id: this.options.clientID,
@@ -1080,7 +1085,7 @@ export default class SlashAuthClient {
       scope: this.defaultScope,
       prompt: 'consent',
       session_id: session.id,
-      continued_interaction_id: this.continuedInteractionId,
+      continued_interaction_id: this.continuedInteraction.interactionId,
       ...hints,
     };
 
@@ -1190,10 +1195,10 @@ export default class SlashAuthClient {
       authResult.needsAdditionalLogin &&
       authResult.needsAdditionalLogin.requiresEmailVerification
     ) {
-      this.continuedStateIn = stateIn;
-      this.continuedNonceIn = nonceIn;
-      this.continuedCodeVerifier = code_verifier;
-      this.continuedInteractionId =
+      this.continuedInteraction.stateIn = stateIn;
+      this.continuedInteraction.nonceIn = nonceIn;
+      this.continuedInteraction.codeVerifier = code_verifier;
+      this.continuedInteraction.interactionId =
         authResult.needsAdditionalLogin.interactionID;
       throw new EmailRequiredError();
     }
