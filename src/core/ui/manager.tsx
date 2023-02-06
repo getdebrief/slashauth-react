@@ -221,7 +221,7 @@ const ComponentManagerComponent = (props: ComponentManagerComponentProps) => {
       });
       return unsubscribeFn;
     };
-  }, []);
+  }, [managerState]);
 
   const mountedSignInModal = (
     <AppearanceProvider
@@ -231,7 +231,9 @@ const ComponentManagerComponent = (props: ComponentManagerComponentProps) => {
       }
     >
       <FlowMetadataProvider flow={'sign-in'}>
-        <Modal>
+        <Modal
+          handleClose={() => componentController.closeModal(ModalType.SignIn)}
+        >
           <VirtualRouter
             preservedParams={PRESERVED_QUERYSTRING_PARAMS}
             onExternalNavigate={() =>

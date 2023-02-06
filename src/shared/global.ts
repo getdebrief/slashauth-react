@@ -239,6 +239,24 @@ export interface GetAppConfigResponse {
   loginMethods: SlashAuthLoginMethodConfig;
 }
 
+type PublicUserConnection = {
+  id: string;
+  displayValue: string;
+  displayType: string;
+  connectionType: string;
+};
+
+export type UserAccountSettings = {
+  defaultProfileImage?: string;
+  name?: string;
+  connections: PublicUserConnection[];
+};
+
+export type CreateBlobResponse = {
+  id: string;
+  signedUrl: string;
+};
+
 export interface LoginWithSignedNonceResponse {
   access_token: string;
   refresh_token: string;

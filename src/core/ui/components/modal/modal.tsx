@@ -1,3 +1,4 @@
+import { useEffect } from 'react';
 import { useSafeLayoutEffect } from '../../../../shared/hooks';
 import { useAppearance } from '../../context/appearance';
 import { usePopover, useScrollLock } from '../../hooks';
@@ -5,11 +6,27 @@ import { BasicPortal } from '../../portal';
 import { ModalBackdrop } from './backdrop';
 import { ModalContent } from './modal-content';
 
-export const Modal = ({ children }) => {
-  const { floating } = usePopover({
+export const Modal = ({
+  children,
+  handleClose,
+  handleOpen,
+}: React.PropsWithChildren<{
+  handleOpen?: () => void;
+  handleClose?: () => void;
+}>) => {
+  const { floating, isOpen } = usePopover({
     defaultOpen: true,
     autoUpdate: false,
   });
+
+  useEffect(() => {
+    if (!isOpen) {
+      handleClose?.();
+    } else {
+      handleOpen?.();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isOpen]);
 
   const { disableScroll, enableScroll } = useScrollLock(document.body);
 
@@ -19,6 +36,10 @@ export const Modal = ({ children }) => {
     disableScroll();
     return () => enableScroll();
   });
+
+  if (!isOpen) {
+    return null;
+  }
 
   return (
     <BasicPortal>

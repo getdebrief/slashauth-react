@@ -90,11 +90,6 @@ const useLoginMethods = () => {
   const user = useUser();
 
   const web3 = useMemo(() => {
-    if (!viewOnly && user?.loginMethods.includes(LoginMethodType.Web3)) {
-      // User is already logged in using web3 so we should not expose this.
-      return [];
-    }
-
     if (excludeLoginMethodTypes?.includes(LoginMethodType.Web3)) {
       return [];
     }

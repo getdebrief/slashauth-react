@@ -1,0 +1,55 @@
+
+.addButton {
+  color: #2F5FFC;
+  cursor: pointer;
+}
+
+.settingsValue {
+  font-weight: 400;
+}
+
+.actionOnHover, .action {
+  min-height: 20px;
+  padding: 8px 16px;
+  margin-left: -16px;
+  margin-right: -16px;
+  border-radius: var(--slashauth-borderRadius, 8px);
+  cursor: default;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.actionOnHover:hover, .action:hover {
+  background-color: var(--slashauth-hoverButtonBackgroundColor, #f5f5f5);
+}
+
+.actionOnHover:hover .deleteAction {
+  opacity: 1;
+}
+
+.action {
+  cursor: pointer;
+}
+
+.deleteAction {
+  opacity: 0;
+  cursor: pointer;
+  display: inline-flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.navigateAction {
+  display: inline-flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.deleteAction:hover svg path {
+  stroke: red;
+}
+
+.addIcon {
+  font-size: 18px;
+}
