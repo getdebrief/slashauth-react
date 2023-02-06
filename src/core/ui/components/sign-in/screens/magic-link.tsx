@@ -7,7 +7,12 @@ import styles from './magic-link.module.css';
 import { EmailInput } from '../../primitives/input';
 import React from 'react';
 
-export const MagicLinkScreen = ({ navigateBack, sendMagicLink }) => {
+export const MagicLinkScreen = ({
+  navigateBack,
+  sendMagicLink,
+  title,
+  description,
+}) => {
   const handleSubmit = (event: React.SyntheticEvent) => {
     event.preventDefault();
 
@@ -20,10 +25,7 @@ export const MagicLinkScreen = ({ navigateBack, sendMagicLink }) => {
 
   return (
     <>
-      <Header
-        title="Enter your email"
-        description="We will send you a link to login."
-      />
+      <Header title={title} description={description} />
       <Content>
         <form onSubmit={handleSubmit}>
           <Section>

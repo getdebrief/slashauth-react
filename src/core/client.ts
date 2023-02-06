@@ -340,7 +340,9 @@ export default class SlashAuthClient {
 
   private _authorizeContinuedUrl(authorizeOptions: AuthorizeOptions) {
     return this._url(
-      `/auth/continueAuth?${createQueryParams(authorizeOptions)}`
+      `/auth/continueAuth/${
+        this.continuedInteraction.interactionId
+      }?${createQueryParams(authorizeOptions)}`
     );
   }
 
@@ -1074,15 +1076,14 @@ export default class SlashAuthClient {
       scope: this.defaultScope,
       prompt: 'consent',
       session_id: session.id,
-      continued_interaction_id: this.continuedInteraction.interactionId,
       ...hints,
     };
 
     const url = this._authorizeContinuedUrl(params);
+
     const authResult = await runMagicLinkLoginIframe(url, this.domainUrl, {
       email: options.email,
       isVerificationEmail: options.isVerificationEmail,
-      walletAddress: options.walletAddress,
     });
     if (authResult.state !== stateIn) {
       throw new Error('Invalid state');
@@ -1171,7 +1172,6 @@ export default class SlashAuthClient {
       signature: options.signature,
       device_id: getDeviceID(),
     });
-
     if (
       authResult.needsAdditionalLogin &&
       authResult.needsAdditionalLogin.requiresEmailVerification

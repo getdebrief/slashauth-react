@@ -4,30 +4,39 @@ import { useCoreClient } from '../../context/slashauth-client';
 import { useRouter } from '../../router/context';
 import { useCoreSlashAuth } from '../../context/core-slashauth';
 import { useSignInContext } from './context';
-import { useInteraction, InteractionContext } from '../../context/interaction';
-import { MagicLinkVerifyEmailScreen } from './screens/magic-link-verify-email';
+import { useInteraction } from '../../context/interaction';
+import { MagicLinkScreen } from './screens/magic-link';
 import { LoadingScreen } from './screens/loading';
 import { useWeb3LoginState } from '../../context/web3-signin';
 
-export const MagicLinkVerifyEmail = () => {
+type Props = {
+  isVerificationEmail?: boolean;
+};
+
+export const MagicLink = ({ isVerificationEmail = false }: Props) => {
   const { setProcessing, processing } = useInteraction();
   const { connectAccounts } = useSignInContext();
   const slashAuth = useCoreSlashAuth();
   const { navigate } = useRouter();
   const client = useCoreClient();
   const [submittedEmail, setEmail] = useState('');
-  const { address } = useWeb3LoginState();
 
   const submitEmail = useCallback(
     async (email: string) => {
       setProcessing(true);
       try {
         setEmail(email);
-        await client.magicLinkVerify({
-          email,
-          walletAddress: address,
-          isVerificationEmail: true,
-        });
+        if (isVerificationEmail) {
+          await client.magicLinkVerify({
+            email,
+            isVerificationEmail,
+          });
+        } else {
+          await client.magicLinkLogin({
+            email,
+            connectAccounts,
+          });
+        }
         await slashAuth.checkLoginState();
         setProcessing(false);
         navigate('../success');
@@ -59,7 +68,7 @@ export const MagicLinkVerifyEmail = () => {
                   rel="noreferrer"
                   target="_blank"
                 >
-                  view the link here.
+                  open the link here.
                 </a>
               </>
             ) : null
@@ -70,7 +79,17 @@ export const MagicLinkVerifyEmail = () => {
           }}
         />
       ) : (
-        <MagicLinkVerifyEmailScreen
+        <MagicLinkScreen
+          title={
+            isVerificationEmail
+              ? 'Lastly, enter your email'
+              : 'Enter your email'
+          }
+          description={
+            isVerificationEmail
+              ? 'App requires email verification to login.'
+              : 'We will send you a link to login.'
+          }
           navigateBack={() => navigate('../')}
           sendMagicLink={({ email }) => submitEmail(email)}
         />
