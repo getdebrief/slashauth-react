@@ -21,6 +21,21 @@ straightforward as possible.
 
 ### Fixed
 
+## [1.4.0] - 2023-02-06
+
+### Added
+
+- Add UserAccountSettings component, that displays basic profile information to the logged in user (profile pic, name and existing connections like wallets or email)
+
+### Changed
+
+- Revert removal of close signin modal when clicking outside
+- Display web3 login methods even if the user is already signed with one in the sign in component
+
+### Fixed
+
+- Hide scroll bar on signin component
+
 ## [1.1.0] - 2023-01-20
 
 ### Added
