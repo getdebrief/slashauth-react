@@ -1015,6 +1015,7 @@ export default class SlashAuthClient {
       email: options.email,
       isVerificationEmail: options.isVerificationEmail,
     });
+
     if (authResult.state !== stateIn) {
       throw new Error('Invalid state');
     }
