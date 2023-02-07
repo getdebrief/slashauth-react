@@ -7,7 +7,6 @@ import { useSignInContext } from './context';
 import { useInteraction } from '../../context/interaction';
 import { MagicLinkScreen } from './screens/magic-link';
 import { LoadingScreen } from './screens/loading';
-import { useWeb3LoginState } from '../../context/web3-signin';
 
 type Props = {
   isVerificationEmail?: boolean;
@@ -35,7 +34,6 @@ export const MagicLink = ({ isVerificationEmail = false }: Props) => {
         setProcessing(false);
         navigate('../success');
       } catch (error) {
-        console.error(error);
         setProcessing(false);
         navigate('../error');
       }

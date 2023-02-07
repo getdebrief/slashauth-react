@@ -21,6 +21,16 @@ straightforward as possible.
 
 ### Fixed
 
+## [1.5.0] - 2023-02-06
+
+### Added
+
+- Support to collect email after wallet sign in if app requires it
+
+### Changed
+
+### Fixed
+
 ## [1.4.0] - 2023-02-06
 
 ### Added
