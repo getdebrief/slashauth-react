@@ -961,14 +961,15 @@ export default class SlashAuthClient {
   }
 
   public async magicLinkLogin(options: MagicLinkLoginOptions) {
-    let stateIn = encode(createRandomString(64));
-    let nonceIn = encode(createRandomString(64));
-    let code_verifier = createRandomString(64);
-    if (options.isVerificationEmail) {
-      stateIn = this.continuedInteraction.stateIn;
-      nonceIn = this.continuedInteraction.nonceIn;
-      code_verifier = this.continuedInteraction.codeVerifier;
-    }
+    const stateIn = options.isVerificationEmail
+      ? this.continuedInteraction.stateIn
+      : encode(createRandomString(64));
+    const nonceIn = options.isVerificationEmail
+      ? this.continuedInteraction.nonceIn
+      : encode(createRandomString(64));
+    const code_verifier = options.isVerificationEmail
+      ? this.continuedInteraction.codeVerifier
+      : createRandomString(64);
     const code_challengeBuffer = await sha256(code_verifier);
     const code_challenge = bufferToBase64UrlEncoded(code_challengeBuffer);
 
