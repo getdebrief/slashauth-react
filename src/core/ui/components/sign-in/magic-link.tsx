@@ -26,17 +26,11 @@ export const MagicLink = ({ isVerificationEmail = false }: Props) => {
       setProcessing(true);
       try {
         setEmail(email);
-        if (isVerificationEmail) {
-          await client.magicLinkVerify({
-            email,
-            isVerificationEmail,
-          });
-        } else {
-          await client.magicLinkLogin({
-            email,
-            connectAccounts,
-          });
-        }
+        await client.magicLinkLogin({
+          email,
+          connectAccounts,
+          isVerificationEmail,
+        });
         await slashAuth.checkLoginState();
         setProcessing(false);
         navigate('../success');

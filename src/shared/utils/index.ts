@@ -27,12 +27,7 @@ type WalletLoginPayload = {
 
 type MagicLinkLoginPayload = {
   email: string;
-};
-
-type MagicLinkVerificationPayload = {
-  email: string;
-  isVerificationEmail: boolean;
-  walletAddress: string;
+  isVerificationEmail?: boolean;
 };
 
 export const runLoginPopup = async (
@@ -145,10 +140,7 @@ export const runLoginIframe = async (
   eventOrigin: string,
   method: 'wallet' | 'magicLink',
   messageTypes: MessageTypes,
-  payload:
-    | WalletLoginPayload
-    | MagicLinkLoginPayload
-    | MagicLinkVerificationPayload,
+  payload: WalletLoginPayload | MagicLinkLoginPayload,
   timeoutInSeconds: number = DEFAULT_AUTHORIZE_TIMEOUT_IN_SECONDS
 ): Promise<AuthenticationResult> => {
   return new Promise<AuthenticationResult>((res, rej) => {
@@ -274,7 +266,7 @@ export const runWalletLoginIframe = async (
 export const runMagicLinkLoginIframe = async (
   authorizeUrl: string,
   eventOrigin: string,
-  payload: MagicLinkLoginPayload | MagicLinkVerificationPayload,
+  payload: MagicLinkLoginPayload,
   timeoutInSeconds: number = 60 * 10
 ) => {
   return runLoginIframe(

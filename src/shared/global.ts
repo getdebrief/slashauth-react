@@ -109,12 +109,7 @@ export interface LoginNoRedirectNoPopupOptions extends BaseLoginOptions {
 
 export interface MagicLinkLoginOptions extends BaseLoginOptions {
   email: string;
-}
-
-export interface MagicLinkVerifyOptions extends BaseLoginOptions {
-  email: string;
   isVerificationEmail?: boolean;
-  walletAddress?: string;
 }
 
 // eslint-disable-next-line @typescript-eslint/no-empty-interface
