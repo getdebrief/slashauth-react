@@ -8,7 +8,11 @@ import { useInteraction } from '../../context/interaction';
 import { MagicLinkScreen } from './screens/magic-link';
 import { LoadingScreen } from './screens/loading';
 
-export const MagicLinkSignIn = () => {
+type Props = {
+  isVerificationEmail?: boolean;
+};
+
+export const MagicLink = ({ isVerificationEmail = false }: Props) => {
   const { setProcessing, processing } = useInteraction();
   const { connectAccounts } = useSignInContext();
   const slashAuth = useCoreSlashAuth();
@@ -24,6 +28,7 @@ export const MagicLinkSignIn = () => {
         await client.magicLinkLogin({
           email,
           connectAccounts,
+          isVerificationEmail,
         });
         await slashAuth.checkLoginState();
         setProcessing(false);
@@ -55,7 +60,7 @@ export const MagicLinkSignIn = () => {
                   rel="noreferrer"
                   target="_blank"
                 >
-                  view the link here.
+                  open the link here.
                 </a>
               </>
             ) : null
@@ -67,6 +72,16 @@ export const MagicLinkSignIn = () => {
         />
       ) : (
         <MagicLinkScreen
+          title={
+            isVerificationEmail
+              ? 'Lastly, enter your email'
+              : 'Enter your email'
+          }
+          description={
+            isVerificationEmail
+              ? 'App requires email verification to login.'
+              : 'We will send you a link to login.'
+          }
           navigateBack={() => navigate('../')}
           sendMagicLink={({ email }) => submitEmail(email)}
         />

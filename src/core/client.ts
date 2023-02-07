@@ -25,7 +25,11 @@ import {
 
 import TransactionManager from '../shared/transaction-manager';
 import { verify as verifyIdToken } from '../shared/jwt';
-import { NotLoggedInError, TimeoutError } from '../shared/errors';
+import {
+  EmailRequiredError,
+  NotLoggedInError,
+  TimeoutError,
+} from '../shared/errors';
 
 import {
   ClientStorage,
@@ -46,6 +50,7 @@ import {
   BaseLoginOptions,
   AuthorizeOptions,
   CacheLocation,
+  ContinuedInteraction,
   IdToken,
   Account,
   GetAccountOptions,
@@ -203,6 +208,7 @@ export default class SlashAuthClient {
   private readonly isAuthenticatedCookieName: string;
   private readonly nowProvider: () => number | Promise<number>;
   private readonly httpTimeoutMs: number;
+  private continuedInteraction: ContinuedInteraction;
 
   cacheLocation: CacheLocation;
   private worker: Worker;
@@ -303,6 +309,13 @@ export default class SlashAuthClient {
     this.customOptions = getCustomInitialOptions(options);
 
     this.sessionManager = new SessionManager(this.options.domain);
+
+    this.continuedInteraction = {
+      stateIn: null,
+      nonceIn: null,
+      codeVerifier: null,
+      interactionId: null,
+    };
   }
 
   public async initialize() {
@@ -322,6 +335,14 @@ export default class SlashAuthClient {
 
   private _authorizeUrl(authorizeOptions: AuthorizeOptions) {
     return this._url(`/auth?${createQueryParams(authorizeOptions)}`);
+  }
+
+  private _authorizeContinuedUrl(authorizeOptions: AuthorizeOptions) {
+    return this._url(
+      `/auth/continueAuth/${
+        this.continuedInteraction.interactionId
+      }?${createQueryParams(authorizeOptions)}`
+    );
   }
 
   private async _verifyIdToken(
@@ -940,9 +961,15 @@ export default class SlashAuthClient {
   }
 
   public async magicLinkLogin(options: MagicLinkLoginOptions) {
-    const stateIn = encode(createRandomString(64));
-    const nonceIn = encode(createRandomString(64));
-    const code_verifier = createRandomString(64);
+    const stateIn = options.isVerificationEmail
+      ? this.continuedInteraction.stateIn
+      : encode(createRandomString(64));
+    const nonceIn = options.isVerificationEmail
+      ? this.continuedInteraction.nonceIn
+      : encode(createRandomString(64));
+    const code_verifier = options.isVerificationEmail
+      ? this.continuedInteraction.codeVerifier
+      : createRandomString(64);
     const code_challengeBuffer = await sha256(code_verifier);
     const code_challenge = bufferToBase64UrlEncoded(code_challengeBuffer);
 
@@ -978,10 +1005,16 @@ export default class SlashAuthClient {
       ...hints,
     };
 
-    const url = this._authorizeUrl(params);
+    let url: string;
+    if (options.isVerificationEmail) {
+      url = this._authorizeContinuedUrl(params);
+    } else {
+      url = this._authorizeUrl(params);
+    }
 
     const authResult = await runMagicLinkLoginIframe(url, this.domainUrl, {
       email: options.email,
+      isVerificationEmail: options.isVerificationEmail,
     });
 
     if (authResult.state !== stateIn) {
@@ -1071,6 +1104,17 @@ export default class SlashAuthClient {
       signature: options.signature,
       device_id: getDeviceID(),
     });
+    if (
+      authResult.needsAdditionalLogin &&
+      authResult.needsAdditionalLogin.requiresEmailVerification
+    ) {
+      this.continuedInteraction.stateIn = stateIn;
+      this.continuedInteraction.nonceIn = nonceIn;
+      this.continuedInteraction.codeVerifier = code_verifier;
+      this.continuedInteraction.interactionId =
+        authResult.needsAdditionalLogin.interactionID;
+      throw new EmailRequiredError();
+    }
 
     if (authResult.state !== stateIn) {
       throw new Error('Invalid state');

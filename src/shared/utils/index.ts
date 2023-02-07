@@ -27,6 +27,7 @@ type WalletLoginPayload = {
 
 type MagicLinkLoginPayload = {
   email: string;
+  isVerificationEmail?: boolean;
 };
 
 export const runLoginPopup = async (

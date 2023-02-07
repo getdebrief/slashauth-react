@@ -109,6 +109,7 @@ export interface LoginNoRedirectNoPopupOptions extends BaseLoginOptions {
 
 export interface MagicLinkLoginOptions extends BaseLoginOptions {
   email: string;
+  isVerificationEmail?: boolean;
 }
 
 // eslint-disable-next-line @typescript-eslint/no-empty-interface
@@ -426,6 +427,7 @@ export interface AuthenticationResult {
   code?: string;
   error?: string;
   error_description?: string;
+  needsAdditionalLogin?: ObjectMap;
 }
 
 export interface OAuthTokenOptions extends TokenEndpointOptions {
@@ -476,6 +478,13 @@ export type GetRoleMetadataOptions = {
 
 export type GetRoleMetadataResponse = {
   metadata: ObjectMap;
+};
+
+export type ContinuedInteraction = {
+  interactionId: string;
+  stateIn: string;
+  nonceIn: string;
+  codeVerifier: string;
 };
 
 export const TokenTypeAccessToken = 'access_token';

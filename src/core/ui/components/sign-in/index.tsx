@@ -18,7 +18,7 @@ import { ModalContent } from '../modal/modal-content';
 import { ComponentContext, useSignInContext } from './context';
 import { SignInError } from './error';
 import { FederatedGoogleSignIn } from './federated-google-sign-in';
-import { MagicLinkSignIn } from './magic-link-sign-in';
+import { MagicLink } from './magic-link';
 import { SignNonce } from './sign-nonce';
 import { SignInStart } from './start';
 import { SignInSuccess } from './success';
@@ -154,7 +154,10 @@ function SignInRoutes(): JSX.Element {
                 <SignInStart showAllWallets showBackButton />
               </Route>
               <Route path="magic-link">
-                <MagicLinkSignIn />
+                <MagicLink />
+              </Route>
+              <Route path="magic-link-verify-email">
+                <MagicLink isVerificationEmail />
               </Route>
               <Route path="federated-google">
                 <FederatedGoogleSignIn />
