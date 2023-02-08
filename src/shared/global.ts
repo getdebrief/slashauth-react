@@ -124,25 +124,21 @@ export interface IdTokenSocials {
   };
 }
 
+export interface IdTokenUserConnections {
+  id: string;
+  connectionId: string;
+  connectionType: string;
+  displayType: string;
+  displayValue: string;
+  isVerified: boolean;
+  createdAt: string;
+  updatedAt: string;
+  profile?: ObjectMap;
+  connectionData?: ObjectMap;
+}
+
 export interface IdToken {
   __raw: string;
-  name?: string;
-  given_name?: string;
-  family_name?: string;
-  middle_name?: string;
-  nickname?: string;
-  preferred_username?: string;
-  profile?: string;
-  picture?: string;
-  website?: string;
-  email_verified?: boolean;
-  gender?: string;
-  birthdate?: string;
-  zoneinfo?: string;
-  locale?: string;
-  phone_number?: string;
-  phone_number_verified?: boolean;
-  address?: string;
   updated_at?: string;
   iss?: string;
   aud?: string;
@@ -172,6 +168,7 @@ export interface IdToken {
     default: string;
     allEmails: string[];
   };
+  userConnections?: [IdTokenUserConnections];
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   [key: string]: any;
 }
