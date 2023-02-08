@@ -131,10 +131,6 @@ export interface IdTokenUserConnections {
   displayType: string;
   displayValue: string;
   isVerified: boolean;
-  createdAt: string;
-  updatedAt: string;
-  profile?: ObjectMap;
-  connectionData?: ObjectMap;
 }
 
 export interface IdToken {
