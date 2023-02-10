@@ -8,6 +8,7 @@ import { supportedFontFamilies } from './core/ui/fonts';
 import { Account } from './shared/global';
 import { Buffer } from 'buffer';
 import { UserAccountSettings } from './core/ui/components/user_account_settings';
+import { DropDown } from './core/ui/components/drop-down/v1';
 
 if (typeof window !== 'undefined') {
   window.Buffer = Buffer;
@@ -26,6 +27,7 @@ export {
 export * from './core/ui';
 
 export {
+  DropDown,
   UserAccountSettings,
   Account,
   SlashAuth,

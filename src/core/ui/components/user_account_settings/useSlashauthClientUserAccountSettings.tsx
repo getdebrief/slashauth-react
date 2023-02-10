@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useRef, useState, useMemo } from 'react';
 import { UserAccountSettings } from '../../../../shared/global';
 import { SlashAuthListenerPayload } from '../../../../shared/types';
+import { useIsAuthenticated } from '../../../hooks';
 import { useCoreSlashAuth } from '../../context/core-slashauth';
 
 const assign = (a) => (b) => ({ ...b, ...a });
@@ -70,12 +71,19 @@ export const useSlashauthClientUserAccountSettings = () => {
   );
 
   const { status, startConnectionProcess } = useConnectionProcess();
+  const isLoggedIn = useIsAuthenticated();
 
   useEffect(() => {
     if (status === Status.Completed) {
       refreshData();
+      return;
     }
-  }, [status, refreshData]);
+
+    if (isLoggedIn) {
+      refreshData();
+      return;
+    }
+  }, [status, refreshData, isLoggedIn]);
 
   return {
     accountSettings,
@@ -122,8 +130,8 @@ const useConnectionProcess = () => {
 
 const useSessionListener = () => {
   const slashauth = useCoreSlashAuth();
-  const [sessionID, setSessionID] = useState(slashauth.user.idTokenClaims.jti);
-  const prevSessionID = useRef(slashauth.user.idTokenClaims.jti);
+  const [sessionID, setSessionID] = useState(slashauth.user.idTokenClaims?.jti);
+  const prevSessionID = useRef(slashauth.user.idTokenClaims?.jti);
 
   const listen = useCallback(() => {
     prevSessionID.current = sessionID;
@@ -132,7 +140,7 @@ const useSessionListener = () => {
   useEffect(() => {
     const unsubscribe = slashauth.addListener(
       (payload: SlashAuthListenerPayload) => {
-        setSessionID(payload.user.idTokenClaims.jti);
+        setSessionID(payload.user.idTokenClaims?.jti);
       }
     );
 

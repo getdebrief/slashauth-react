@@ -1,0 +1,65 @@
+
+.contentWrapper {
+  min-width: 350px;
+  box-shadow: 0px 4px 13.04px rgba(0, 0, 0, 0.15);
+  border-radius: var(--slashauth-borderRadius, 30px);
+  overflow: hidden;
+  z-index: 2;
+  background: var(--slashauth-backgroundColor, white);
+}
+
+@media only screen and (min-width: 640px) {
+  .contentWrapper {
+    width: 400px;
+  }
+}
+
+.avatarButton {
+  border: 1px solid var(--slashauth-lineColor, #E5E7EB);
+  background: none;
+  border-radius: 200px;
+  padding: 3px;
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.165, 0.84, 0.44, 1);
+}
+
+.signInButton {
+  border: 1px solid #577EFD;
+  background: none;
+  border-radius: 200px;
+  padding: 3px;
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.165, 0.84, 0.44, 1); 
+}
+
+.avatarButton:hover, .avatarButton[data-state='open'], .signInButton:hover {
+  transform: scale(1.05, 1.05);
+}
+
+
+.horizontalDivider {
+  background-color: var(--slashauth-lineColor, #E5E7EB);
+  height: 1px;
+  border: 0;
+}
+
+.signOut {
+  cursor: pointer;
+  text-decoration: none;
+}
+
+.signOut:hover {
+  text-decoration: underline;
+}
+
+.inline {
+  display: inline;
+}
+
+.alignMiddle {
+  vertical-align: middle;
+}
+
+.colorFont {
+  color: #577EFD;
+}

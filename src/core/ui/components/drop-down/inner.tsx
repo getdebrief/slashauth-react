@@ -17,7 +17,7 @@ import styles from './styles.module.css';
 import { SlashAuth } from '../../../slashauth';
 import { classNames } from '../../../../shared/utils/classnames';
 import { twitterIcon } from './icons/twitterIcon';
-import { MailIcon } from '@heroicons/react/outline';
+import { EnvelopeIcon as MailIcon } from '../icon/envelope';
 import { LoginMethodType } from '../../context/login-methods';
 import { useEnvironment } from '../../context/environment';
 import { User } from '../../../user';

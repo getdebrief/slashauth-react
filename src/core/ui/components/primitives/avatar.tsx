@@ -3,7 +3,23 @@ import { classNames } from '../../../../shared/utils/classnames';
 import { profilePicturePlaceholder } from '../drop-down/icons/profilePicturePlaceholder';
 import styles from './avatar.module.css';
 
-export const Avatar = ({ className, src, onChange }) => {
+export enum Size {
+  Small,
+  Medium,
+  Large,
+}
+
+export const Avatar = ({
+  className,
+  src,
+  onChange,
+  size = Size.Medium,
+}: {
+  className?: string;
+  src?: string;
+  onChange?: (file: File) => void;
+  size?: Size;
+}) => {
   const objectProps: React.ComponentPropsWithoutRef<'object'> = {};
   const [localImageSrc, setLocalImage] = useState(null);
 
@@ -32,6 +48,9 @@ export const Avatar = ({ className, src, onChange }) => {
     <div
       className={classNames(
         styles.avatar,
+        size === Size.Small && styles.small,
+        size === Size.Medium && styles.medium,
+        size === Size.Large && styles.large,
         onChange && styles.clickableAvatar,
         className
       )}

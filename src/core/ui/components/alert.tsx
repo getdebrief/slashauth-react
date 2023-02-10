@@ -1,4 +1,4 @@
-import { ExclamationCircleIcon } from '@heroicons/react/outline';
+import { ExclamationCircleIcon } from './icon/exclamation_circle';
 
 type Props = {
   children: React.ReactNode;
