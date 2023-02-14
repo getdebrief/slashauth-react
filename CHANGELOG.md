@@ -29,9 +29,9 @@ straightforward as possible.
 
 ### Changed
 
-- This removes support for React v17. In order to continue using React v17, use major version 1.
+#### Breaking changes
 
-### Fixed
+- This removes support for React v17. In order to continue using React v17, use major version 1.
 
 ## [1.5.0] - 2023-02-06
 
