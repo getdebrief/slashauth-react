@@ -21,6 +21,18 @@ straightforward as possible.
 
 ### Fixed
 
+## [2.0.0] - 2023-02-14
+
+### Added
+
+- Support for React v18 rendering.
+
+### Changed
+
+- This removes support for React v17. In order to continue using React v17, use major version 1.
+
+### Fixed
+
 ## [1.5.0] - 2023-02-06
 
 ### Added
