@@ -1,5 +1,5 @@
 import React from 'react';
-import ReactDOM from 'react-dom';
+import { createRoot } from 'react-dom/client';
 import { PRESERVED_QUERYSTRING_PARAMS } from '../../shared/constants';
 import { useSafeLayoutEffect } from '../../shared/hooks';
 import { SlashAuthOptions, SlashAuthStyle } from '../../shared/types';
@@ -115,13 +115,13 @@ const mountComponentManager = (
   slashAuthRoot.setAttribute('id', 's8-components');
   document.body.appendChild(slashAuthRoot);
 
-  ReactDOM.render<ComponentManagerComponentProps>(
+  const root = createRoot(slashAuthRoot);
+  root.render(
     <ComponentManagerComponent
       slashAuth={slashAuth}
       options={options}
       environment={environment}
-    />,
-    slashAuthRoot
+    />
   );
 
   return componentController;

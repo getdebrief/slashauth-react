@@ -1,6 +1,6 @@
 {
   "name": "@slashauth/slashauth-react",
-  "version": "1.5.2",
+  "version": "1.6.0-beta.1",
   "homepage": "https://www.slashauth.xyz",
   "repository": {
     "type": "git",
@@ -83,8 +83,8 @@
   },
   "peerDependencies": {
     "ethers": ">=5.7.2",
-    "react": ">=17",
-    "react-dom": ">=17",
+    "react": ">=18",
+    "react-dom": ">=18",
     "wagmi": ">=0.11.3"
   },
   "eslintConfig": {
