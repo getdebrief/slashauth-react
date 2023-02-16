@@ -68,6 +68,7 @@ import {
   TokenEndpointResponse,
   MagicLinkLoginOptions,
   GoogleLoginOptions,
+  DiscordLoginOptions,
 } from '../shared/global';
 
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
@@ -855,6 +856,109 @@ export default class SlashAuthClient {
     });
 
     this.processToken(exchangeTokenResult);
+  }
+
+  public async discordLogin(options: DiscordLoginOptions) {
+    const stateIn = encode(createRandomString(64));
+    const nonceIn = encode(createRandomString(64));
+    const code_verifier = createRandomString(64);
+    const code_challengeBuffer = await sha256(code_verifier);
+    const code_challenge = bufferToBase64UrlEncoded(code_challengeBuffer);
+
+    const hints = {};
+
+    if (options.connectAccounts) {
+      const tokens = (await this.getTokens({
+        detailedResponse: true,
+      })) as GetTokensVerboseResponse;
+
+      if (tokens) {
+        hints['id_token_hint'] = tokens.id_token;
+        hints['login_hint'] = options.email;
+        hints['merge'] = true;
+      }
+    }
+
+    const session = await this.sessionManager.getSession();
+
+    const params = {
+      client_id: this.options.clientID,
+      redirect_uri: window.location.href,
+      response_type: 'code id_token',
+      code_challenge: code_challenge,
+      code_challenge_method: 'S256',
+      state: stateIn,
+      nonce: nonceIn,
+      hiddenIframe: 'true',
+      response_mode: 'web_message',
+      scope: this.defaultScope,
+      prompt: 'consent',
+      session_id: session.id,
+      ...hints,
+    };
+
+    const url = this._authorizeUrl(params);
+
+    // We need to fetch the authorize URL to get the appropriate
+    const fetchResult = await fetch(url, {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+        Accept: 'application/json',
+      },
+    });
+
+    if (!fetchResult.ok) {
+      throw new Error('Failed to begin authorization');
+    }
+
+    // Otherwise we should have a see-other link
+    const resultJson = await fetchResult.json();
+    const uid = resultJson.uid;
+
+    const authResult = await runLoginPopup(
+      this._url(`/auth/interaction/${uid}/federated/discord`),
+      this.domainUrl,
+      {
+        responseTypes: ['see_other', 'login_response'],
+      },
+      session.id
+    );
+
+    if (authResult.state !== stateIn) {
+      throw new Error('Invalid state');
+    }
+
+    const tokenResult = await oauthToken({
+      audience: 'default',
+      scope: this.defaultScope,
+      baseUrl: this.domainUrl,
+      client_id: this.options.clientID,
+      code_verifier,
+      code: authResult.code,
+      grant_type: 'authorization_code',
+      redirect_uri: params.redirect_uri,
+      useFormData: false,
+      timeout: this.httpTimeoutMs,
+    });
+    const decodedToken = await this._verifyIdToken(
+      tokenResult.id_token,
+      nonceIn
+    );
+    const cacheEntry = {
+      ...tokenResult,
+      decodedToken,
+      scope: params.scope,
+      audience: 'default',
+      client_id: this.options.clientID,
+    };
+
+    await this.cacheManager.set(cacheEntry);
+
+    this.cookieStorage.save(this.isAuthenticatedCookieName, true, {
+      daysUntilExpire: this.sessionCheckExpiryDays,
+      cookieDomain: this.options.cookieDomain,
+    });
   }
 
   public async googleLogin(options: GoogleLoginOptions) {

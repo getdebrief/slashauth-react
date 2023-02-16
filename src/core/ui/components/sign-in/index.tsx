@@ -162,6 +162,9 @@ function SignInRoutes(): JSX.Element {
               <Route path="federated-google">
                 <FederatedGoogleSignIn />
               </Route>
+              <Route path="federated-discord">
+                <FederatedDiscordSignIn />
+              </Route>
               <Route index>
                 <SignInStart />
               </Route>

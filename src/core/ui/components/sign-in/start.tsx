@@ -72,6 +72,8 @@ const _SignInStart = ({ showAllWallets, showBackButton }: Props) => {
             navigate('./magic-link');
           } else if (loginMethod.type === LoginMethodType.FederatedGoogle) {
             navigate('./federated-google');
+          } else if (loginMethod.type === LoginMethodType.FederatedDiscord) {
+            navigate('./federated-discord');
           }
         }
       } finally {

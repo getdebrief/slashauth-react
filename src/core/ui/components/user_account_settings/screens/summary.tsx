@@ -29,6 +29,14 @@ const ConnectionTypeIcon = ({ type }) => {
           alt="Google logo"
         />
       );
+    case 'discord':
+      return (
+        <img
+          style={style}
+          src="https://d1l2xccggl7xwv.cloudfront.net/icons/discord.png"
+          alt="Discord logo"
+        />
+      );
     case 'magic_link':
       return (
         <MailIcon

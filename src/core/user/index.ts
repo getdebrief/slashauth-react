@@ -68,6 +68,13 @@ export class User {
         return this.email;
       case LoginMethodType.FederatedGoogle:
         return this.socials?.google?.email || this.email || this.wallet;
+      case LoginMethodType.FederatedDiscord:
+        return (
+          this.socials?.discord?.email ||
+          this.socials?.discord.username ||
+          this.email ||
+          this.wallet
+        );
       case LoginMethodType.FederatedTwitter:
         return this.socials?.twitter?.handle || this.email || this.wallet;
       default:

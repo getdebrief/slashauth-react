@@ -352,6 +352,14 @@ export class SlashAuth {
           ready: true,
         });
       }
+      if (this.#modalConfig.loginMethods.web2.discord?.enabled) {
+        resp.push({
+          id: 'federated-discord',
+          type: LoginMethodType.FederatedGoogle,
+          name: 'Discord',
+          ready: true,
+        });
+      }
     }
     return resp;
   };

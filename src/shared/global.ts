@@ -29,6 +29,10 @@ export class Account {
     google?: {
       email?: string;
     };
+    discord?: {
+      email?: string;
+      username?: string;
+    };
   };
 }
 
@@ -115,12 +119,19 @@ export interface MagicLinkLoginOptions extends BaseLoginOptions {
 // eslint-disable-next-line @typescript-eslint/no-empty-interface
 export interface GoogleLoginOptions extends BaseLoginOptions {}
 
+// eslint-disable-next-line @typescript-eslint/no-empty-interface
+export interface DiscordLoginOptions extends BaseLoginOptions {}
+
 export interface IdTokenSocials {
   google?: {
     email: string;
   };
   twitter?: {
     handle: string;
+  };
+  discord?: {
+    email?: string;
+    username: string;
   };
 }
 
