@@ -1,76 +1,66 @@
-.dropDown {
-  position: relative;
-  color: #374151;
-  width: fit-content;
-  float: right;
+
+.contentWrapper {
+  min-width: 350px;
+  box-shadow: 0px 4px 13.04px rgba(0, 0, 0, 0.15);
+  border-radius: var(--slashauth-borderRadius, 30px);
+  overflow: hidden;
+  z-index: 2;
+  background: var(--slashauth-backgroundColor, white);
 }
-.badge {
+
+@media only screen and (min-width: 640px) {
+  .contentWrapper {
+    width: 400px;
+  }
+}
+
+.avatarButton {
+  border: 1px solid var(--slashauth-lineColor, #E5E7EB);
+  background: none;
+  border-radius: 200px;
+  padding: 3px;
   cursor: pointer;
-  display: flex;
-  align-items: center;
-  font-weight: 500;
-  font-size: 16px;
-  line-height: 20px;
-  border-radius: 22px;
-}
-.badge.wallet {
-  background-color: white;
-  border: 1px solid #e6e8eb;
-}
-.profilePicture {
-  display: flex;
-}
-.walletDisplay {
-  margin-left: 10px;
-}
-.chevronDown {
-  display: flex;
-  margin-left: 14px;
-  margin-right: 13px;
+  transition: all 0.3s cubic-bezier(0.165, 0.84, 0.44, 1);
 }
 
-.content {
-  position: absolute;
-  right: 0;
-  background: white;
-  min-width: 246px;
-  box-shadow: 0px 2px 8px rgba(0, 0, 0, 0.15);
-  border-radius: 6px;
-  margin-top: 10px;
-}
-
-.dropDownSection {
-  font-size: 12px;
-  line-height: 20px;
-  border-top: 1px solid #e7e9ed;
-}
-
-.dropDownRow {
-  display: flex;
-  padding: 15px;
-}
-
-.dropDownRow.clickable:hover {
-  background-color: #f5f6f7;
-}
-
-.connectedAccountRow {
-  display: flex;
-  align-items: center;
-  padding: 8px 15px;
-}
-
-.connectedAccount {
-  align-items: center;
-  font-size: 12px;
-  line-height: 20px;
-}
-
-.connectedAccount.action {
-  color: blue;
+.signInButton {
+  border: 1px solid #577EFD;
+  background: none;
+  border-radius: 200px;
+  padding: 3px;
   cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.165, 0.84, 0.44, 1); 
 }
 
-.managedWallet {
-  opacity: 40%;
+.avatarButton:hover, .avatarButton[data-state='open'], .signInButton:hover {
+  transform: scale(1.05, 1.05);
+}
+
+
+.horizontalDivider {
+  background-color: var(--slashauth-lineColor, #E5E7EB);
+  height: 1px;
+  border: 0;
+}
+
+.signOut {
+  cursor: pointer;
+  text-decoration: none;
+}
+
+.signOut:hover {
+  color: var(--slashauth-fontColor, #424559);
+  text-decoration: underline;
+}
+
+.inline {
+  display: inline;
+}
+
+.alignMiddle {
+  vertical-align: middle;
+}
+
+.colorFont {
+  color: #577EFD;
 }
