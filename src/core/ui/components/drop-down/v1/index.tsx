@@ -86,7 +86,7 @@ export const DropDown = () => {
   const isLoggedIn = useIsAuthenticated();
   const [copyManagedWalletSuccess, setCopyManagedWalletSuccess] =
     useState(false);
-  const { accountSettings, removeConnection, addConnection, editProfileImage } =
+  const { accountSettings, removeConnection, addConnection } =
     useSlashauthClientUserAccountSettings();
   const { logout, openSignIn } = useSlashAuth();
 
@@ -137,7 +137,6 @@ export const DropDown = () => {
             styles.colorFont
           )}
         />
-        {/* <Avatar size={Size.Small} /> */}
         <Text
           className={classNames(
             styles.inline,
@@ -164,7 +163,6 @@ export const DropDown = () => {
           ) : null}
         </button>
       </Popover.Trigger>
-      {/* <Popover.Anchor /> */}
       <Popover.Portal>
         <Popover.Content collisionPadding={8} className={styles.contentWrapper}>
           <Header.Root>
@@ -176,7 +174,6 @@ export const DropDown = () => {
               <Text size={TextSize.Large}>Alvaro Bernar</Text>
             </Header.Title>
           </Header.Root>
-          {/* <Popover.Close>Close this</Popover.Close> */}
           <Content>
             {accountSettings ? (
               <Section>
@@ -291,7 +288,6 @@ export const DropDown = () => {
                         {copyManagedWalletSuccess ? CheckMarkIcon : copyIcon}
                       </Icon>
                     </div>
-                    {/* <BinIcon onClick={() => console.log('remove')} /> */}
                   </div>
                 )}
                 {emails.length ? (
@@ -372,7 +368,8 @@ export const DropDown = () => {
               <div style={{ display: 'flex', alignItems: 'center' }}>
                 <ArrowRightOnRectangleIcon
                   style={{
-                    height: '16px',
+                    height: '20px',
+                    widtch: '20px',
                     verticalAlign: 'middle',
                     marginRight: '8px',
                     color: '#B6BCC8',
@@ -398,11 +395,6 @@ export const DropDown = () => {
             />
           </Content>
           <Footer />
-          {/* <Popover.Arrow
-            width={20}
-            height={10}
-            className={styles.popoverArrow}
-          /> */}
         </Popover.Content>
       </Popover.Portal>
     </Popover.Root>
