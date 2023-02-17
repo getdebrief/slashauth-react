@@ -355,7 +355,7 @@ export class SlashAuth {
       if (this.#modalConfig.loginMethods.web2.discord?.enabled) {
         resp.push({
           id: 'federated-discord',
-          type: LoginMethodType.FederatedGoogle,
+          type: LoginMethodType.FederatedDiscord,
           name: 'Discord',
           ready: true,
         });
