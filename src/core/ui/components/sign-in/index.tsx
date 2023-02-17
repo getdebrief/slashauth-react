@@ -17,6 +17,7 @@ import { Flow } from '../flow/flow';
 import { ModalContent } from '../modal/modal-content';
 import { ComponentContext, useSignInContext } from './context';
 import { SignInError } from './error';
+import { FederatedDiscordSignIn } from './federated-discord-sign-in';
 import { FederatedGoogleSignIn } from './federated-google-sign-in';
 import { MagicLink } from './magic-link';
 import { SignNonce } from './sign-nonce';
@@ -97,6 +98,14 @@ function SignInRoutes(): JSX.Element {
           ready: true,
         });
       }
+      if (loginMethodConfigOverride.web2.discord?.enabled) {
+        resp.push({
+          id: 'federated-discord',
+          type: LoginMethodType.FederatedDiscord,
+          name: 'Discord',
+          ready: true,
+        });
+      }
     }
     return resp;
   }, [
@@ -161,6 +170,9 @@ function SignInRoutes(): JSX.Element {
               </Route>
               <Route path="federated-google">
                 <FederatedGoogleSignIn />
+              </Route>
+              <Route path="federated-discord">
+                <FederatedDiscordSignIn />
               </Route>
               <Route index>
                 <SignInStart />

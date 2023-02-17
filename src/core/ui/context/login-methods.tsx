@@ -32,6 +32,8 @@ export const getIconsById = (id: string) => {
       return 'https://d1l2xccggl7xwv.cloudfront.net/icons/wallet-connect.png';
     case 'federated-google':
       return 'https://d1l2xccggl7xwv.cloudfront.net/icons/google.png';
+    case 'federated-discord':
+      return 'https://d1l2xccggl7xwv.cloudfront.net/icons/discord.png';
     case 'injected':
       return 'https://d1l2xccggl7xwv.cloudfront.net/icons/injected.png';
     default:

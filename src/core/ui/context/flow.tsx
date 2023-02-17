@@ -13,6 +13,7 @@ type FlowMetadata = {
     | 'emailLinkVerify'
     | 'emailLinkStatus'
     | 'federatedGoogle'
+    | 'federatedDiscord'
     | 'error'
     | 'popover'
     | 'complete';

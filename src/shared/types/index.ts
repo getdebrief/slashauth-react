@@ -50,6 +50,9 @@ export interface SlashAuthLoginMethodConfig {
     google?: {
       enabled: boolean;
     };
+    discord?: {
+      enabled: boolean;
+    };
   };
 }
 
