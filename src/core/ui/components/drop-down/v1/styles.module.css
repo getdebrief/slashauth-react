@@ -49,6 +49,7 @@
 }
 
 .signOut:hover {
+  color: var(--slashauth-fontColor, #424559);
   text-decoration: underline;
 }
 
