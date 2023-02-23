@@ -21,6 +21,12 @@ straightforward as possible.
 
 ### Fixed
 
+## [2.1.1] - 2023-02-23
+
+### Fixed
+
+- Fixed sign-in modal user experience in mobile [#80](https://github.com/slashauth/slashauth-react/pull/80)
+
 ## [2.0.0] - 2023-02-14
 
 ### Added
