@@ -1,6 +1,8 @@
 import styles from './header.module.css';
 import { useAppearance } from '../../../context/appearance';
 import React from 'react';
+import { useCoreSlashAuth } from '../../../context/core-slashauth';
+import { plusIcon } from '../../drop-down/icons/plusIcon';
 
 const Wrapper = ({ children }) => (
   <header className={styles.wrapper}>{children}</header>
@@ -39,15 +41,26 @@ Logo.displayName = 'Header.Logo';
 export const Header = ({
   title,
   description,
+  closable,
 }: {
   title: string;
   description?: string;
+  closable?: boolean;
 }) => {
+  const slashauth = useCoreSlashAuth();
   const appearance = useAppearance();
   const logoUrl = appearance.modalStyle.iconURL;
 
   return (
     <Wrapper>
+      {closable ? (
+        <button
+          onClick={() => slashauth.closeSignIn()}
+          className={styles.closeButton}
+        >
+          {plusIcon}
+        </button>
+      ) : null}
       <Logo url={logoUrl} alt="Company logo" />
       {description ? (
         <h1 style={{ margin: 0 }}>

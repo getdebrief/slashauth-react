@@ -46,8 +46,9 @@ export const SignInScreen = ({ startLoginWith }) => {
       <Header
         title="Welcome"
         description="Login by selecting an option below"
+        closable
       />
-      <Content>
+      <Content className={styles.scrollable}>
         {web3.length ? (
           <Section>
             <Text component="h2">Web3 Wallets</Text>

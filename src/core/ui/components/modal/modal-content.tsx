@@ -12,7 +12,10 @@ const MAX_HEIGHT_PX = 600;
 
 const baseModalContainerStyles = {
   maxWidth: '524px',
-  width: '100%',
+  width: 'calc(100% - 24px)',
+  maxHeight: 'calc(100% - 24px)',
+  display: 'flex',
+  flexDirection: 'column',
   transition: 'max-height 0.2s ease-in-out',
   WebkitTransition: 'max-height 0.2s ease-in-out',
   overflow: 'hidden',
@@ -107,7 +110,7 @@ export const ModalContent = React.forwardRef<HTMLDivElement, Props>(
     return (
       <div
         className={styles.modalContainer}
-        style={wrapperStyles}
+        style={wrapperStyles as React.CSSProperties}
         ref={(node) => {
           modalRef.current = node;
           if (typeof ref === 'function') {
@@ -122,7 +125,7 @@ export const ModalContent = React.forwardRef<HTMLDivElement, Props>(
           e.stopPropagation();
         }}
       >
-        <div>{children}</div>
+        {children}
       </div>
     );
   }
