@@ -38,3 +38,12 @@
   color: var(--slashauth-headerFontColor, #363849);
   margin-top: 8px;
 }
+
+.closeButton {
+  all: unset;
+  position: absolute;
+  right: 24px;
+  top: 24px;
+  color: var(--slashauth-headerFontColor);
+  transform: rotate(45deg);
+}

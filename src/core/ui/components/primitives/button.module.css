@@ -11,7 +11,7 @@
   font-weight: 500;
 
   background: var(--slashauth-buttonBackgroundColor, #ffffff);
-  border: solid 1px var(--slashauth-lineColor, #E5E7EB);
+  border: 1px solid var(--slashauth-lineColor, #E5E7EB);
 
   cursor: pointer;
   transition: 0.3s;

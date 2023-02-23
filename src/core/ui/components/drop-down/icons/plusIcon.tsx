@@ -8,7 +8,7 @@ export const plusIcon = (
   >
     <path
       d="M7.99967 1.3335V14.6668M14.6663 8.00016L1.33301 8.00016"
-      stroke="#2F5FFC"
+      stroke="currentColor"
       strokeWidth="1.5"
       strokeLinecap="round"
       strokeLinejoin="round"
