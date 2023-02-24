@@ -36,6 +36,8 @@ export const getIconsById = (id: string) => {
       return 'https://d1l2xccggl7xwv.cloudfront.net/icons/discord.png';
     case 'injected':
       return 'https://d1l2xccggl7xwv.cloudfront.net/icons/injected.png';
+    case 'magic-link':
+      return 'https://d1l2xccggl7xwv.cloudfront.net/icons/email.png';
     default:
       return 'https://d1l2xccggl7xwv.cloudfront.net/icons/slashauth-dark.png';
   }
