@@ -21,6 +21,13 @@ straightforward as possible.
 
 ### Fixed
 
+## [2.1.2] - 2023-02-27
+
+### Fixed
+
+- Remove close button for desktop [#81](https://github.com/slashauth/slashauth-react/pull/81)
+- Add magic link icon [#81](https://github.com/slashauth/slashauth-react/pull/81)
+
 ## [2.1.1] - 2023-02-23
 
 ### Fixed
