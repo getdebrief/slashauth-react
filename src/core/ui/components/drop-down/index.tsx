@@ -151,6 +151,105 @@ export const DropDown = () => {
     );
   }
 
+  const connectedPersonalWallet = nonCustodialWallets.length ? (
+    <div className={summaryStyles.actionOnHover}>
+      <div style={{ display: 'flex', alignItems: 'center' }}>
+        <ConnectionTypeIcon type={nonCustodialWallets[0].connectionType} />
+        <Text align={Align.Left} className={summaryStyles.settingsValue}>
+          {shortenEthAddress(nonCustodialWallets[0].displayValue)}
+        </Text>
+        <div data-tip="Check on Etherscan" data-for="etherscan-tooltip">
+          <Icon
+            style={{
+              marginLeft: 8,
+              height: '18px',
+              width: '18px',
+            }}
+            onClick={() => {
+              window.open(
+                `https://etherscan.io/address/${nonCustodialWallets[0].displayValue}`,
+                '_blank'
+              );
+            }}
+          >
+            {EtherscanLogo}
+          </Icon>
+        </div>
+        <ReactTooltip
+          place="top"
+          type="dark"
+          effect="solid"
+          id="etherscan-tooltip"
+        />
+      </div>
+      <BinIcon onClick={() => removeConnection(nonCustodialWallets[0].id)} />
+    </div>
+  ) : null;
+
+  const managedWallet = web3Wallets[0] && (
+    <div className={summaryStyles.actionOnHover}>
+      <div style={{ display: 'flex', alignItems: 'center' }}>
+        <ConnectionTypeIcon type={web3Wallets[0].connectionType} />
+        <Text
+          align={Align.Left}
+          className={summaryStyles.settingsValue}
+          style={{ opacity: 0.6 }}
+        >
+          {shortenEthAddress(web3Wallets[0].displayValue)}
+        </Text>
+        <div data-tip="Check on Etherscan" data-for="etherscan-tooltip">
+          <Icon
+            style={{
+              marginLeft: 8,
+              height: '18px',
+              width: '18px',
+            }}
+            onClick={() => {
+              window.open(
+                `https://etherscan.io/address/${web3Wallets[0].displayValue}`,
+                '_blank'
+              );
+            }}
+          >
+            {EtherscanLogo}
+          </Icon>
+        </div>
+        <ReactTooltip
+          place="top"
+          type="dark"
+          effect="solid"
+          id="etherscan-tooltip"
+        />
+        <Icon
+          style={{
+            cursor: 'pointer',
+            height: '18px',
+            width: '18px',
+          }}
+          onClick={() => {
+            navigator.clipboard.writeText(web3Wallets[0].displayValue);
+            setCopyManagedWalletSuccess(true);
+            setTimeout(() => setCopyManagedWalletSuccess(false), 2000);
+          }}
+        >
+          {copyManagedWalletSuccess ? CheckMarkIcon : copyIcon}
+        </Icon>
+      </div>
+    </div>
+  );
+  const connectedEmail = emails.length ? (
+    <div className={summaryStyles.actionOnHover} key={emails[0].id}>
+      <div style={{ display: 'flex', alignItems: 'center' }}>
+        <ConnectionTypeIcon type={emails[0].connectionType} />
+        <Text align={Align.Left} className={summaryStyles.settingsValue}>
+          {emails[0].displayValue}
+        </Text>
+        <Chip>Verified</Chip>
+      </div>
+      <BinIcon onClick={() => removeConnection(emails[0].id)} />
+    </div>
+  ) : null;
+
   return (
     <Popover.Root>
       <Popover.Trigger asChild>
@@ -171,7 +270,12 @@ export const DropDown = () => {
               src={accountSettings?.defaultProfileImage}
             />
             <Header.Title>
-              <Text size={TextSize.Large}>Alvaro Bernar</Text>
+              <Text size={TextSize.Large}>
+                {accountSettings?.name ||
+                  (nonCustodialWallets[0] &&
+                    shortenEthAddress(nonCustodialWallets[0].displayValue)) ||
+                  (emails[0] && emails[0].displayValue)}
+              </Text>
             </Header.Title>
           </Header.Root>
           <Content>
@@ -184,131 +288,9 @@ export const DropDown = () => {
                 >
                   Connected accounts:
                 </Text>
-                {nonCustodialWallets.length ? (
-                  <div className={summaryStyles.actionOnHover}>
-                    <div style={{ display: 'flex', alignItems: 'center' }}>
-                      <ConnectionTypeIcon
-                        type={nonCustodialWallets[0].connectionType}
-                      />
-                      <Text
-                        align={Align.Left}
-                        className={summaryStyles.settingsValue}
-                      >
-                        {shortenEthAddress(nonCustodialWallets[0].displayValue)}
-                      </Text>
-                      <div
-                        data-tip="Check on Etherscan"
-                        data-for="etherscan-tooltip"
-                      >
-                        <Icon
-                          style={{
-                            marginLeft: 8,
-                            height: '18px',
-                            width: '18px',
-                          }}
-                          onClick={() => {
-                            window.open(
-                              `https://etherscan.io/address/${nonCustodialWallets[0].displayValue}`,
-                              '_blank'
-                            );
-                          }}
-                        >
-                          {EtherscanLogo}
-                        </Icon>
-                      </div>
-                      <ReactTooltip
-                        place="top"
-                        type="dark"
-                        effect="solid"
-                        id="etherscan-tooltip"
-                      />
-                    </div>
-                    <BinIcon
-                      onClick={() =>
-                        removeConnection(nonCustodialWallets[0].id)
-                      }
-                    />
-                  </div>
-                ) : (
-                  <div className={summaryStyles.actionOnHover}>
-                    <div style={{ display: 'flex', alignItems: 'center' }}>
-                      <ConnectionTypeIcon
-                        type={web3Wallets[0].connectionType}
-                      />
-                      <Text
-                        align={Align.Left}
-                        className={summaryStyles.settingsValue}
-                        style={{ opacity: 0.6 }}
-                      >
-                        {shortenEthAddress(web3Wallets[0].displayValue)}
-                      </Text>
-                      <div
-                        data-tip="Check on Etherscan"
-                        data-for="etherscan-tooltip"
-                      >
-                        <Icon
-                          style={{
-                            marginLeft: 8,
-                            height: '18px',
-                            width: '18px',
-                          }}
-                          onClick={() => {
-                            window.open(
-                              `https://etherscan.io/address/${web3Wallets[0].displayValue}`,
-                              '_blank'
-                            );
-                          }}
-                        >
-                          {EtherscanLogo}
-                        </Icon>
-                      </div>
-                      <ReactTooltip
-                        place="top"
-                        type="dark"
-                        effect="solid"
-                        id="etherscan-tooltip"
-                      />
-                      <Icon
-                        style={{
-                          cursor: 'pointer',
-                          height: '18px',
-                          width: '18px',
-                        }}
-                        onClick={() => {
-                          navigator.clipboard.writeText(
-                            web3Wallets[0].displayValue
-                          );
-                          setCopyManagedWalletSuccess(true);
-                          setTimeout(
-                            () => setCopyManagedWalletSuccess(false),
-                            2000
-                          );
-                        }}
-                      >
-                        {copyManagedWalletSuccess ? CheckMarkIcon : copyIcon}
-                      </Icon>
-                    </div>
-                  </div>
-                )}
-                {emails.length ? (
-                  <div
-                    className={summaryStyles.actionOnHover}
-                    key={emails[0].id}
-                  >
-                    <div style={{ display: 'flex', alignItems: 'center' }}>
-                      <ConnectionTypeIcon type={emails[0].connectionType} />
-                      <Text
-                        align={Align.Left}
-                        className={summaryStyles.settingsValue}
-                      >
-                        {emails[0].displayValue}
-                      </Text>
-                      <Chip>Verified</Chip>
-                    </div>
-                    <BinIcon onClick={() => removeConnection(emails[0].id)} />
-                  </div>
-                ) : null}
-                {!nonCustodialWallets.length ? (
+                {connectedPersonalWallet || managedWallet}
+                {connectedEmail}
+                {!connectedPersonalWallet && (
                   <div className={summaryStyles.action} onClick={addWallet}>
                     <div style={{ display: 'flex', alignItems: 'center' }}>
                       <WalletIcon
@@ -328,8 +310,8 @@ export const DropDown = () => {
                       </Text>
                     </div>
                   </div>
-                ) : null}
-                {!emails.length ? (
+                )}
+                {!connectedEmail && (
                   <>
                     <div className={summaryStyles.action} onClick={addEmail}>
                       <div style={{ display: 'flex', alignItems: 'center' }}>
@@ -354,7 +336,7 @@ export const DropDown = () => {
                       </div>
                     </div>
                   </>
-                ) : null}
+                )}
               </Section>
             ) : null}
             <hr
