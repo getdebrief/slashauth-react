@@ -11,7 +11,6 @@ import margin from '../primitives/margin.module.css';
 import { classNames } from '../../../../shared/utils/classnames';
 import { useIsAuthenticated } from '../../../hooks';
 import { ArrowRightOnRectangleIcon } from '../icon/arrow_right_on_rectangle';
-import { useSlashAuth } from '../../../context/legacy-slashauth';
 import padding from '../primitives/padding.module.css';
 import { UserCircleIcon } from '../icon/user_circle';
 import avatarStyles from '../primitives/avatar.module.css';
@@ -28,6 +27,7 @@ import { CheckMarkIcon } from '../icon/check_mark';
 import { copyIcon } from './icons/copyIcon';
 import { WalletIcon } from '../icon/wallet';
 import { LoginMethodType } from '../../context/login-methods';
+import { useCoreSlashAuth } from '../../context/core-slashauth';
 
 // TODO: SLA-1968 - Unify icons
 const ConnectionTypeIcon = ({ type }) => {
@@ -88,7 +88,7 @@ export const DropDown = () => {
     useState(false);
   const { accountSettings, removeConnection, addConnection } =
     useSlashauthClientUserAccountSettings();
-  const { logout, openSignIn } = useSlashAuth();
+  const { logout, openSignIn } = useCoreSlashAuth();
 
   const { emails, web3Wallets, web2Accounts } = useMemo(() => {
     const connections = accountSettings?.connections || [];
