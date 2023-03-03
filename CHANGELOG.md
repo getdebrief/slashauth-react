@@ -21,6 +21,14 @@ straightforward as possible.
 
 ### Fixed
 
+## [2.2.0] - 2023-03-03
+
+Redesigned the profile drop down component:
+
+### Added
+
+- Ability to delete connected account via profile drop down [#79](https://github.com/slashauth/slashauth-react/pull/79)
+
 ## [2.1.2] - 2023-02-27
 
 ### Fixed
