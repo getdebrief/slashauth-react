@@ -4,13 +4,13 @@ import React from 'react';
 import { useCoreSlashAuth } from '../../../context/core-slashauth';
 import { plusIcon } from '../../drop-down/icons/plusIcon';
 
-const Wrapper = ({ children }) => (
-  <header className={styles.wrapper}>{children}</header>
+export const Root = ({ children }) => (
+  <header className={styles.root}>{children}</header>
 );
 
-Wrapper.displayName = 'Header.Wrapper';
+Root.displayName = 'Header.Root';
 
-const Title = <C extends React.ElementType>({
+export const Title = <C extends React.ElementType>({
   component,
   children,
 }: {
@@ -52,7 +52,7 @@ export const Header = ({
   const logoUrl = appearance.modalStyle.iconURL;
 
   return (
-    <Wrapper>
+    <Root>
       {closable ? (
         <button
           onClick={() => slashauth.closeSignIn()}
@@ -70,6 +70,6 @@ export const Header = ({
       ) : (
         <Title component="h1">{title}</Title>
       )}
-    </Wrapper>
+    </Root>
   );
 };

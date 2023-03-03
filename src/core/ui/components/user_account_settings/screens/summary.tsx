@@ -8,8 +8,8 @@ import { useMemo } from 'react';
 import { Icon } from '../../drop-down/icon';
 import { EthLogo } from '../../icon/ethereum-eth-logo';
 import { Chip } from '../../primitives/chip';
-import { Avatar } from '../../primitives/avatar';
-import { MailIcon } from '@heroicons/react/outline';
+import { Avatar, Size } from '../../primitives/avatar';
+import { EnvelopeIcon as MailIcon } from '../../icon/envelope';
 
 // TODO: SLA-1968 - Unify icons
 const ConnectionTypeIcon = ({ type }) => {
@@ -120,6 +120,7 @@ export const SummaryScreen = ({
         Profile Image
       </Text>
       <Avatar
+        size={Size.Large}
         className={margin.top2}
         src={accountSettings.defaultProfileImage}
         onChange={editProfilePicture}
